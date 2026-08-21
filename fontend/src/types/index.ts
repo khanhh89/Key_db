@@ -57,6 +57,7 @@ export interface OrderItem {
   paymentCode: string;
   status: 'PENDING' | 'PAID' | 'CANCELLED';
   deliveredKey?: string;
+  customerEmail?: string;
   createdAt?: string;
   paidAt?: string;
 }

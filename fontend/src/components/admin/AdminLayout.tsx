@@ -266,7 +266,7 @@ export function AdminLayout({ lang, config, onLogout, showToast }: AdminLayoutPr
       {/* Main Content Area */}
       <main className="admin-main">
         <header className="admin-topbar">
-          <div className="topbar-left-wrap" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="topbar-left-wrap" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <button
               className="admin-mobile-toggle-btn"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -276,18 +276,61 @@ export function AdminLayout({ lang, config, onLogout, showToast }: AdminLayoutPr
             </button>
 
             <div className="topbar-title">
-              <h1>{getPageTitle()}</h1>
+              <div style={{ fontSize: '11.5px', color: 'var(--admin-text-muted, #94a3b8)', fontWeight: 600, marginBottom: '2px' }}>
+                ADMIN DASHBOARD › {getPageTitle()}
+              </div>
+              <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 800 }}>{getPageTitle()}</h1>
             </div>
           </div>
 
-          <div className="topbar-right">
+          <div className="topbar-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Live System Status Indicators */}
+            <div className="admin-status-indicators" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="system-pill-online" title="Spring Boot REST API Operational" style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 10px',
+                borderRadius: '20px',
+                fontSize: '11px',
+                fontWeight: 700,
+                background: 'rgba(16, 185, 129, 0.12)',
+                color: '#10b981',
+                border: '1px solid rgba(16, 185, 129, 0.3)'
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
+                API ACTIVE
+              </span>
+            </div>
+
+            {/* Quick View Public Store */}
+            <button
+              onClick={() => navigate('/')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '7px 14px',
+                borderRadius: '10px',
+                fontSize: '12.5px',
+                fontWeight: 'bold',
+                background: 'rgba(56, 189, 248, 0.12)',
+                color: '#38bdf8',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              🌐 {lang === 'vi' ? 'Xem Cửa Hàng' : 'View Store'}
+            </button>
+
             {/* Theme Toggle Button */}
             <button className="admin-theme-btn" onClick={toggleAdminTheme}>
-              {adminTheme === 'light' ? '☀ Giao Diện Trắng' : '☾ Giao Diện Tối'}
+              {adminTheme === 'light' ? '☀ Sáng' : '☾ Tối'}
             </button>
 
             <div className="role-pill">
-              🛡️ {lang === 'vi' ? 'Quyền Hạn: Super Admin' : 'Role: Super Admin'}
+              🛡️ Super Admin
             </div>
           </div>
         </header>

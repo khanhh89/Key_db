@@ -260,6 +260,9 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
       {isModalOpen && (
         <div className="sub-modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="sub-modal-card" onClick={(e) => e.stopPropagation()}>
+            <button className="close" onClick={() => setIsModalOpen(false)} aria-label="Close modal">
+              ×
+            </button>
             <h4>🎁 {editingCoupon ? 'Chỉnh Sửa Mã Giảm Giá' : 'Tạo Mã Giảm Giá Mới'}</h4>
             <form onSubmit={handleSaveCoupon} className="modal-form">
               <div className="form-group">

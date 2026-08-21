@@ -50,6 +50,9 @@ public class OrderEntity {
     @Column(name = "delivered_key")
     private String deliveredKey;
 
+    @Column(name = "customer_email")
+    private String customerEmail;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

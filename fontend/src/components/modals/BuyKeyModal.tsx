@@ -7,6 +7,7 @@ import {
   fetchBankConfigFromBackend,
   fetchKeysFromBackend,
   applyCouponInBackend,
+  saveLocalOrder,
   type PayosLinkData,
   type CouponApplyResult
 } from '../../services/api';
@@ -71,6 +72,36 @@ export function BuyKeyModal({
   const [appliedCoupon, setAppliedCoupon] = useState<CouponApplyResult | null>(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState<boolean>(false);
   const [originalPrice, setOriginalPrice] = useState<number>(0);
+  const [showKeySecret, setShowKeySecret] = useState<boolean>(true);
+
+  const playSuccessChime = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc1.type = 'sine';
+      osc2.type = 'triangle';
+      osc1.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc2.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+      osc1.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2);
+
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start();
+      osc2.start();
+      osc1.stop(ctx.currentTime + 0.8);
+      osc2.stop(ctx.currentTime + 0.8);
+    } catch (e) {}
+  };
 
   // Load bank details and DB keys on mount
   useEffect(() => {
@@ -258,6 +289,13 @@ export function BuyKeyModal({
     return `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
   };
 
+  // Auto save order to local storage whenever order is created or status updates
+  useEffect(() => {
+    if (order) {
+      saveLocalOrder(order);
+    }
+  }, [order]);
+
   // Auto active polling order status every 2s & auto-next on payment success
   useEffect(() => {
     if (!order || order.status === 'PAID') return;
@@ -275,11 +313,13 @@ export function BuyKeyModal({
           const updatedOrder: OrderItem = await res.json();
           if (updatedOrder && updatedOrder.status === 'PAID' && updatedOrder.deliveredKey) {
             setOrder(updatedOrder);
+            saveLocalOrder(updatedOrder);
             clearInterval(interval);
+            playSuccessChime();
             showToast(
               lang === 'vi'
-                ? '🎉 Thanh toán thành công! Key đã tự động nhả.'
-                : 'Payment successful! Key delivered.'
+                ? '🎉 Thanh toán thành công!'
+                : 'Payment successful!'
             );
           }
         }
@@ -300,23 +340,19 @@ export function BuyKeyModal({
   const currentAmount = order ? order.amount : 50000;
 
   const getQrImageUrl = () => {
-    if (payosLink && payosLink.qrCode) {
-      const qr = payosLink.qrCode;
-      if (qr.startsWith('http://') || qr.startsWith('https://') || qr.startsWith('data:image/')) {
-        return qr;
-      }
-      return `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qr)}&size=300x300`;
-    }
-    const cleanAccountNo = bank.accountNo ? bank.accountNo.replaceAll(/\s+/g, '') : '';
     const activeBankId = bank.bankId || 'MB';
-    const activeAccountName = bank.accountName || '';
-    const activeCode = order ? order.paymentCode : 'MODKEY';
-    const encodedName = encodeURIComponent(activeAccountName);
+    const cleanAccountNo = bank.accountNo || '';
+    const encodedName = encodeURIComponent(bank.accountName || '');
+    const activeCode = order ? order.paymentCode : 'MK888';
     const encodedAddInfo = encodeURIComponent(activeCode);
+
+    if (payosLink && (payosLink.qrCode || payosLink.rawQrCode)) {
+      return payosLink.qrCode || payosLink.rawQrCode || '';
+    }
 
     if (cleanAccountNo) {
       const formatTemplates = [
-        `https://img.vietqr.io/image/${activeBankId}-${cleanAccountNo}-compact2.jpg?amount=${currentAmount}&addInfo=${encodedAddInfo}&accountName=${encodedName}`,
+        `https://img.vietqr.io/image/${activeBankId}-${cleanAccountNo}-compact2.png?amount=${currentAmount}&addInfo=${encodedAddInfo}&accountName=${encodedName}`,
         `https://qr.sepay.vn/img?bank=${activeBankId}&acc=${cleanAccountNo}&template=compact&amount=${currentAmount}&des=${encodedAddInfo}`,
         `https://api.vietqr.io/image/${activeBankId}-${cleanAccountNo}-compact.png?amount=${currentAmount}&addInfo=${encodedAddInfo}&accountName=${encodedName}`
       ];
@@ -411,32 +447,167 @@ export function BuyKeyModal({
             )}
           </div>
         ) : order.status === 'PAID' && order.deliveredKey ? (
-          /* Key Delivered Success Step */
-          <div className="key-delivered-step">
-            <div className="success-banner">
-              <div className="success-icon">🎉</div>
-              <h4>{t.paidSuccessTitle}</h4>
+          /* Key Delivered Success Step - 100-Year Masterpiece UI */
+          <div className="key-delivered-step" style={{ padding: '4px 0' }}>
+            <div className="success-banner" style={{
+              textAlign: 'center',
+              padding: '20px 16px',
+              borderRadius: '16px',
+              background: 'radial-gradient(circle at center, rgba(34, 197, 94, 0.15), rgba(15, 23, 42, 0.6))',
+              border: '1px solid rgba(34, 197, 94, 0.3)',
+              marginBottom: '16px',
+              boxShadow: '0 10px 30px rgba(34, 197, 94, 0.15)'
+            }}>
+              <div className="success-icon" style={{ fontSize: '42px', marginBottom: '8px', filter: 'drop-shadow(0 0 12px rgba(34, 197, 94, 0.5))' }}>
+                🏆
+              </div>
+              <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#4ade80', fontFamily: 'var(--font-heading)' }}>
+                {t.paidSuccessTitle}
+              </h4>
+              <p style={{ margin: '4px 0 0 0', fontSize: '12.5px', color: 'var(--txt2)' }}>
+                {lang === 'vi' ? 'Mã bản quyền VIP đã kích hoạt' : 'VIP License key fulfilled & delivered!'}
+              </p>
             </div>
 
-            <div className="delivered-key-box">
-              <label>{t.yourKeyLabel}</label>
-              <div className="key-code-display">
-                <code>{order.deliveredKey}</code>
+            <div className="delivered-key-box" style={{
+              padding: '16px',
+              borderRadius: '16px',
+              background: 'rgba(15, 23, 42, 0.75)',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <label style={{ fontSize: '12.5px', fontWeight: 700, color: 'var(--txt2)' }}>{t.yourKeyLabel}</label>
+                <button
+                  type="button"
+                  onClick={() => setShowKeySecret(!showKeySecret)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#38bdf8',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  {showKeySecret ? '👁️ ' + (lang === 'vi' ? 'Ẩn Key' : 'Hide') : '🙈 ' + (lang === 'vi' ? 'Hiện Key' : 'Show')}
+                </button>
+              </div>
+
+              <div className="key-code-display" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <code style={{
+                  flex: 1,
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  background: 'rgba(0, 0, 0, 0.5)',
+                  border: '1px solid rgba(56, 189, 248, 0.25)',
+                  color: '#38bdf8',
+                  fontFamily: 'monospace',
+                  fontSize: '15px',
+                  fontWeight: 'bold',
+                  letterSpacing: '1px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {showKeySecret ? order.deliveredKey : '••••-••••-••••-••••'}
+                </code>
                 <button
                   className="copy-key-btn"
-                  onClick={() => copyToClipboard(order.deliveredKey!, 'Key')}
+                  onClick={() => copyToClipboard(order.deliveredKey!, 'Key VIP')}
+                  style={{
+                    padding: '12px 16px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #00f2fe, #4facfe)',
+                    color: '#050811',
+                    border: 'none',
+                    fontWeight: 'bold',
+                    fontSize: '13.5px',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 14px rgba(0, 242, 254, 0.35)'
+                  }}
                 >
                   📋 {t.copyBtn}
                 </button>
               </div>
             </div>
 
-            <div className="order-details-mini">
+            {/* Direct 1-Touch Download Buttons */}
+            {(app.ipaUrl || app.downloadUrl) && (
+              <div style={{ marginTop: '16px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {app.ipaUrl && (
+                  <a
+                    href={app.ipaUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      flex: 1,
+                      minWidth: '140px',
+                      padding: '13px 16px',
+                      borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #0284c7, #38bdf8)',
+                      color: '#ffffff',
+                      textDecoration: 'none',
+                      fontWeight: 'bold',
+                      fontSize: '13.5px',
+                      textAlign: 'center',
+                      boxShadow: '0 6px 20px rgba(2, 132, 199, 0.4)',
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    🍎 TẢI MOD iOS (IPA) ➔
+                  </a>
+                )}
+                {app.downloadUrl && (
+                  <a
+                    href={app.downloadUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      flex: 1,
+                      minWidth: '140px',
+                      padding: '13px 16px',
+                      borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #059669, #34d399)',
+                      color: '#ffffff',
+                      textDecoration: 'none',
+                      fontWeight: 'bold',
+                      fontSize: '13.5px',
+                      textAlign: 'center',
+                      boxShadow: '0 6px 20px rgba(5, 150, 105, 0.4)',
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    🤖 TẢI MOD ANDROID (APK) ➔
+                  </a>
+                )}
+              </div>
+            )}
+
+            <div className="order-details-mini" style={{
+              marginTop: '16px',
+              padding: '12px 14px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.06)'
+            }}>
               <div>
                 <span>{t.orderId}</span> <strong>{order.id}</strong>
               </div>
               <div>
-                <span>{t.amountLabel}</span> <strong>{order.amount.toLocaleString()} đ</strong>
+                <span>{t.amountLabel}</span> <strong style={{ color: '#38bdf8' }}>{order.amount.toLocaleString()} đ</strong>
               </div>
               <div>
                 <span>{t.timeLabel}</span>{' '}
@@ -444,8 +615,24 @@ export function BuyKeyModal({
               </div>
             </div>
 
-            <button className="finish-btn" onClick={onClose}>
-              ✓ {lang === 'vi' ? 'ĐÀ HOÀN THÀNH - ĐÓNG CỬA SỔ' : 'DONE - CLOSE'}
+            <button
+              className="finish-btn"
+              onClick={onClose}
+              style={{
+                width: '100%',
+                marginTop: '16px',
+                padding: '14px',
+                borderRadius: '14px',
+                border: 'none',
+                background: 'rgba(255, 255, 255, 0.08)',
+                color: '#ffffff',
+                fontWeight: 'bold',
+                fontSize: '13.5px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              ✓ {lang === 'vi' ? 'HOÀN THÀNH - ĐÓNG CỬA SỔ' : 'DONE - CLOSE'}
             </button>
           </div>
         ) : (

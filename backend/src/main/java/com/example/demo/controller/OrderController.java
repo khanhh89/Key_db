@@ -34,6 +34,9 @@ public class OrderController {
     @Autowired
     private SystemLogService systemLogService;
 
+    @Autowired
+    private com.example.demo.service.EmailService emailService;
+
     @Value("${payos.client-id:}")
     private String clientId;
 
@@ -49,10 +52,16 @@ public class OrderController {
         if (com.example.demo.util.AdminSecurityUtil.isValidAdmin(adminAuth)) {
             return orders;
         }
-        return orders.stream().map(this::maskOrderEntity).collect(java.util.stream.Collectors.toList());
+        // Omit deliveredKey for public API security
+        List<OrderEntity> maskedList = new ArrayList<>();
+        for (OrderEntity o : orders) {
+            maskedList.add(maskOrder(o));
+        }
+        return maskedList;
     }
 
-    private OrderEntity maskOrderEntity(OrderEntity original) {
+    private OrderEntity maskOrder(OrderEntity original) {
+        if (original == null) return null;
         return OrderEntity.builder()
                 .id(original.getId())
                 .appId(original.getAppId())
@@ -63,6 +72,7 @@ public class OrderController {
                 .paymentCode(original.getPaymentCode())
                 .status(original.getStatus())
                 .deliveredKey(null) // Mask and omit delivered keys in public API calls
+                .customerEmail(original.getCustomerEmail())
                 .createdAt(original.getCreatedAt())
                 .paidAt(original.getPaidAt())
                 .build();
@@ -81,6 +91,7 @@ public class OrderController {
                 .appName(orderReq.getAppName() != null ? orderReq.getAppName() : "MOD VIP KEY")
                 .amount(orderReq.getAmount() > 0 ? orderReq.getAmount() : 50000.0)
                 .durationDays(orderReq.getDurationDays() != null ? orderReq.getDurationDays() : 30)
+                .customerEmail(orderReq.getCustomerEmail())
                 .paymentCode(paymentCode)
                 .status("PENDING")
                 .createdAt(LocalDateTime.now())
@@ -304,6 +315,11 @@ public class OrderController {
 
     private void fulfillOrderKey(OrderEntity order) {
         fulfillOrderKeyStatic(order, licenseKeyRepository, orderRepository);
+        try {
+            emailService.sendKeyEmail(order);
+        } catch (Exception e) {
+            System.err.println(">>> Failed to send email in OrderController: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

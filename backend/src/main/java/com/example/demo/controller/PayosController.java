@@ -38,6 +38,9 @@ public class PayosController {
     @Autowired
     private LicenseKeyRepository licenseKeyRepository;
 
+    @Autowired
+    private com.example.demo.service.EmailService emailService;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     @PostMapping("/create-payment-link")
@@ -338,6 +341,11 @@ public class PayosController {
                     if (!"PAID".equals(order.getStatus())) {
                         // Release key from CSDL MySQL strictly matching package and price
                         OrderController.fulfillOrderKeyStatic(order, licenseKeyRepository, orderRepository);
+                        try {
+                            emailService.sendKeyEmail(order);
+                        } catch (Exception mailErr) {
+                            System.err.println(">>> [Webhook Mail Error] " + mailErr.getMessage());
+                        }
                     }
                     res.put("error", 0);
                     res.put("message", "Payment processed & Key pushed from MySQL CSDL successfully!");

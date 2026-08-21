@@ -2,7 +2,7 @@ import type { OrderItem } from '../types';
 import { API_BASE_URL, refreshAdminRollingToken } from './authApi';
 
 // Local Storage Helper for Orders (Auto purge PENDING orders >15 minutes)
-function getLocalOrders(): OrderItem[] {
+export function getLocalOrders(): OrderItem[] {
   try {
     const saved = localStorage.getItem('modlienquan_orders');
     if (!saved) return [];
@@ -26,10 +26,10 @@ function getLocalOrders(): OrderItem[] {
   }
 }
 
-function saveLocalOrder(order: OrderItem) {
+export function saveLocalOrder(order: OrderItem) {
   try {
     const current = getLocalOrders();
-    const filtered = current.filter((o) => o.id !== order.id);
+    const filtered = current.filter((o) => o.id !== order.id && o.paymentCode !== order.paymentCode);
     const updated = [order, ...filtered];
     localStorage.setItem('modlienquan_orders', JSON.stringify(updated));
   } catch (e) {
@@ -38,12 +38,18 @@ function saveLocalOrder(order: OrderItem) {
 }
 
 // Create purchase order for an app key
-export async function createOrderInBackend(appId: string, appName: string, amount: number, durationDays?: number): Promise<OrderItem> {
+export async function createOrderInBackend(
+  appId: string,
+  appName: string,
+  amount: number,
+  durationDays?: number,
+  customerEmail?: string
+): Promise<OrderItem> {
   try {
     const res = await fetch(`${API_BASE_URL}/orders/create`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ appId, appName, amount, durationDays })
+      body: JSON.stringify({ appId, appName, amount, durationDays, customerEmail })
     });
     if (res.ok) {
       const data: OrderItem = await res.json();
@@ -61,6 +67,7 @@ export async function createOrderInBackend(appId: string, appName: string, amoun
     appName,
     amount,
     durationDays,
+    customerEmail,
     paymentCode: randomCode,
     status: 'PENDING',
     createdAt: new Date().toISOString()
