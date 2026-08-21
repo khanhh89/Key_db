@@ -22,12 +22,16 @@ export async function fetchAppsFromBackend(): Promise<AppItem[]> {
         const freeKey = item.freeKey !== undefined && item.freeKey !== null && item.freeKey !== ''
           ? item.freeKey
           : (localItem?.freeKey || '');
+        const tags = item.tags
+          ? item.tags.split(',').map((t: string) => t.trim()).filter(Boolean)
+          : (localItem?.tags || undefined);
 
         return {
           ...item,
           allowSellKey,
           allowFreeKey,
           freeKey,
+          tags,
           updatedAt: item.updatedAt || new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
           shots: item.shots ? item.shots.split(',').map((s: string) => s.trim()).filter(Boolean) : null
         };
@@ -55,6 +59,7 @@ export async function saveAppToBackend(app: AppItem, isEditMode: boolean): Promi
     allowSellKey: app.allowSellKey !== undefined ? app.allowSellKey : true,
     allowFreeKey: app.allowFreeKey !== undefined ? app.allowFreeKey : true,
     freeKey: app.freeKey || '',
+    tags: app.tags && app.tags.length > 0 ? app.tags.join(', ') : '',
     updatedAt: app.updatedAt || new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
   };
 
@@ -93,6 +98,7 @@ export async function saveAppToBackend(app: AppItem, isEditMode: boolean): Promi
         allowSellKey: data.allowSellKey !== undefined && data.allowSellKey !== null ? Boolean(data.allowSellKey) : app.allowSellKey,
         allowFreeKey: data.allowFreeKey !== undefined && data.allowFreeKey !== null ? Boolean(data.allowFreeKey) : app.allowFreeKey,
         freeKey: data.freeKey || app.freeKey || '',
+        tags: data.tags ? data.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : app.tags,
         updatedAt: data.updatedAt || new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
         shots: data.shots ? data.shots.split(',').map((s: string) => s.trim()).filter(Boolean) : null
       };

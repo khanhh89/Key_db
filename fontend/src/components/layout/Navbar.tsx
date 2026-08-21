@@ -17,17 +17,20 @@ export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: N
   const navigate = useNavigate();
   const t = getTranslation(lang).nav;
 
-  // Secret keyboard shortcut to open Admin Portal: Ctrl + Shift + A
+  // Secret keyboard shortcut: Ctrl + Shift + A (Admin Portal), Ctrl + K (Order Lookup)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault();
         navigate('/admin');
+      } else if (e.ctrlKey && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        onOpenLookup();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [navigate]);
+  }, [navigate, onOpenLookup]);
 
   // Dynamically update browser tab favicon icon
   useEffect(() => {
@@ -60,37 +63,45 @@ export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: N
   return (
     <header className="navbar-wrap">
       <nav className="navbar">
-        <a className="nav-logo" href="#about">
-          {config.faviconUrl ? (
-            <img
-              src={config.faviconUrl}
-              alt={config.brandName || 'Logo'}
-              onClick={() => navigate('/admin')}
-              title="● Portal Admin"
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                objectFit: 'cover',
-                marginRight: '8px',
-                verticalAlign: 'middle',
-                border: '1px solid rgba(0, 242, 254, 0.4)',
-                cursor: 'pointer'
-              }}
-            />
-          ) : (
-            <span
-              className="apple"
-              onClick={() => navigate('/admin')}
-              onDoubleClick={() => navigate('/admin')}
-              title="● Portal Admin"
-              style={{ cursor: 'pointer' }}
-            >
-              ●
-            </span>
-          )}
-          {config.brandName ? ` ${config.brandName}` : ''}
-        </a>
+        <div className="nav-brand-container">
+          <a className="nav-logo" href="#about">
+            {config.faviconUrl ? (
+              <img
+                src={config.faviconUrl}
+                alt={config.brandName || 'Logo'}
+                onClick={() => navigate('/admin')}
+                title="● Portal Admin"
+                style={{
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '10px',
+                  objectFit: 'cover',
+                  marginRight: '8px',
+                  verticalAlign: 'middle',
+                  border: '1.5px solid rgba(0, 242, 254, 0.5)',
+                  boxShadow: '0 0 12px rgba(0, 242, 254, 0.3)',
+                  cursor: 'pointer'
+                }}
+              />
+            ) : (
+              <span
+                className="apple"
+                onClick={() => navigate('/admin')}
+                onDoubleClick={() => navigate('/admin')}
+                title="● Portal Admin"
+                style={{ cursor: 'pointer' }}
+              >
+                ●
+              </span>
+            )}
+            <span className="brand-title">{config.brandName || 'MOD VIP STORE'}</span>
+          </a>
+
+          <div className="system-online-badge">
+            <span className="online-dot" />
+            <span>ONLINE 99.9%</span>
+          </div>
+        </div>
 
         <ul className="nav-links">
           <li>
@@ -108,8 +119,9 @@ export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: N
         </ul>
 
         <div className="nav-right">
-          <button className="lookup-action-btn" onClick={handleOpenLookup}>
-            🔍 {lang === 'vi' ? 'Tra cứu đơn' : 'Check Order'}
+          <button className="lookup-action-btn" onClick={handleOpenLookup} title="Nhấn Ctrl + K để tra cứu nhanh">
+            <span>🔍 {lang === 'vi' ? 'Tra cứu đơn' : 'Check Order'}</span>
+            <kbd className="nav-kbd">Ctrl K</kbd>
           </button>
 
           <div className="lang-box">
@@ -131,6 +143,7 @@ export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: N
             className="theme-btn"
             aria-label="Toggle Theme"
             onClick={handleToggleTheme}
+            title={dark ? 'Chuyển sang giao diện Sáng' : 'Chuyển sang giao diện Tối'}
           >
             {dark ? '☀' : '☾'}
           </button>

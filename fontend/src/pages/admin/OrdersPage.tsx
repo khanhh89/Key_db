@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { OrderItem, Language } from '../../types';
 import {
   fetchAllOrdersFromBackend,
@@ -43,6 +43,10 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
   // Deletion states
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
   const [isClearingAll, setIsClearingAll] = useState(false);
+
+  // Search & Status Filter States
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'PAID' | 'PENDING'>('all');
 
   // Bank & PayOS Config States
   const [bankId, setBankId] = useState('');
@@ -89,7 +93,6 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
     showToast(lang === 'vi' ? 'Đã xóa toàn bộ lịch sử đơn hàng!' : 'Cleared all orders!');
     setIsClearingAll(false);
   };
-
 
   const handleManualConfirm = async (orderId: string) => {
     showToast(lang === 'vi' ? `⚡ Đang xử lý xác nhận đơn hàng ${orderId}...` : `Processing order ${orderId}...`);
@@ -141,6 +144,47 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
   const totalRevenue = orders
     .filter((o) => o.status === 'PAID')
     .reduce((sum, o) => sum + o.amount, 0);
+
+  const filteredOrders = orders.filter((o) => {
+    const matchesSearch =
+      o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (o.appName && o.appName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (o.paymentCode && o.paymentCode.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (o.deliveredKey && o.deliveredKey.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    if (!matchesSearch) return false;
+
+    if (statusFilter === 'PAID') return o.status === 'PAID';
+    if (statusFilter === 'PENDING') return o.status !== 'PAID';
+    return true;
+  });
+
+  const exportOrdersCSV = () => {
+    if (filteredOrders.length === 0) {
+      showToast(lang === 'vi' ? 'Không có đơn hàng nào để xuất!' : 'No orders to export!');
+      return;
+    }
+    const headers = ['Mã Đơn', 'App Game', 'Số Tiền (VNĐ)', 'Mã CK', 'Trạng Thái', 'Thời Gian', 'Key Đã Giao'];
+    const rows = filteredOrders.map((o) => [
+      o.id,
+      `"${o.appName || o.appId}"`,
+      o.amount,
+      o.paymentCode || '',
+      o.status,
+      formatDateTime(o.paidAt || o.createdAt),
+      `"${o.deliveredKey || ''}"`
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `don_hang_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(lang === 'vi' ? '📥 Đã xuất file CSV lịch sử đơn hàng!' : 'Exported CSV file!');
+  };
 
   const sampleQrUrl = `https://img.vietqr.io/image/${bankId}-${accNo}-compact2.png?amount=50000&addInfo=MKDEMO&accountName=${encodeURIComponent(accName)}`;
 
@@ -329,7 +373,7 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
       {/* ORDERS LIST TAB */}
       {activeTab === 'orders' && (
         <>
-          {/* REVENUE OVERVIEW */}
+          {/* REVENUE OVERVIEW & TOOLBAR */}
           <div className="order-stats-bar">
             <div className="order-stat">
               <span>TỔNG DOANH THU:</span>
@@ -343,16 +387,63 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
               <span>ĐÃ THANH TOÁN:</span>
               <strong className="paid-text">{orders.filter((o) => o.status === 'PAID').length} Đơn</strong>
             </div>
-            {orders.length > 0 && (
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
               <button
                 type="button"
-                className="delete-btn"
-                onClick={() => setIsClearingAll(true)}
-                style={{ marginLeft: 'auto', padding: '6px 14px' }}
+                className="add-btn"
+                onClick={exportOrdersCSV}
+                style={{ padding: '6px 14px', fontSize: '13px' }}
               >
-                🗑 {lang === 'vi' ? 'Xóa Tất Cả Đơn Hàng' : 'Clear All Orders'}
+                📥 {lang === 'vi' ? 'Xuất File CSV' : 'Export CSV'}
               </button>
-            )}
+              {orders.length > 0 && (
+                <button
+                  type="button"
+                  className="delete-btn"
+                  onClick={() => setIsClearingAll(true)}
+                  style={{ padding: '6px 14px', fontSize: '13px' }}
+                >
+                  🗑 {lang === 'vi' ? 'Xóa Tất Cả' : 'Clear All'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* SEARCH & STATUS FILTER TOOLBAR */}
+          <div className="orders-filter-toolbar">
+            <div className="search-box">
+              <span>🔍</span>
+              <input
+                type="text"
+                placeholder={lang === 'vi' ? 'Tìm theo Mã Đơn, Tên App, Mã CK, Key...' : 'Search by ID, App, Code, Key...'}
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+              />
+              {searchTerm && (
+                <button className="clear-btn" onClick={() => setSearchTerm('')}>✕</button>
+              )}
+            </div>
+
+            <div className="status-filter-pills">
+              <button
+                className={`pill-btn ${statusFilter === 'all' ? 'active' : ''}`}
+                onClick={() => { setStatusFilter('all'); setCurrentPage(1); }}
+              >
+                Tất cả ({orders.length})
+              </button>
+              <button
+                className={`pill-btn paid ${statusFilter === 'PAID' ? 'active' : ''}`}
+                onClick={() => { setStatusFilter('PAID'); setCurrentPage(1); }}
+              >
+                ✅ Đã Thanh Toán ({orders.filter((o) => o.status === 'PAID').length})
+              </button>
+              <button
+                className={`pill-btn pending ${statusFilter === 'PENDING' ? 'active' : ''}`}
+                onClick={() => { setStatusFilter('PENDING'); setCurrentPage(1); }}
+              >
+                ⏳ Đang Chờ ({orders.filter((o) => o.status !== 'PAID').length})
+              </button>
+            </div>
           </div>
 
           {/* ORDERS TABLE */}
@@ -371,72 +462,80 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
                 </tr>
               </thead>
               <tbody>
-                {orders.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((ord) => (
-                  <tr key={ord.id}>
-                    <td><strong>{ord.id}</strong></td>
-                    <td>{ord.appName}</td>
-                    <td><strong className="price">{ord.amount.toLocaleString()} đ</strong></td>
-                    <td><code>{ord.paymentCode}</code></td>
-                    <td>
-                      <span className={`status-badge ${ord.status === 'PAID' ? 'available' : 'pending'}`}>
-                        {ord.status === 'PAID' ? '✓ ĐÃ THANH TOÁN' : '⏳ CHỜ CHUYỂN KHOẢN'}
-                      </span>
-                    </td>
-                    <td>
-                      {ord.status === 'PAID' ? (
-                        <div style={{ fontSize: '12px' }}>
-                          <span style={{ color: '#4ade80', fontWeight: 600 }}>
-                            ✓ TT: {formatDateTime(ord.paidAt || ord.createdAt)}
-                          </span>
-                          {ord.createdAt && ord.paidAt && (
-                            <div style={{ fontSize: '11px', opacity: 0.7 }}>
-                              Tạo: {formatDateTime(ord.createdAt)}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span style={{ fontSize: '12px', opacity: 0.7 }}>
-                          Tạo: {formatDateTime(ord.createdAt)}
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      {ord.deliveredKey ? (
-                        <code className="key-table-code">{ord.deliveredKey}</code>
-                      ) : (
-                        <small className="muted">-</small>
-                      )}
-                    </td>
-                    <td>
-                      <div className="btn-group">
-                        {ord.status !== 'PAID' && (
-                          <button
-                            type="button"
-                            className="edit-btn"
-                            onClick={() => handleManualConfirm(ord.id)}
-                          >
-                            ⚡ {lang === 'vi' ? 'Xác Nhận' : 'Confirm'}
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          className="delete-btn"
-                          onClick={() => setDeletingOrderId(ord.id)}
-                        >
-                          🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
-                        </button>
-                      </div>
+                {filteredOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} style={{ textAlign: 'center', padding: '2.5rem', color: '#94a3b8' }}>
+                      {lang === 'vi' ? 'Không tìm thấy đơn hàng nào phù hợp' : 'No matching orders found'}
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((ord) => (
+                    <tr key={ord.id}>
+                      <td><strong>{ord.id}</strong></td>
+                      <td>{ord.appName || ord.appId}</td>
+                      <td><strong className="price">{ord.amount.toLocaleString()} đ</strong></td>
+                      <td><code>{ord.paymentCode}</code></td>
+                      <td>
+                        <span className={`status-badge ${ord.status === 'PAID' ? 'available' : 'pending'}`}>
+                          {ord.status === 'PAID' ? '✓ ĐÃ THANH TOÁN' : '⏳ CHỜ CHUYỂN KHOẢN'}
+                        </span>
+                      </td>
+                      <td>
+                        {ord.status === 'PAID' ? (
+                          <div style={{ fontSize: '12px' }}>
+                            <span style={{ color: '#4ade80', fontWeight: 600 }}>
+                              ✓ TT: {formatDateTime(ord.paidAt || ord.createdAt)}
+                            </span>
+                            {ord.createdAt && ord.paidAt && (
+                              <div style={{ fontSize: '11px', opacity: 0.7 }}>
+                                Tạo: {formatDateTime(ord.createdAt)}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{ fontSize: '12px', opacity: 0.7 }}>
+                            Tạo: {formatDateTime(ord.createdAt)}
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        {ord.deliveredKey ? (
+                          <code className="key-table-code">{ord.deliveredKey}</code>
+                        ) : (
+                          <small className="muted">-</small>
+                        )}
+                      </td>
+                      <td>
+                        <div className="btn-group">
+                          {ord.status !== 'PAID' && (
+                            <button
+                              type="button"
+                              className="edit-btn"
+                              onClick={() => handleManualConfirm(ord.id)}
+                            >
+                              ⚡ {lang === 'vi' ? 'Xác Nhận' : 'Confirm'}
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            className="delete-btn"
+                            onClick={() => setDeletingOrderId(ord.id)}
+                          >
+                            🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
           <Pagination
             currentPage={currentPage}
-            totalPages={Math.ceil(orders.length / pageSize) || 1}
-            totalItems={orders.length}
+            totalPages={Math.ceil(filteredOrders.length / pageSize) || 1}
+            totalItems={filteredOrders.length}
             pageSize={pageSize}
             onPageChange={setCurrentPage}
             onPageSizeChange={(sz) => { setPageSize(sz); setCurrentPage(1); }}

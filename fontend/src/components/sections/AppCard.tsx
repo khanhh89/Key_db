@@ -73,6 +73,26 @@ export function AppCard({
       </div>
 
       <div className="card-glow" />
+
+      {/* App Badge Tags Row */}
+      <div className="app-card-tags">
+        {app.tags && app.tags.length > 0 ? (
+          app.tags.map((tag, idx) => (
+            <span key={idx} className="app-tag tag-custom">
+              {tag}
+            </span>
+          ))
+        ) : (
+          <>
+            {app.ipaUrl && <span className="app-tag tag-ios">🍎 iOS</span>}
+            {app.downloadUrl && <span className="app-tag tag-android">🤖 Android</span>}
+            {app.allowSellKey !== false && <span className="app-tag tag-vip">⚡ AUTO KEY 24/7</span>}
+            {app.allowFreeKey !== false && <span className="app-tag tag-free">🔑 FREE KEY</span>}
+            <span className="app-tag tag-antiban">🛡 ANTI-BAN</span>
+          </>
+        )}
+      </div>
+
       <div className="app-head">
         <div className={'app-icon ' + app.cls}>
           {app.icon && (app.icon.startsWith('http://') || app.icon.startsWith('https://') || app.icon.startsWith('data:image/') || app.icon.startsWith('/')) ? (
@@ -85,32 +105,35 @@ export function AppCard({
             app.icon
           )}
         </div>
-        <div>
+        <div className="app-info">
           <h3>{app.name}</h3>
-          <p>{app.sub}</p>
+          <p className="app-sub-text">{app.sub}</p>
         </div>
       </div>
 
       {app.note && app.note.trim() ? (
         <div className="notice">
           <div className="notice-header">
-            <b>⚠ {lang === 'vi' ? 'Lưu ý:' : 'Notice:'}</b>
+            <b>⚠ {lang === 'vi' ? 'Lưu ý hệ thống:' : 'System Notice:'}</b>
           </div>
           <div className="notice-body">{app.note}</div>
         </div>
       ) : null}
 
-      <div className="updated">
-        ▣ {lang === 'vi'
-          ? `Cập nhật ngày: ${app.updatedAt || new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}`
-          : `Updated: ${app.updatedAt || new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}`}
+      <div className="updated-badge">
+        <span className="updated-icon">▣</span>
+        <span>
+          {lang === 'vi'
+            ? `Cập nhật: ${app.updatedAt || new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}`
+            : `Updated: ${app.updatedAt || new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}`}
+        </span>
       </div>
 
       {app.shots && (
         <div className="shots">
           <div className="shots-title">
-            ▧ {t.menuPreview} {app.name}{' '}
-            <small>{lang === 'vi' ? '(Chạm để xem phóng to)' : '(Tap to view)'}</small>
+            <span>▧ {t.menuPreview}</span>
+            <small>{lang === 'vi' ? '(Chạm xem phóng to)' : '(Tap to view)'}</small>
           </div>
           <div className={'shot-grid ' + (app.shots.length === 3 ? 'three' : '')}>
             {app.shots.map((s, idx) => {
@@ -121,6 +144,7 @@ export function AppCard({
                   key={idx}
                   onClick={() => handleShotClick(s, idx, isImg)}
                   style={isImg ? { padding: 0, overflow: 'hidden' } : undefined}
+                  title={lang === 'vi' ? 'Click xem ảnh menu phóng to' : 'Click to enlarge menu image'}
                 >
                   {isImg ? (
                     <LazyImage
@@ -131,6 +155,7 @@ export function AppCard({
                   ) : (
                     s
                   )}
+                  <div className="shot-zoom-overlay">🔍</div>
                 </button>
               );
             })}
@@ -141,7 +166,8 @@ export function AppCard({
       {app.allowSellKey !== false && (
         <div className="card-buy-section">
           <button className="buy-vip-btn" onClick={handleOpenBuy}>
-            🛒 {t.buyKeyBtn}
+            <span>🛒 {t.buyKeyBtn}</span>
+            <span className="btn-glow-pulse" />
           </button>
         </div>
       )}

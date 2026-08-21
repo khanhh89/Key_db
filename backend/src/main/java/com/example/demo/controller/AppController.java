@@ -79,6 +79,7 @@ public class AppController {
             app.setAllowSellKey(appDetails.getAllowSellKey() != null ? appDetails.getAllowSellKey() : (app.getAllowSellKey() != null ? app.getAllowSellKey() : true));
             app.setAllowFreeKey(appDetails.getAllowFreeKey() != null ? appDetails.getAllowFreeKey() : (app.getAllowFreeKey() != null ? app.getAllowFreeKey() : true));
             app.setFreeKey(appDetails.getFreeKey());
+            app.setTags(appDetails.getTags());
             app.setUpdatedAt(appDetails.getUpdatedAt() != null && !appDetails.getUpdatedAt().trim().isEmpty()
                 ? appDetails.getUpdatedAt()
                 : java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy").format(java.time.LocalDate.now()));

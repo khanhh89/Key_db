@@ -2,10 +2,14 @@ import { useState, useEffect } from 'react';
 import type { AppItem, ServiceItem, SystemConfig, LightboxItem, Language, OrderItem } from '../types';
 import { trackClientEvent } from '../services/api';
 import { CursorGlow } from '../components/common/CursorGlow';
+import { TopNoticeBar } from '../components/layout/TopNoticeBar';
 import { Navbar } from '../components/layout/Navbar';
 import { HeroSection } from '../components/sections/HeroSection';
 import { ServicesSection } from '../components/sections/ServicesSection';
 import { AppsSection } from '../components/sections/AppsSection';
+import { FAQSection } from '../components/sections/FAQSection';
+import { TestimonialsSection } from '../components/sections/TestimonialsSection';
+import { FloatingWidget } from '../components/common/FloatingWidget';
 import { BuyKeyModal } from '../components/modals/BuyKeyModal';
 import { FreeKeyModal } from '../components/modals/FreeKeyModal';
 import { LightboxModal } from '../components/modals/LightboxModal';
@@ -59,6 +63,9 @@ export function HomePage({
 
   return (
     <div className={dark ? 'app dark' : 'app light'} data-lang={lang}>
+      {/* 0. Top System Notice Marquee Strip */}
+      <TopNoticeBar lang={lang} config={config} />
+
       {/* 1. Cursor Spotlight Glow */}
       <CursorGlow />
 
@@ -90,6 +97,8 @@ export function HomePage({
           openFreeKeyModal={setFreeKeyApp}
           showToast={showToast}
         />
+        <FAQSection lang={lang} />
+        <TestimonialsSection lang={lang} />
 
         {buyApp && (
           <BuyKeyModal
@@ -129,6 +138,9 @@ export function HomePage({
           />
         )}
       </main>
+
+      {/* Floating Support & Back To Top Widgets */}
+      <FloatingWidget config={config} lang={lang} />
 
       <Footer lang={lang} config={config} />
     </div>

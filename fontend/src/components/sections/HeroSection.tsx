@@ -50,7 +50,7 @@ export function HeroSection({ lang, config }: HeroSectionProps) {
       <RotatingRings />
 
       <div className="hero-content">
-        <div className="brand-badge floating-anim" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+        <div className="brand-badge floating-anim">
           {config.faviconUrl ? (
             <img
               src={config.faviconUrl}
@@ -60,13 +60,47 @@ export function HeroSection({ lang, config }: HeroSectionProps) {
           ) : (
             <div className="pulse" />
           )}
-          <span>{t.badge}{config.brandName ? ` • ${config.brandName}` : ''}</span>
+          <span className="badge-text">{t.badge}{config.brandName ? ` • ${config.brandName}` : ''}</span>
+          <span className="badge-highlight">OFFICIAL STORE</span>
         </div>
 
+        <h1 className="hero-headline">
+          {config.brandName || 'MOD VIP'} <span className="gradient-text">GAME & LICENSE</span>
+        </h1>
+
         <div className="typing-box">
-          <span className="typing-label">I'M A</span>
+          <span className="typing-label">SPECIALTY</span>
           <span className="typed">{typedText}</span>
           <span className="cursor">|</span>
+        </div>
+
+        <p className="hero-description">
+          {lang === 'vi'
+            ? 'Hệ thống tự động cấp Key bản quyền VIP 24/7, cập nhật liên tục cho iOS (IPA) và Android (APK). Bảo mật, không văng game, hỗ trợ tức thì.'
+            : 'Automated VIP License Key delivery 24/7. Continuous updates for iOS (IPA) and Android (APK). Secure & instant support.'}
+        </p>
+
+        {/* High Class Stats Bar */}
+        <div className="hero-stats-bar">
+          <div className="stat-card">
+            <div className="stat-value">100K+</div>
+            <div className="stat-label">{lang === 'vi' ? 'Key Cấp Tự Động' : 'Keys Delivered'}</div>
+          </div>
+          <div className="stat-divider" />
+          <div className="stat-card">
+            <div className="stat-value">99.9%</div>
+            <div className="stat-label">{lang === 'vi' ? 'Thời Gian Online' : 'Uptime Guarantee'}</div>
+          </div>
+          <div className="stat-divider" />
+          <div className="stat-card">
+            <div className="stat-value">0.5s</div>
+            <div className="stat-label">{lang === 'vi' ? 'Xử Lý Tốc Độ' : 'Instant PayOS QR'}</div>
+          </div>
+          <div className="stat-divider" />
+          <div className="stat-card">
+            <div className="stat-value">24/7</div>
+            <div className="stat-label">{lang === 'vi' ? 'Hỗ Trợ Kỹ Thuật' : 'Live Support'}</div>
+          </div>
         </div>
 
         <div className="contact-title">
@@ -74,17 +108,21 @@ export function HeroSection({ lang, config }: HeroSectionProps) {
         </div>
 
         <div className="social-bar">
-          <a href={config.facebookUrl || '#'} target="_blank" rel="noreferrer" className="hover-lift">
-            <b>f</b> Facebook
+          <a href={config.facebookUrl || '#'} target="_blank" rel="noreferrer" className="social-pill social-fb hover-lift">
+            <span className="social-icon">f</span>
+            <span>Facebook</span>
           </a>
-          <a href={config.messengerUrl || '#'} target="_blank" rel="noreferrer" className="hover-lift">
-            <b>⚡</b> Messenger
+          <a href={config.messengerUrl || '#'} target="_blank" rel="noreferrer" className="social-pill social-msg hover-lift">
+            <span className="social-icon">⚡</span>
+            <span>Messenger</span>
           </a>
-          <a href={config.zaloUrl || '#'} target="_blank" rel="noreferrer" className="hover-lift">
-            <b>Z</b> Zalo
+          <a href={config.zaloUrl || '#'} target="_blank" rel="noreferrer" className="social-pill social-zalo hover-lift">
+            <span className="social-icon">Z</span>
+            <span>Zalo Chat</span>
           </a>
-          <a href={config.telegramUrl || '#'} target="_blank" rel="noreferrer" className="hover-lift">
-            <b>✈</b> Telegram
+          <a href={config.telegramUrl || '#'} target="_blank" rel="noreferrer" className="social-pill social-tele hover-lift">
+            <span className="social-icon">✈</span>
+            <span>Telegram Channel</span>
           </a>
         </div>
       </div>

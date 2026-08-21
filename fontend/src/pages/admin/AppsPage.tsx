@@ -33,6 +33,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
   const [appFreeKey, setAppFreeKey] = useState('');
   const [appAllowSellKey, setAppAllowSellKey] = useState(true);
   const [appAllowFreeKey, setAppAllowFreeKey] = useState(true);
+  const [appTagsStr, setAppTagsStr] = useState('');
 
   const [isUploadingShots, setIsUploadingShots] = useState(false);
   const [shotsUploadProgress, setShotsUploadProgress] = useState<{ current: number; total: number } | null>(null);
@@ -131,6 +132,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
     setAppDownloadUrl('');
     setAppIpaUrl('');
     setAppFreeKey('');
+    setAppTagsStr('');
     setAppAllowSellKey(true);
     setAppAllowFreeKey(true);
     setIsModalOpen(true);
@@ -147,6 +149,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
     setAppDownloadUrl(app.downloadUrl || '');
     setAppIpaUrl(app.ipaUrl || '');
     setAppFreeKey(app.freeKey || '');
+    setAppTagsStr(app.tags ? app.tags.join(', ') : '');
     setAppAllowSellKey(app.allowSellKey !== false);
     setAppAllowFreeKey(app.allowFreeKey !== false);
     setIsModalOpen(true);
@@ -160,6 +163,10 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
       ? appShotsStr.split(',').map((s) => s.trim()).filter(Boolean)
       : null;
 
+    const tagsArray = appTagsStr.trim()
+      ? appTagsStr.split(',').map((t) => t.trim()).filter(Boolean)
+      : undefined;
+
     const isEdit = Boolean(editingApp);
     const appPayload: AppItem = {
       id: editingApp ? editingApp.id : '',
@@ -172,6 +179,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
       downloadUrl: appDownloadUrl,
       ipaUrl: appIpaUrl,
       freeKey: appFreeKey,
+      tags: tagsArray,
       allowSellKey: appAllowSellKey,
       allowFreeKey: appAllowFreeKey,
       updatedAt: new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -507,6 +515,51 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                       Ký tự đại diện icon: <strong style={{ color: '#38bdf8' }}>{appIcon}</strong>
                     </div>
                   ) : null}
+                </div>
+
+                <div className="form-group" style={{ marginTop: '14px' }}>
+                  <label>{lang === 'vi' ? '🏷️ Thẻ Nhãn Nổi Bật Cho Ứng Dụng (Custom Badges / Tags):' : '🏷️ Custom App Badges / Tags:'}</label>
+                  <input
+                    type="text"
+                    value={appTagsStr}
+                    placeholder={lang === 'vi' ? 'VD: Hack Map Liên Quân, 🎮 Delta Roblox, 🍎 Mod iOS IPA, 🤖 Mod Android APK' : 'e.g. Hack Map Liên Quân, 🎮 Delta Roblox'}
+                    onChange={(e) => setAppTagsStr(e.target.value)}
+                  />
+                  <small style={{ fontSize: '11.5px', color: '#94a3b8', display: 'block', marginTop: '4px' }}>
+                    💡 Bấm vào các thẻ gợi ý bên dưới để bật/tắt nhanh hoặc nhập thủ công cách nhau bằng dấu phẩy (,):
+                  </small>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+                    {['Hack Map Liên Quân', '🎮 Delta Roblox', '🍎 Mod iOS IPA', '🤖 Mod Android APK', '⚡ AUTO KEY 24/7', '🛡 ANTI-BAN'].map((tag) => {
+                      const tagsList = appTagsStr ? appTagsStr.split(',').map((t) => t.trim()).filter(Boolean) : [];
+                      const isSelected = tagsList.includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setAppTagsStr(tagsList.filter((t) => t !== tag).join(', '));
+                            } else {
+                              setAppTagsStr([...tagsList, tag].join(', '));
+                            }
+                          }}
+                          style={{
+                            padding: '6px 14px',
+                            borderRadius: '99px',
+                            border: isSelected ? '1px solid #00f2fe' : '1px solid rgba(255,255,255,0.15)',
+                            background: isSelected ? 'rgba(0, 242, 254, 0.2)' : 'rgba(15,23,42,0.6)',
+                            color: isSelected ? '#00f2fe' : '#94a3b8',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          {isSelected ? '✓ ' : '+ '}{tag}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div className="form-grid">

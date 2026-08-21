@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import type { LightboxItem } from '../../types';
 
 interface LightboxModalProps {
@@ -6,31 +7,47 @@ interface LightboxModalProps {
 }
 
 export function LightboxModal({ lightbox, closeLightbox }: LightboxModalProps) {
+  // ESC key listener to close lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [closeLightbox]);
+
   return (
-    <div className="lightbox show" onClick={closeLightbox}>
-      <button onClick={closeLightbox} aria-label="Close preview">
-        ×
-      </button>
-      <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-        {lightbox.imageSrc ? (
-          <img
-            src={lightbox.imageSrc}
-            alt={lightbox.caption}
-            style={{
-              maxWidth: '92vw',
-              maxHeight: '85vh',
-              borderRadius: '20px',
-              border: '2px solid #00f2fe',
-              boxShadow: '0 0 35px rgba(0,242,254,0.5)',
-              objectFit: 'contain',
-              imageRendering: '-webkit-optimize-contrast'
-            }}
-          />
-        ) : (
-          lightbox.label
+    <div className="modal-overlay lightbox-modal-overlay show" onClick={closeLightbox}>
+      <div className="lightbox-card" onClick={(e) => e.stopPropagation()}>
+        <div className="lightbox-header-bar">
+          <span className="lightbox-header-title">🔍 MENU PREVIEW HIGH-RES</span>
+          <button className="lightbox-close-btn" onClick={closeLightbox} aria-label="Close preview" title="Close (ESC)">
+            ✕
+          </button>
+        </div>
+
+        <div className="lightbox-img-container">
+          {lightbox.imageSrc ? (
+            <img
+              src={lightbox.imageSrc}
+              alt={lightbox.caption || 'App Screenshot Preview'}
+              className="lightbox-image"
+            />
+          ) : (
+            <div className="lightbox-placeholder">{lightbox.label}</div>
+          )}
+        </div>
+
+        {lightbox.caption && (
+          <div className="lightbox-caption">
+            <span>📷 {lightbox.caption}</span>
+            <small style={{ color: '#94a3b8', display: 'block', marginTop: '4px' }}>Nhấn ESC hoặc click ngoài để đóng</small>
+          </div>
         )}
       </div>
-      <div className="caption">{lightbox.caption}</div>
     </div>
   );
 }
+

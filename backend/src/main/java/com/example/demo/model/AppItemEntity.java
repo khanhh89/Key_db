@@ -58,6 +58,9 @@ public class AppItemEntity {
     @JsonProperty("freeKey")
     private String freeKey;
 
+    @Column(name = "tags", columnDefinition = "TEXT")
+    private String tags;
+
     @Column(name = "updated_at")
     private String updatedAt;
 }

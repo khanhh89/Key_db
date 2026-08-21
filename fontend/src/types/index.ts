@@ -14,6 +14,7 @@ export interface AppItem {
   allowFreeKey?: boolean;
   freeKey?: string;
   updatedAt?: string;
+  tags?: string[];
 }
 
 export interface ServiceItem {

@@ -505,18 +505,19 @@
 
 /* TABLE APP ICON AVATAR STYLES */
 .table-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 14px;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  border-radius: 16px;
   overflow: hidden;
   display: grid;
   place-items: center;
   font-family: var(--font-heading, 'Outfit', sans-serif);
   font-weight: 900;
-  font-size: 16px;
+  font-size: 18px;
   background: linear-gradient(135deg, #38bdf8, #6366f1);
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+  box-shadow: 0 6px 16px rgba(56, 189, 248, 0.35);
   flex-shrink: 0;
   position: relative;
 }
@@ -527,7 +528,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 14px !important;
+  border-radius: 16px !important;
 }
 
 .user-badge-card {
@@ -2234,6 +2235,315 @@
   margin: 0 !important;
   box-sizing: border-box !important;
 }
+
+/* ==========================================================================
+   ADMIN PORTAL ULTRA HIGH-CLASS STYLES (DASHBOARD & ORDERS OVERHAUL)
+   ========================================================================== */
+
+/* DASHBOARD WELCOME BANNER */
+.dash-welcome-banner {
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.8), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 20px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.admin-portal.light .dash-welcome-banner {
+  background: linear-gradient(135deg, #e0e7ff, #ffffff);
+  border-color: #a5b4fc;
+}
+
+.welcome-text h2 {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 900;
+  margin: 0 0 6px;
+  color: #ffffff;
+}
+
+.admin-portal.light .welcome-text h2 {
+  color: #0f172a;
+}
+
+.welcome-text p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 13.5px;
+}
+
+.welcome-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 900;
+  padding: 8px 16px;
+  border-radius: 99px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.live-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* TWO COLUMNS DASHBOARD LAYOUT */
+.dash-two-cols {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .dash-two-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* QUICK ACTION GRID */
+.quick-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 600px) {
+  .quick-action-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dash-quick-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.6);
+  color: #e2e8f0;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.25s ease;
+}
+
+.admin-portal.light .dash-quick-btn {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.dash-quick-btn:hover {
+  border-color: #38bdf8;
+  transform: translateY(-2px);
+  background: rgba(56, 189, 248, 0.08);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.15);
+}
+
+.dash-quick-btn .btn-icon {
+  font-size: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dash-quick-btn .btn-text strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.dash-quick-btn .btn-text small {
+  color: #94a3b8;
+  font-size: 11.5px;
+}
+
+/* RECENT TRANSACTIONS LIST */
+.recent-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recent-order-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.2s ease;
+}
+
+.admin-portal.light .recent-order-item {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.recent-order-item:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.order-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-tag-pill {
+  font-size: 10px;
+  font-weight: 900;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.status-tag-pill.paid { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.status-tag-pill.pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+.order-item-id {
+  display: block;
+  font-family: monospace;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.admin-portal.light .order-item-id {
+  color: #0f172a;
+}
+
+.order-item-app {
+  color: #94a3b8;
+  font-size: 11.5px;
+}
+
+.order-item-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+}
+
+.order-item-amount {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 14px;
+  color: #10b981;
+}
+
+.order-item-time {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* ORDERS FILTER TOOLBAR */
+.orders-filter-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.orders-filter-toolbar .search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 260px;
+}
+
+.orders-filter-toolbar .search-box span {
+  position: absolute;
+  left: 14px;
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.orders-filter-toolbar .search-box input {
+  width: 100%;
+  padding: 10px 36px 10px 36px;
+  border-radius: 12px;
+  border: 1px solid #1e293b;
+  background: #090d16;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+}
+
+.admin-portal.light .orders-filter-toolbar .search-box input {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.status-filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pill-btn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #1e293b;
+  background: rgba(15, 23, 42, 0.6);
+  color: #94a3b8;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-portal.light .pill-btn {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.pill-btn:hover,
+.pill-btn.active {
+  border-color: #38bdf8;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.pill-btn.paid.active {
+  border-color: #10b981;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.pill-btn.pending.active {
+  border-color: #f59e0b;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.12);
+}
+
 
 
 
