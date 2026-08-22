@@ -8,6 +8,7 @@ import {
   trackClientEvent,
   getLocalOrders
 } from '../../services/api';
+import { copyTextToClipboard } from '../../utils/clipboard';
 
 interface OrderLookupModalProps {
   lang: Language;
@@ -96,9 +97,12 @@ export function OrderLookupModal({ lang, onClose, showToast }: OrderLookupModalP
     setIsVerifying(false);
   };
 
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    showToast(lang === 'vi' ? `Đã sao chép ${label}!` : `Copied ${label}!`);
+  const copyToClipboard = async (text: string, label: string) => {
+    if (!text) return;
+    const success = await copyTextToClipboard(text);
+    if (success) {
+      showToast(lang === 'vi' ? `📋 Đã sao chép ${label} thành công!` : `📋 Copied ${label} successfully!`);
+    }
   };
 
   const clearLocalHistory = () => {
@@ -253,7 +257,13 @@ export function OrderLookupModal({ lang, onClose, showToast }: OrderLookupModalP
                       </button>
                     </div>
                     <div className="key-code-display">
-                      <code>{showSecrets[orderResult.id] ? (orderResult.deliveredKey || 'VIP-KEY-DELIVERED') : '••••-••••-••••-••••'}</code>
+                      <code
+                        onClick={() => copyToClipboard(orderResult.deliveredKey || '', 'Key VIP')}
+                        title={lang === 'vi' ? 'Ấn để sao chép Key VIP' : 'Click to copy VIP Key'}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {showSecrets[orderResult.id] ? (orderResult.deliveredKey || 'VIP-KEY-DELIVERED') : '••••-••••-••••-••••'}
+                      </code>
                       <button
                         className="copy-key-btn"
                         onClick={() => copyToClipboard(orderResult.deliveredKey || '', 'Key VIP')}
@@ -386,21 +396,25 @@ export function OrderLookupModal({ lang, onClose, showToast }: OrderLookupModalP
 
                     {o.status === 'PAID' && o.deliveredKey ? (
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
-                        <code style={{
-                          flex: 1,
-                          padding: '8px 12px',
-                          borderRadius: '10px',
-                          background: 'rgba(0, 0, 0, 0.5)',
-                          border: '1px solid rgba(56, 189, 248, 0.2)',
-                          color: '#38bdf8',
-                          fontFamily: 'monospace',
-                          fontSize: '13.5px',
-                          fontWeight: 'bold',
-                          letterSpacing: '1px',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
-                        }}>
+                        <code
+                          onClick={() => copyToClipboard(o.deliveredKey || '', 'Key VIP')}
+                          title={lang === 'vi' ? 'Ấn để sao chép Key VIP' : 'Click to copy VIP Key'}
+                          style={{
+                            flex: 1,
+                            padding: '8px 12px',
+                            borderRadius: '8px',
+                            background: 'rgba(0, 0, 0, 0.4)',
+                            border: '1px solid rgba(56, 189, 248, 0.2)',
+                            color: '#38bdf8',
+                            fontFamily: 'monospace',
+                            fontSize: '13px',
+                            fontWeight: 'bold',
+                            letterSpacing: '1px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            cursor: 'pointer'
+                          }}>
                           {showSecrets[o.id] ? o.deliveredKey : '••••-••••-••••-••••'}
                         </code>
                         <button

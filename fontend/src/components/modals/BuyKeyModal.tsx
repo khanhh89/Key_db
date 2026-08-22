@@ -13,6 +13,7 @@ import {
   type PayosLinkData,
   type CouponApplyResult
 } from '../../services/api';
+import { copyTextToClipboard } from '../../utils/clipboard';
 
 interface BuyKeyModalProps {
   app: AppItem;
@@ -333,9 +334,12 @@ export function BuyKeyModal({
     return () => clearInterval(interval);
   }, [order, lang, showToast]);
 
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    showToast(lang === 'vi' ? `Đã sao chép ${label}!` : `Copied ${label}!`);
+  const copyToClipboard = async (text: string, label: string) => {
+    if (!text) return;
+    const success = await copyTextToClipboard(text);
+    if (success) {
+      showToast(lang === 'vi' ? `📋 Đã sao chép ${label} thành công!` : `📋 Copied ${label} successfully!`);
+    }
   };
 
   // Determine current active order amount
@@ -501,21 +505,25 @@ export function BuyKeyModal({
               </div>
 
               <div className="key-code-display" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <code style={{
-                  flex: 1,
-                  padding: '12px 14px',
-                  borderRadius: '12px',
-                  background: 'rgba(0, 0, 0, 0.5)',
-                  border: '1px solid rgba(56, 189, 248, 0.25)',
-                  color: '#38bdf8',
-                  fontFamily: 'monospace',
-                  fontSize: '15px',
-                  fontWeight: 'bold',
-                  letterSpacing: '1px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>
+                <code
+                  onClick={() => copyToClipboard(order.deliveredKey!, 'Key VIP')}
+                  title={lang === 'vi' ? 'Ấn để sao chép Key VIP' : 'Click to copy VIP Key'}
+                  style={{
+                    flex: 1,
+                    padding: '12px 14px',
+                    borderRadius: '12px',
+                    background: 'rgba(0, 0, 0, 0.5)',
+                    border: '1px solid rgba(56, 189, 248, 0.25)',
+                    color: '#38bdf8',
+                    fontFamily: 'monospace',
+                    fontSize: '15px',
+                    fontWeight: 'bold',
+                    letterSpacing: '1px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    cursor: 'pointer'
+                  }}>
                   {showKeySecret ? order.deliveredKey : '••••-••••-••••-••••'}
                 </code>
                 <button

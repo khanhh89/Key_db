@@ -12,6 +12,7 @@ import {
 import { ConfirmModal } from '../../components/common/ConfirmModal';
 import { ModalPortal } from '../../components/common/ModalPortal';
 import { Pagination } from '../../components/common/Pagination';
+import { copyTextToClipboard } from '../../utils/clipboard';
 
 interface KeysPageProps {
   lang: Language;
@@ -190,9 +191,12 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
   }, [apps]);
 
   // Quick 1-Click Copy Key Code
-  const handleCopyKey = (code: string) => {
-    navigator.clipboard.writeText(code);
-    showToast(lang === 'vi' ? `📋 Đã sao chép mã Key: ${code}` : `Copied Key Code: ${code}`);
+  const handleCopyKey = async (code: string) => {
+    if (!code) return;
+    const success = await copyTextToClipboard(code);
+    if (success) {
+      showToast(lang === 'vi' ? `📋 Đã sao chép mã Key: ${code}` : `Copied Key Code: ${code}`);
+    }
   };
 
   // 1-Click Export Inventory to CSV File

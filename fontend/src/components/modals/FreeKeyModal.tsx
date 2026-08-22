@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { ModalPortal } from '../common/ModalPortal';
 import type { AppItem, Language } from '../../types';
+import { copyTextToClipboard } from '../../utils/clipboard';
 
 interface FreeKeyModalProps {
   app: AppItem;
@@ -16,22 +18,27 @@ export function FreeKeyModal({
   openBuyModal,
   showToast
 }: FreeKeyModalProps) {
+  const [isCopied, setIsCopied] = useState(false);
   const hasKey = Boolean(app.freeKey && app.freeKey.trim());
   const displayKey = hasKey
     ? app.freeKey!.trim()
     : (lang === 'vi' ? 'Chưa cập nhật' : 'Not updated yet');
 
-  const copyToClipboard = () => {
+  const copyToClipboard = async () => {
     if (!hasKey) {
       showToast(lang === 'vi' ? '⚠️ Admin chưa cập nhật Mã Key Free!' : '⚠️ Free key not updated yet!');
       return;
     }
-    navigator.clipboard.writeText(displayKey);
-    showToast(
-      lang === 'vi'
-        ? `📋 Đã sao chép Key Free: ${displayKey}`
-        : `📋 Copied Free Key: ${displayKey}`
-    );
+    const success = await copyTextToClipboard(displayKey);
+    if (success) {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+      showToast(
+        lang === 'vi'
+          ? `📋 Đã sao chép mã Key Free: ${displayKey}`
+          : `📋 Copied Free Key code: ${displayKey}`
+      );
+    }
   };
 
   return (
@@ -77,6 +84,8 @@ export function FreeKeyModal({
             </div>
 
             <div
+              onClick={copyToClipboard}
+              title={hasKey ? (lang === 'vi' ? 'Ấn để sao chép Key' : 'Click to copy Key') : ''}
               style={{
                 fontSize: '20px',
                 fontFamily: 'monospace',
@@ -89,7 +98,8 @@ export function FreeKeyModal({
                 letterSpacing: '1.5px',
                 wordBreak: 'break-all',
                 userSelect: 'all',
-                marginBottom: hasKey ? '14px' : '0'
+                marginBottom: hasKey ? '14px' : '0',
+                cursor: hasKey ? 'pointer' : 'default'
               }}
             >
               {displayKey}
@@ -106,14 +116,19 @@ export function FreeKeyModal({
                   fontSize: '14px',
                   fontWeight: 'bold',
                   borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                  background: isCopied
+                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                    : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
                   color: '#ffffff',
                   border: 'none',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 14px rgba(34, 197, 94, 0.3)'
+                  boxShadow: '0 4px 14px rgba(34, 197, 94, 0.3)',
+                  transition: 'all 0.2s ease'
                 }}
               >
-                📋 {lang === 'vi' ? 'SAO CHÉP MÃ KEY FREE' : 'COPY FREE KEY'}
+                {isCopied
+                  ? (lang === 'vi' ? '✅ ĐÃ SAO CHÉP MÃ KEY FREE!' : '✅ COPIED FREE KEY!')
+                  : `📋 ${lang === 'vi' ? 'SAO CHÉP MÃ KEY FREE' : 'COPY FREE KEY'}`}
               </button>
             )}
           </div>

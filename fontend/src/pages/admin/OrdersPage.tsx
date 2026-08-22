@@ -11,6 +11,7 @@ import {
 } from '../../services/api';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
 import { Pagination } from '../../components/common/Pagination';
+import { copyTextToClipboard } from '../../utils/clipboard';
 
 interface OrdersPageProps {
   lang: Language;
@@ -500,7 +501,19 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
                       </td>
                       <td>
                         {ord.deliveredKey ? (
-                          <code className="key-table-code">{ord.deliveredKey}</code>
+                          <code
+                            className="key-table-code"
+                            title={lang === 'vi' ? 'Ấn để sao chép Key' : 'Click to copy Key'}
+                            style={{ cursor: 'pointer' }}
+                            onClick={async () => {
+                              const success = await copyTextToClipboard(ord.deliveredKey!);
+                              if (success) {
+                                showToast(lang === 'vi' ? `📋 Đã sao chép Key VIP: ${ord.deliveredKey}` : `Copied VIP Key: ${ord.deliveredKey}`);
+                              }
+                            }}
+                          >
+                            {ord.deliveredKey}
+                          </code>
                         ) : (
                           <small className="muted">-</small>
                         )}
