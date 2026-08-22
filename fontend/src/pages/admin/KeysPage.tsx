@@ -10,6 +10,7 @@ import {
   batchUpdateKeyStatusInBackend
 } from '../../services/api';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
+import { ModalPortal } from '../../components/common/ModalPortal';
 import { Pagination } from '../../components/common/Pagination';
 
 interface KeysPageProps {
@@ -650,208 +651,212 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
       />
 
       {isModalOpen && (
-        <div className="sub-modal-overlay" onClick={() => setIsModalOpen(false)}>
-          <div className="sub-modal-card" onClick={(e) => e.stopPropagation()}>
-            <h4>
-              🔑 {editingKey ? (lang === 'vi' ? 'Chỉnh Sửa Thông Tin Key' : 'Edit License Key') : (lang === 'vi' ? 'Nạp Key Mới Phân Loại Theo Gói' : 'Import New Keys By Package')}
-            </h4>
-            <form onSubmit={handleSaveKey} className="modal-form">
-              <div className="form-group">
-                <label>{lang === 'vi' ? 'Chọn App Catalog (*):' : 'Select App (*):'}</label>
-                <select
-                  value={selectedAppId}
-                  onChange={(e) => setSelectedAppId(e.target.value)}
-                >
-                  {apps.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.name} ({a.sub})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-grid">
+        <ModalPortal>
+          <div className="sub-modal-overlay" onClick={() => setIsModalOpen(false)}>
+            <div className="sub-modal-card" onClick={(e) => e.stopPropagation()}>
+              <h4>
+                🔑 {editingKey ? (lang === 'vi' ? 'Chỉnh Sửa Thông Tin Key' : 'Edit License Key') : (lang === 'vi' ? 'Nạp Key Mới Phân Loại Theo Gói' : 'Import New Keys By Package')}
+              </h4>
+              <form onSubmit={handleSaveKey} className="modal-form">
                 <div className="form-group">
-                  <label>{lang === 'vi' ? 'Số Ngày Thời Hạn (Ngày):' : 'Duration (Days):'}</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={durationDays === 0 ? '' : durationDays}
-                    onChange={(e) => setDurationDays(e.target.value === '' ? 0 : Number(e.target.value))}
-                  />
+                  <label>{lang === 'vi' ? 'Chọn App Catalog (*):' : 'Select App (*):'}</label>
+                  <select
+                    value={selectedAppId}
+                    onChange={(e) => setSelectedAppId(e.target.value)}
+                  >
+                    {apps.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name} ({a.sub})
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>{lang === 'vi' ? 'Số Ngày Thời Hạn (Ngày):' : 'Duration (Days):'}</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={durationDays === 0 ? '' : durationDays}
+                      onChange={(e) => setDurationDays(e.target.value === '' ? 0 : Number(e.target.value))}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>{lang === 'vi' ? 'Giá Bán Gói (VNĐ - Tối thiểu 2,000đ):' : 'Price (VND - Min 2,000):'}</label>
+                    <input
+                      type="number"
+                      min="2000"
+                      step="1000"
+                      value={price === 0 ? '' : price}
+                      onChange={(e) => setPrice(e.target.value === '' ? 0 : Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+
+                {editingKey && (
+                  <div className="form-group">
+                    <label>{lang === 'vi' ? 'Trạng Thái Key:' : 'Key Status:'}</label>
+                    <select
+                      value={editingStatus}
+                      onChange={(e) => setEditingStatus(e.target.value as 'AVAILABLE' | 'SOLD')}
+                    >
+                      <option value="AVAILABLE">● CÒN HÀNG (AVAILABLE)</option>
+                      <option value="SOLD">✓ ĐÃ BÁN (SOLD)</option>
+                    </select>
+                  </div>
+                )}
+
                 <div className="form-group">
-                  <label>{lang === 'vi' ? 'Giá Bán Gói (VNĐ - Tối thiểu 2,000đ):' : 'Price (VND - Min 2,000):'}</label>
+                  <label>
+                    {editingKey
+                      ? (lang === 'vi' ? 'Mã Key Code:' : 'Key Code:')
+                      : (lang === 'vi' ? 'Danh sách Mã Key (Mỗi mã 1 dòng để nạp hàng loạt):' : 'Key Codes (One per line for bulk import):')}
+                  </label>
+                  {editingKey ? (
+                    <input
+                      type="text"
+                      required
+                      value={keyCodeStr}
+                      onChange={(e) => setKeyCodeStr(e.target.value)}
+                    />
+                  ) : (
+                    <textarea
+                      rows={5}
+                      required
+                      value={keyCodeStr}
+                      onChange={(e) => setKeyCodeStr(e.target.value)}
+                    />
+                  )}
+                </div>
+
+                <div className="modal-btn-actions">
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    {lang === 'vi' ? 'Hủy' : 'Cancel'}
+                  </button>
+                  <button type="submit" className="save-btn">
+                    {editingKey ? (lang === 'vi' ? '💾 Lưu Thay Đổi' : '💾 Save Changes') : (lang === 'vi' ? '💾 Nạp Vào Kho' : '💾 Import Keys')}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {isBulkModalOpen && (
+        <ModalPortal>
+          <div className="sub-modal-overlay" onClick={() => setIsBulkModalOpen(false)}>
+            <div className="sub-modal-card" onClick={(e) => e.stopPropagation()}>
+              <h4>
+                💰 {lang === 'vi' ? 'Cập Nhật Giá Bán Hàng Loạt Theo Phân Loại Key' : 'Bulk Update Selling Prices By Key Package'}
+              </h4>
+              <form onSubmit={handleBulkUpdatePrice} className="modal-form">
+                <div className="form-group">
+                  <label>{lang === 'vi' ? 'Chọn Phân Loại / Gói Key (*):' : 'Select Package Category (*):'}</label>
+                  <select
+                    value={bulkDuration}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setBulkDuration(val);
+                      if (val !== 'ALL') {
+                        const d = Number(val);
+                        const sample = keys.find(k => k.durationDays === d && (k.price || k.price === 0));
+                        if (sample && sample.price) setBulkPrice(sample.price);
+                      }
+                    }}
+                  >
+                    <option value="ALL">🌐 Tất Cả Các Gói ({keys.length} Key)</option>
+                    <option value="1">⚡ Gói 1 Ngày ({keys.filter(k => k.durationDays === 1).length} Key)</option>
+                    <option value="7">📅 Gói 7 Ngày - Tuần ({keys.filter(k => k.durationDays === 7).length} Key)</option>
+                    <option value="30">🌟 Gói 30 Ngày - Tháng ({keys.filter(k => k.durationDays === 30).length} Key)</option>
+                    <option value="365">👑 Gói 365 Ngày - Vĩnh Viễn ({keys.filter(k => k.durationDays === 365).length} Key)</option>
+                    {uniqueDurations.filter(d => ![1, 7, 30, 365].includes(d)).map(d => (
+                      <option key={d} value={String(d)}>⏱️ Gói {d} Ngày ({keys.filter(k => k.durationDays === d).length} Key)</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>{lang === 'vi' ? 'Áp Dụng Cho App Catalog (*):' : 'Apply To App Catalog (*):'}</label>
+                  <select
+                    value={bulkAppId}
+                    onChange={(e) => setBulkAppId(e.target.value)}
+                  >
+                    <option value="ALL">🌐 Tất Cả Các App</option>
+                    {apps.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name} ({keys.filter(k => k.appId === a.id).length} Key)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>{lang === 'vi' ? 'Giá Bán Mới Hàng Loạt (VNĐ - Tối thiểu 2,000đ) (*):' : 'New Price (VND - Min 2,000) (*):'}</label>
                   <input
                     type="number"
                     min="2000"
                     step="1000"
-                    value={price === 0 ? '' : price}
-                    onChange={(e) => setPrice(e.target.value === '' ? 0 : Number(e.target.value))}
+                    required
+                    value={bulkPrice === 0 ? '' : bulkPrice}
+                    onChange={(e) => setBulkPrice(e.target.value === '' ? 0 : Number(e.target.value))}
+                    placeholder="Ví dụ: 35000 (Tối thiểu 2,000đ)"
                   />
+                  <small style={{ color: '#94a3b8', marginTop: '4px', display: 'block' }}>
+                    {lang === 'vi' ? '💡 Nhập giá bán mới từ 2,000đ trở lên cho các key thuộc phân loại gói & app được chọn.' : 'Set new price (min 2,000 VND) for selected key package & app.'}
+                  </small>
                 </div>
-              </div>
 
-              {editingKey && (
-                <div className="form-group">
-                  <label>{lang === 'vi' ? 'Trạng Thái Key:' : 'Key Status:'}</label>
-                  <select
-                    value={editingStatus}
-                    onChange={(e) => setEditingStatus(e.target.value as 'AVAILABLE' | 'SOLD')}
+                <label
+                  htmlFor="bulkOnlyAvailable"
+                  className="checkbox-toggle-card"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <input
+                      type="checkbox"
+                      id="bulkOnlyAvailable"
+                      checked={bulkOnlyAvailable}
+                      onChange={(e) => setBulkOnlyAvailable(e.target.checked)}
+                      style={{
+                        width: '18px',
+                        height: '18px',
+                        accentColor: '#38bdf8',
+                        cursor: 'pointer'
+                      }}
+                    />
+                    <span style={{ fontSize: '13px', fontWeight: 600 }}>
+                      {lang === 'vi' ? 'Chỉ áp dụng Key chưa bán (CÒN HÀNG)' : 'Only apply to unsold keys (AVAILABLE)'}
+                    </span>
+                  </div>
+                  <span
+                    className={`status-badge ${bulkOnlyAvailable ? 'available' : 'sold'}`}
+                    style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px' }}
                   >
-                    <option value="AVAILABLE">● CÒN HÀNG (AVAILABLE)</option>
-                    <option value="SOLD">✓ ĐÃ BÁN (SOLD)</option>
-                  </select>
-                </div>
-              )}
-
-              <div className="form-group">
-                <label>
-                  {editingKey
-                    ? (lang === 'vi' ? 'Mã Key Code:' : 'Key Code:')
-                    : (lang === 'vi' ? 'Danh sách Mã Key (Mỗi mã 1 dòng để nạp hàng loạt):' : 'Key Codes (One per line for bulk import):')}
-                </label>
-                {editingKey ? (
-                  <input
-                    type="text"
-                    required
-                    value={keyCodeStr}
-                    onChange={(e) => setKeyCodeStr(e.target.value)}
-                  />
-                ) : (
-                  <textarea
-                    rows={5}
-                    required
-                    value={keyCodeStr}
-                    onChange={(e) => setKeyCodeStr(e.target.value)}
-                  />
-                )}
-              </div>
-
-              <div className="modal-btn-actions">
-                <button
-                  type="button"
-                  className="cancel-btn"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  {lang === 'vi' ? 'Hủy' : 'Cancel'}
-                </button>
-                <button type="submit" className="save-btn">
-                  {editingKey ? (lang === 'vi' ? '💾 Lưu Thay Đổi' : '💾 Save Changes') : (lang === 'vi' ? '💾 Nạp Vào Kho' : '💾 Import Keys')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {isBulkModalOpen && (
-        <div className="sub-modal-overlay" onClick={() => setIsBulkModalOpen(false)}>
-          <div className="sub-modal-card" onClick={(e) => e.stopPropagation()}>
-            <h4>
-              💰 {lang === 'vi' ? 'Cập Nhật Giá Bán Hàng Loạt Theo Phân Loại Key' : 'Bulk Update Selling Prices By Key Package'}
-            </h4>
-            <form onSubmit={handleBulkUpdatePrice} className="modal-form">
-              <div className="form-group">
-                <label>{lang === 'vi' ? 'Chọn Phân Loại / Gói Key (*):' : 'Select Package Category (*):'}</label>
-                <select
-                  value={bulkDuration}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setBulkDuration(val);
-                    if (val !== 'ALL') {
-                      const d = Number(val);
-                      const sample = keys.find(k => k.durationDays === d && (k.price || k.price === 0));
-                      if (sample && sample.price) setBulkPrice(sample.price);
-                    }
-                  }}
-                >
-                  <option value="ALL">🌐 Tất Cả Các Gói ({keys.length} Key)</option>
-                  <option value="1">⚡ Gói 1 Ngày ({keys.filter(k => k.durationDays === 1).length} Key)</option>
-                  <option value="7">📅 Gói 7 Ngày - Tuần ({keys.filter(k => k.durationDays === 7).length} Key)</option>
-                  <option value="30">🌟 Gói 30 Ngày - Tháng ({keys.filter(k => k.durationDays === 30).length} Key)</option>
-                  <option value="365">👑 Gói 365 Ngày - Vĩnh Viễn ({keys.filter(k => k.durationDays === 365).length} Key)</option>
-                  {uniqueDurations.filter(d => ![1, 7, 30, 365].includes(d)).map(d => (
-                    <option key={d} value={String(d)}>⏱️ Gói {d} Ngày ({keys.filter(k => k.durationDays === d).length} Key)</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>{lang === 'vi' ? 'Áp Dụng Cho App Catalog (*):' : 'Apply To App Catalog (*):'}</label>
-                <select
-                  value={bulkAppId}
-                  onChange={(e) => setBulkAppId(e.target.value)}
-                >
-                  <option value="ALL">🌐 Tất Cả Các App</option>
-                  {apps.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.name} ({keys.filter(k => k.appId === a.id).length} Key)
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>{lang === 'vi' ? 'Giá Bán Mới Hàng Loạt (VNĐ - Tối thiểu 2,000đ) (*):' : 'New Price (VND - Min 2,000) (*):'}</label>
-                <input
-                  type="number"
-                  min="2000"
-                  step="1000"
-                  required
-                  value={bulkPrice === 0 ? '' : bulkPrice}
-                  onChange={(e) => setBulkPrice(e.target.value === '' ? 0 : Number(e.target.value))}
-                  placeholder="Ví dụ: 35000 (Tối thiểu 2,000đ)"
-                />
-                <small style={{ color: '#94a3b8', marginTop: '4px', display: 'block' }}>
-                  {lang === 'vi' ? '💡 Nhập giá bán mới từ 2,000đ trở lên cho các key thuộc phân loại gói & app được chọn.' : 'Set new price (min 2,000 VND) for selected key package & app.'}
-                </small>
-              </div>
-
-              <label
-                htmlFor="bulkOnlyAvailable"
-                className="checkbox-toggle-card"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <input
-                    type="checkbox"
-                    id="bulkOnlyAvailable"
-                    checked={bulkOnlyAvailable}
-                    onChange={(e) => setBulkOnlyAvailable(e.target.checked)}
-                    style={{
-                      width: '18px',
-                      height: '18px',
-                      accentColor: '#38bdf8',
-                      cursor: 'pointer'
-                    }}
-                  />
-                  <span style={{ fontSize: '13px', fontWeight: 600 }}>
-                    {lang === 'vi' ? 'Chỉ áp dụng Key chưa bán (CÒN HÀNG)' : 'Only apply to unsold keys (AVAILABLE)'}
+                    {bulkOnlyAvailable ? '● CÒN HÀNG' : 'TẤT CẢ KEY'}
                   </span>
-                </div>
-                <span
-                  className={`status-badge ${bulkOnlyAvailable ? 'available' : 'sold'}`}
-                  style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px' }}
-                >
-                  {bulkOnlyAvailable ? '● CÒN HÀNG' : 'TẤT CẢ KEY'}
-                </span>
-              </label>
+                </label>
 
-              <div className="modal-btn-actions">
-                <button
-                  type="button"
-                  className="cancel-btn"
-                  onClick={() => setIsBulkModalOpen(false)}
-                >
-                  {lang === 'vi' ? 'Hủy' : 'Cancel'}
-                </button>
-                <button type="submit" className="save-btn" disabled={isBulkSubmitting} style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                  {isBulkSubmitting ? '...' : (lang === 'vi' ? '🚀 Cập Nhật Giá Hàng Loạt' : '🚀 Apply Bulk Price')}
-                </button>
-              </div>
-            </form>
+                <div className="modal-btn-actions">
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={() => setIsBulkModalOpen(false)}
+                  >
+                    {lang === 'vi' ? 'Hủy' : 'Cancel'}
+                  </button>
+                  <button type="submit" className="save-btn" disabled={isBulkSubmitting} style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                    {isBulkSubmitting ? '...' : (lang === 'vi' ? '🚀 Cập Nhật Giá Hàng Loạt' : '🚀 Apply Bulk Price')}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

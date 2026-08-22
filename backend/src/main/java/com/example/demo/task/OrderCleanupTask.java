@@ -17,7 +17,7 @@ public class OrderCleanupTask {
     @Scheduled(fixedRate = 30000)
     public void cleanupExpiredOrders() {
         try {
-            LocalDateTime cutoffTime = LocalDateTime.now().minusMinutes(15);
+            LocalDateTime cutoffTime = LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")).minusMinutes(15);
             int deletedCount = orderRepository.deleteExpiredPendingOrders(cutoffTime);
             if (deletedCount > 0) {
                 System.out.println(">>> [OrderCleanupTask] Automatically purged " + deletedCount + " expired pending orders (>15m) from DB!");

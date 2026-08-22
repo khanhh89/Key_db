@@ -94,7 +94,7 @@ public class OrderController {
                 .customerEmail(orderReq.getCustomerEmail())
                 .paymentCode(paymentCode)
                 .status("PENDING")
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")))
                 .build();
 
         OrderEntity savedOrder = orderRepository.save(newOrder);
@@ -127,7 +127,7 @@ public class OrderController {
         // Immediate check & delete from DB if PENDING order is older than 15 minutes
         if ("PENDING".equalsIgnoreCase(order.getStatus())
                 && order.getCreatedAt() != null
-                && order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(15))) {
+                && order.getCreatedAt().isBefore(LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")).minusMinutes(15))) {
             orderRepository.delete(order);
             System.out.println(">>> [OrderController] Instantly deleted expired order (>15m) from DB: " + order.getId());
             return ResponseEntity.notFound().build();
@@ -153,7 +153,7 @@ public class OrderController {
         // Immediate check & delete from DB if PENDING order is older than 15 minutes
         if ("PENDING".equalsIgnoreCase(order.getStatus())
                 && order.getCreatedAt() != null
-                && order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(15))) {
+                && order.getCreatedAt().isBefore(LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")).minusMinutes(15))) {
             orderRepository.delete(order);
             System.out.println(">>> [OrderController] Instantly deleted expired order (>15m) on verify: " + order.getId());
             return ResponseEntity.notFound().build();
@@ -298,7 +298,7 @@ public class OrderController {
         if (availableKeyOpt.isPresent()) {
             LicenseKeyEntity keyEntity = availableKeyOpt.get();
             keyEntity.setStatus("SOLD");
-            keyEntity.setSoldAt(LocalDateTime.now());
+            keyEntity.setSoldAt(LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")));
             licenseKeyRepository.save(keyEntity);
             deliveredKeyCode = keyEntity.getKeyCode();
             order.setKeyId(keyEntity.getId());
@@ -309,7 +309,7 @@ public class OrderController {
 
         order.setStatus("PAID");
         order.setDeliveredKey(deliveredKeyCode);
-        order.setPaidAt(LocalDateTime.now());
+        order.setPaidAt(LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")));
         orderRepository.save(order);
     }
 

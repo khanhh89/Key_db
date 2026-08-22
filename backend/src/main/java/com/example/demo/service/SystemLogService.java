@@ -27,15 +27,16 @@ public class SystemLogService {
             String clientIp = extractClientIp(request);
             String userAgent = request != null ? request.getHeader("User-Agent") : "Unknown";
 
+            LocalDateTime now = LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
             logger.info("AUDIT LOG [{}] | IP: {} | Action: {} | Details: {}",
-                    LocalDateTime.now(), clientIp, action, details);
+                    now, clientIp, action, details);
 
             SystemLogEntity logEntity = SystemLogEntity.builder()
                     .action(action)
                     .clientIp(clientIp)
                     .userAgent(userAgent != null && userAgent.length() > 500 ? userAgent.substring(0, 497) + "..." : userAgent)
                     .details(details)
-                    .createdAt(LocalDateTime.now())
+                    .createdAt(now)
                     .build();
 
             systemLogRepository.save(logEntity);

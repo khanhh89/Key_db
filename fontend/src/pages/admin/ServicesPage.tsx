@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ServiceItem, Language } from '../../types';
 import { saveServiceToBackend, deleteServiceFromBackend, fetchServicesFromBackend } from '../../services/api';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
+import { ModalPortal } from '../../components/common/ModalPortal';
 
 interface ServicesPageProps {
   lang: Language;
@@ -166,78 +167,80 @@ export function ServicesPage({
       />
 
       {isModalOpen && (
-        <div className="sub-modal-overlay" onClick={() => setIsModalOpen(false)}>
-          <div className="sub-modal-card" onClick={(e) => e.stopPropagation()}>
-            <h4>
-              {editingService
-                ? lang === 'vi' ? 'Sửa Dịch Vụ' : 'Edit Service'
-                : lang === 'vi' ? 'Thêm Dịch Vụ Mới' : 'Add New Service'}
-            </h4>
-            <form onSubmit={handleSaveService} className="modal-form">
-              <div className="form-group">
-                <label>{lang === 'vi' ? 'Tên Dịch Vụ / Kênh (*):' : 'Service Title (*):'}</label>
-                <input
-                  type="text"
-                  required
-                  value={srvTitle}
-                  onChange={(e) => setSrvTitle(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>{lang === 'vi' ? 'Mô tả chi tiết:' : 'Description:'}</label>
-                <input
-                  type="text"
-                  value={srvText}
-                  onChange={(e) => setSrvText(e.target.value)}
-                />
-              </div>
-
-              <div className="form-grid">
+        <ModalPortal>
+          <div className="sub-modal-overlay" onClick={() => setIsModalOpen(false)}>
+            <div className="sub-modal-card" onClick={(e) => e.stopPropagation()}>
+              <h4>
+                {editingService
+                  ? lang === 'vi' ? 'Sửa Dịch Vụ' : 'Edit Service'
+                  : lang === 'vi' ? 'Thêm Dịch Vụ Mới' : 'Add New Service'}
+              </h4>
+              <form onSubmit={handleSaveService} className="modal-form">
                 <div className="form-group">
-                  <label>{lang === 'vi' ? 'Ký tự Icon (ví dụ: ◈, ▣, ➤, ♪, ▶):' : 'Icon char:'}</label>
+                  <label>{lang === 'vi' ? 'Tên Dịch Vụ / Kênh (*):' : 'Service Title (*):'}</label>
                   <input
                     type="text"
-                    value={srvIcon}
-                    onChange={(e) => setSrvIcon(e.target.value)}
+                    required
+                    value={srvTitle}
+                    onChange={(e) => setSrvTitle(e.target.value)}
                   />
                 </div>
+
                 <div className="form-group">
-                  <label>{lang === 'vi' ? 'Phối màu Icon:' : 'Icon Color:'}</label>
-                  <select value={srvCls} onChange={(e) => setSrvCls(e.target.value)}>
-                    <option value="cyan">Cyan</option>
-                    <option value="orange">Orange</option>
-                    <option value="blue">Blue</option>
-                    <option value="pink">Pink</option>
-                    <option value="red">Red</option>
-                  </select>
+                  <label>{lang === 'vi' ? 'Mô tả chi tiết:' : 'Description:'}</label>
+                  <input
+                    type="text"
+                    value={srvText}
+                    onChange={(e) => setSrvText(e.target.value)}
+                  />
                 </div>
-              </div>
 
-              <div className="form-group">
-                <label>URL Link:</label>
-                <input
-                  type="text"
-                  value={srvUrl}
-                  onChange={(e) => setSrvUrl(e.target.value)}
-                />
-              </div>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>{lang === 'vi' ? 'Ký tự Icon (ví dụ: ◈, ▣, ➤, ♪, ▶):' : 'Icon char:'}</label>
+                    <input
+                      type="text"
+                      value={srvIcon}
+                      onChange={(e) => setSrvIcon(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>{lang === 'vi' ? 'Phối màu Icon:' : 'Icon Color:'}</label>
+                    <select value={srvCls} onChange={(e) => setSrvCls(e.target.value)}>
+                      <option value="cyan">Cyan</option>
+                      <option value="orange">Orange</option>
+                      <option value="blue">Blue</option>
+                      <option value="pink">Pink</option>
+                      <option value="red">Red</option>
+                    </select>
+                  </div>
+                </div>
 
-              <div className="modal-btn-actions">
-                <button
-                  type="button"
-                  className="cancel-btn"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  {lang === 'vi' ? 'Hủy' : 'Cancel'}
-                </button>
-                <button type="submit" className="save-btn">
-                  {lang === 'vi' ? 'Lưu Thay Đổi' : 'Save Changes'}
-                </button>
-              </div>
-            </form>
+                <div className="form-group">
+                  <label>URL Link:</label>
+                  <input
+                    type="text"
+                    value={srvUrl}
+                    onChange={(e) => setSrvUrl(e.target.value)}
+                  />
+                </div>
+
+                <div className="modal-btn-actions">
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    {lang === 'vi' ? 'Hủy' : 'Cancel'}
+                  </button>
+                  <button type="submit" className="save-btn">
+                    {lang === 'vi' ? 'Lưu Thay Đổi' : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

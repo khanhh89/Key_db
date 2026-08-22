@@ -3,6 +3,7 @@ import type { AppItem, SystemConfig, Language } from '../../types';
 import { saveAppToBackend, deleteAppFromBackend, fetchAppsFromBackend } from '../../services/api';
 import { uploadToCloudinary } from '../../services/cloudinary';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
+import { ModalPortal } from '../../components/common/ModalPortal';
 import { LazyImage } from '../../components/common/LazyImage';
 
 interface AppsPageProps {
@@ -386,7 +387,8 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
       />
 
       {isModalOpen && (
-        <div className="sub-modal-overlay" onClick={() => setIsModalOpen(false)}>
+        <ModalPortal>
+          <div className="sub-modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="app-modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="app-modal-header">
               <h4>
@@ -830,6 +832,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
             </form>
           </div>
         </div>
+        </ModalPortal>
       )}
     </div>
   );

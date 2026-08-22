@@ -167,7 +167,7 @@ public class KeyController {
         for (LicenseKeyEntity key : keys) {
             key.setStatus(status);
             if ("SOLD".equals(status) && key.getSoldAt() == null) {
-                key.setSoldAt(java.time.LocalDateTime.now());
+                key.setSoldAt(java.time.LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")));
             }
         }
         licenseKeyRepository.saveAll(keys);

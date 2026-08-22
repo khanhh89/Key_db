@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ModalPortal } from '../common/ModalPortal';
 import type { Language } from '../../types';
 import { changeAdminPasswordInBackend } from '../../services/api';
 
@@ -52,8 +53,9 @@ export function ChangePasswordModal({ isOpen, onClose, lang, showToast }: Change
   };
 
   return (
-    <div
-      className="modal-overlay"
+    <ModalPortal>
+      <div
+        className="modal-overlay"
       style={{
         position: 'fixed',
         top: 0,
@@ -405,6 +407,7 @@ export function ChangePasswordModal({ isOpen, onClose, lang, showToast }: Change
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 

@@ -1,3 +1,4 @@
+import { ModalPortal } from '../common/ModalPortal';
 import type { AppItem, Language } from '../../types';
 
 interface FreeKeyModalProps {
@@ -34,7 +35,8 @@ export function FreeKeyModal({
   };
 
   return (
-    <div className="sub-modal-overlay" onClick={onClose}>
+    <ModalPortal>
+      <div className="sub-modal-overlay" onClick={onClose}>
       <div
         className="buy-key-modal-card free-key-modal-card"
         onClick={(e) => e.stopPropagation()}
@@ -173,5 +175,6 @@ export function FreeKeyModal({
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 }

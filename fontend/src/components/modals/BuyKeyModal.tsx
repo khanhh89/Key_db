@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ModalPortal } from '../common/ModalPortal';
 import type { AppItem, OrderItem, Language, LicenseKeyItem, BankConfig } from '../../types';
 import {
   API_BASE_URL,
@@ -8,6 +9,7 @@ import {
   fetchKeysFromBackend,
   applyCouponInBackend,
   saveLocalOrder,
+  formatDateTime,
   type PayosLinkData,
   type CouponApplyResult
 } from '../../services/api';
@@ -395,15 +397,16 @@ export function BuyKeyModal({
   const qrImageSrc = getQrImageUrl();
 
   return (
-    <div className="sub-modal-overlay" onClick={onClose}>
-      <div className="buy-key-modal-card" onClick={(e) => e.stopPropagation()}>
-        <button className="close" onClick={onClose}>
-          ×
-        </button>
+    <ModalPortal>
+      <div className="sub-modal-overlay" onClick={onClose}>
+        <div className="buy-key-modal-card" onClick={(e) => e.stopPropagation()}>
+          <button className="close" onClick={onClose}>
+            ×
+          </button>
 
-        <div className="buy-key-header">
-          <h3>🛒 {t.title} {app.name}</h3>
-        </div>
+          <div className="buy-key-header">
+            <h3>🛒 {t.title} {app.name}</h3>
+          </div>
 
         {!order ? (
           /* Package Selection Step - Clean & Direct */
@@ -611,7 +614,7 @@ export function BuyKeyModal({
               </div>
               <div>
                 <span>{t.timeLabel}</span>{' '}
-                <strong>{order.paidAt ? new Date(order.paidAt).toLocaleTimeString() : new Date().toLocaleTimeString()}</strong>
+                <strong>{formatDateTime(order.paidAt || order.createdAt)}</strong>
               </div>
             </div>
 
@@ -788,5 +791,6 @@ export function BuyKeyModal({
         )}
       </div>
     </div>
+    </ModalPortal>
   );
 }

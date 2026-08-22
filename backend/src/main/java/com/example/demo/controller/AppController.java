@@ -52,7 +52,7 @@ public class AppController {
             app.setAllowFreeKey(true);
         }
         if (app.getUpdatedAt() == null || app.getUpdatedAt().trim().isEmpty()) {
-            app.setUpdatedAt(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy").format(java.time.LocalDate.now()));
+            app.setUpdatedAt(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy").format(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"))));
         }
         return ResponseEntity.ok(appRepository.save(app));
     }
@@ -82,7 +82,7 @@ public class AppController {
             app.setTags(appDetails.getTags());
             app.setUpdatedAt(appDetails.getUpdatedAt() != null && !appDetails.getUpdatedAt().trim().isEmpty()
                 ? appDetails.getUpdatedAt()
-                : java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy").format(java.time.LocalDate.now()));
+                : java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy").format(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"))));
             return ResponseEntity.ok(appRepository.save(app));
         }).orElse(ResponseEntity.notFound().build());
     }

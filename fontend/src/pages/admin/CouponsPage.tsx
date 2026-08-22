@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { CouponItem, AppItem, Language } from '../../types';
 import { fetchCouponsFromBackend, saveCouponToBackend, deleteCouponFromBackend } from '../../services/api';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
+import { ModalPortal } from '../../components/common/ModalPortal';
 import { Pagination } from '../../components/common/Pagination';
 
 interface CouponsPageProps {
@@ -258,7 +259,8 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
       />
 
       {isModalOpen && (
-        <div className="sub-modal-overlay" onClick={() => setIsModalOpen(false)}>
+        <ModalPortal>
+          <div className="sub-modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="sub-modal-card" onClick={(e) => e.stopPropagation()}>
             <button className="close" onClick={() => setIsModalOpen(false)} aria-label="Close modal">
               ×
@@ -388,6 +390,7 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
             </form>
           </div>
         </div>
+        </ModalPortal>
       )}
     </div>
   );

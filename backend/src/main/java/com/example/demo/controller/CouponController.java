@@ -111,7 +111,7 @@ public class CouponController {
         CouponEntity coupon = couponOpt.get();
 
         // 1. Check expiration date
-        if (coupon.getValidUntil() != null && coupon.getValidUntil().isBefore(LocalDateTime.now())) {
+        if (coupon.getValidUntil() != null && coupon.getValidUntil().isBefore(LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")))) {
             return ResponseEntity.badRequest().body(Map.of("valid", false, "message", "⏳ Mã giảm giá [" + coupon.getCode() + "] đã hết hạn sử dụng!"));
         }
 

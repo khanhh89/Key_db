@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ModalPortal } from '../common/ModalPortal';
 import type { OrderItem, Language } from '../../types';
 import {
   fetchOrderStatusFromBackend,
@@ -111,7 +112,8 @@ export function OrderLookupModal({ lang, onClose, showToast }: OrderLookupModalP
   const recentCodes: string[] = JSON.parse(localStorage.getItem('modlienquan_recent_orders') || '[]');
 
   return (
-    <div className="sub-modal-overlay" onClick={onClose}>
+    <ModalPortal>
+      <div className="sub-modal-overlay" onClick={onClose}>
       <div className="buy-key-modal-card lookup-modal-card" onClick={(e) => e.stopPropagation()}>
         <button className="close" onClick={onClose} aria-label="Close modal">
           ×
@@ -441,6 +443,7 @@ export function OrderLookupModal({ lang, onClose, showToast }: OrderLookupModalP
         )}
       </div>
     </div>
+    </ModalPortal>
   );
 }
 
