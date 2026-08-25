@@ -231,7 +231,17 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     setKeyCodeStr(key.keyCode);
     setDurationDays(key.durationDays);
     setPrice(key.price);
-    setSelectedPresetId('custom');
+    
+    // Auto match preset package by durationDays & price
+    const matched = presets.find(
+      (p) => p.durationDays === key.durationDays && Math.abs(p.price - key.price) < 1
+    );
+    if (matched) {
+      setSelectedPresetId(matched.id);
+    } else {
+      setSelectedPresetId('custom');
+    }
+
     setEditingStatus(key.status as 'AVAILABLE' | 'SOLD');
     setIsModalOpen(true);
   };
@@ -779,34 +789,32 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                   </select>
                 </div>
 
-                {!editingKey && (
-                  <div className="form-group" style={{ background: 'rgba(99, 102, 241, 0.12)', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.4)', marginBottom: '14px' }}>
-                    <label style={{ color: '#a5b4fc', fontWeight: 'bold', fontSize: '13px', display: 'block', marginBottom: '6px' }}>
-                      💎 {lang === 'vi' ? 'Chọn Gói Giá Có Sẵn (*):' : 'Select Pre-set Package (*):'}
-                    </label>
-                    <select
-                      value={selectedPresetId}
-                      onChange={(e) => handleSelectPreset(e.target.value)}
-                      style={{ fontWeight: 800, color: '#38bdf8', background: '#0f172a', border: '1px solid #38bdf8', padding: '9px 12px', borderRadius: '8px', width: '100%', fontSize: '13.5px' }}
-                    >
-                      {presets.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} — {p.durationDays} Ngày — {p.price.toLocaleString()} VNĐ
-                        </option>
-                      ))}
-                      <option value="custom">✏️ {lang === 'vi' ? 'Tự nhập ngày & giá thủ công...' : 'Enter custom days & price...'}</option>
-                    </select>
+                <div className="form-group" style={{ background: 'rgba(99, 102, 241, 0.12)', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.4)', marginBottom: '14px' }}>
+                  <label style={{ color: '#a5b4fc', fontWeight: 'bold', fontSize: '13px', display: 'block', marginBottom: '6px' }}>
+                    💎 {lang === 'vi' ? 'Chọn Gói Giá Có Sẵn (*):' : 'Select Pre-set Package (*):'}
+                  </label>
+                  <select
+                    value={selectedPresetId}
+                    onChange={(e) => handleSelectPreset(e.target.value)}
+                    style={{ fontWeight: 800, color: '#38bdf8', background: '#0f172a', border: '1px solid #38bdf8', padding: '9px 12px', borderRadius: '8px', width: '100%', fontSize: '13.5px' }}
+                  >
+                    {presets.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} — {p.durationDays} Ngày — {p.price.toLocaleString()} VNĐ
+                      </option>
+                    ))}
+                    <option value="custom">✏️ {lang === 'vi' ? 'Tự nhập ngày & giá thủ công...' : 'Enter custom days & price...'}</option>
+                  </select>
 
-                    {selectedPresetId !== 'custom' && (
-                      <div style={{ display: 'flex', gap: '14px', marginTop: '10px', padding: '8px 12px', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.2)', fontSize: '12.5px' }}>
-                        <span style={{ color: '#38bdf8', fontWeight: 'bold' }}>⏱️ {lang === 'vi' ? 'Hạn dùng:' : 'Duration:'} {durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</span>
-                        <span style={{ color: '#4ade80', fontWeight: 'bold' }}>💰 {lang === 'vi' ? 'Giá bán:' : 'Price:'} {price.toLocaleString()} đ</span>
-                      </div>
-                    )}
-                  </div>
-                )}
+                  {selectedPresetId !== 'custom' && (
+                    <div style={{ display: 'flex', gap: '14px', marginTop: '10px', padding: '8px 12px', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.2)', fontSize: '12.5px' }}>
+                      <span style={{ color: '#38bdf8', fontWeight: 'bold' }}>⏱️ {lang === 'vi' ? 'Hạn dùng:' : 'Duration:'} {durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</span>
+                      <span style={{ color: '#4ade80', fontWeight: 'bold' }}>💰 {lang === 'vi' ? 'Giá bán:' : 'Price:'} {price.toLocaleString()} đ</span>
+                    </div>
+                  )}
+                </div>
 
-                {(editingKey || selectedPresetId === 'custom') && (
+                {selectedPresetId === 'custom' && (
                   <div className="form-grid">
                     <div className="form-group">
                       <label>{lang === 'vi' ? 'Số Ngày Thời Hạn (Ngày):' : 'Duration (Days):'}</label>
