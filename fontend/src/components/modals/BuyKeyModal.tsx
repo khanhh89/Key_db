@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ModalPortal } from '../common/ModalPortal';
 import type { AppItem, OrderItem, Language, LicenseKeyItem, BankConfig } from '../../types';
 import {
@@ -8,6 +8,7 @@ import {
   fetchBankConfigFromBackend,
   fetchKeysFromBackend,
   applyCouponInBackend,
+  releaseCouponInBackend,
   saveLocalOrder,
   formatDateTime,
   type PayosLinkData,
@@ -70,12 +71,40 @@ export function BuyKeyModal({
   const [showManualBankDetails, setShowManualBankDetails] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(900); // 15 minutes
 
-  // Coupon Promo Code States
+  // Coupon Promo Code States & Refs for Auto-Release Cleanup
   const [couponCodeInput, setCouponCodeInput] = useState<string>('');
   const [appliedCoupon, setAppliedCoupon] = useState<CouponApplyResult | null>(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState<boolean>(false);
   const [originalPrice, setOriginalPrice] = useState<number>(0);
   const [showKeySecret, setShowKeySecret] = useState<boolean>(true);
+
+  const activeCouponCodeRef = useRef<string | null>(null);
+  const isOrderPaidRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    activeCouponCodeRef.current = appliedCoupon?.code || null;
+  }, [appliedCoupon]);
+
+  useEffect(() => {
+    isOrderPaidRef.current = order?.status === 'PAID';
+  }, [order?.status]);
+
+  // Clean up coupon usage count if modal is unmounted without completing payment
+  useEffect(() => {
+    return () => {
+      if (activeCouponCodeRef.current && !isOrderPaidRef.current) {
+        releaseCouponInBackend(activeCouponCodeRef.current);
+      }
+    };
+  }, []);
+
+  const handleCloseModal = async () => {
+    if (appliedCoupon && appliedCoupon.code && order?.status !== 'PAID') {
+      await releaseCouponInBackend(appliedCoupon.code);
+      setAppliedCoupon(null);
+    }
+    onClose();
+  };
 
   const playSuccessChime = () => {
     try {
@@ -166,6 +195,13 @@ export function BuyKeyModal({
   const handleApplyCoupon = async () => {
     if (!couponCodeInput.trim()) return;
     setIsApplyingCoupon(true);
+
+    // If another coupon was previously applied, release it first
+    if (appliedCoupon && appliedCoupon.code) {
+      await releaseCouponInBackend(appliedCoupon.code);
+      setAppliedCoupon(null);
+    }
+
     const baseAmount = originalPrice > 0 ? originalPrice : (order ? order.amount : 50000);
     const result = await applyCouponInBackend(couponCodeInput.trim(), baseAmount, app.id);
 
@@ -201,6 +237,9 @@ export function BuyKeyModal({
   };
 
   const handleRemoveCoupon = async () => {
+    if (appliedCoupon && appliedCoupon.code) {
+      await releaseCouponInBackend(appliedCoupon.code);
+    }
     setAppliedCoupon(null);
     setCouponCodeInput('');
     if (order && originalPrice > 0) {
@@ -226,6 +265,11 @@ export function BuyKeyModal({
   };
 
   const handleCreateOrder = async (days: number, basePrice: number) => {
+    if (appliedCoupon && appliedCoupon.code) {
+      await releaseCouponInBackend(appliedCoupon.code);
+      setAppliedCoupon(null);
+      setCouponCodeInput('');
+    }
     setOriginalPrice(basePrice);
     setIsCreating(true);
 
@@ -271,6 +315,10 @@ export function BuyKeyModal({
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
+          if (activeCouponCodeRef.current && !isOrderPaidRef.current) {
+            releaseCouponInBackend(activeCouponCodeRef.current);
+            setAppliedCoupon(null);
+          }
           setOrder(null);
           showToast(
             lang === 'vi'
@@ -402,9 +450,9 @@ export function BuyKeyModal({
 
   return (
     <ModalPortal>
-      <div className="sub-modal-overlay" onClick={onClose}>
+      <div className="sub-modal-overlay" onClick={handleCloseModal}>
         <div className="buy-key-modal-card" onClick={(e) => e.stopPropagation()}>
-          <button className="close" onClick={onClose}>
+          <button className="close" onClick={handleCloseModal}>
             ×
           </button>
 

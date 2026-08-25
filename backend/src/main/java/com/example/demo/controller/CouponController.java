@@ -87,9 +87,9 @@ public class CouponController {
         return ResponseEntity.notFound().build();
     }
 
-    // PUBLIC REAL-TIME COUPON VALIDATION API
+    // PUBLIC REAL-TIME COUPON VALIDATION & REDEMPTION API
     @PostMapping("/apply")
-    public ResponseEntity<?> applyCoupon(@RequestBody Map<String, Object> req) {
+    public synchronized ResponseEntity<?> applyCoupon(@RequestBody Map<String, Object> req) {
         String code = req.get("code") != null ? req.get("code").toString().trim() : "";
         double orderAmount = 0.0;
         if (req.get("orderAmount") != null) {
@@ -130,6 +130,11 @@ public class CouponController {
             return ResponseEntity.badRequest().body(Map.of("valid", false, "message", "⚠️ Mã giảm giá này không áp dụng cho ứng dụng được chọn!"));
         }
 
+        // Deduct 1 usage count immediately on successful application
+        int currentUses = coupon.getUsedCount() != null ? coupon.getUsedCount() : 0;
+        coupon.setUsedCount(currentUses + 1);
+        couponRepository.save(coupon);
+
         // Calculate discount amount
         double discountAmount = 0.0;
         if ("PERCENTAGE".equalsIgnoreCase(coupon.getDiscountType())) {
@@ -155,8 +160,35 @@ public class CouponController {
         res.put("discountValue", coupon.getDiscountValue());
         res.put("discountAmount", discountAmount);
         res.put("finalAmount", finalAmount);
+        res.put("usedCount", coupon.getUsedCount());
         res.put("message", "🎉 Áp dụng mã [" + coupon.getCode() + "] thành công! (Giảm -" + String.format("%,.0f", discountAmount) + "đ)");
 
         return ResponseEntity.ok(res);
+    }
+
+    // RELEASE / RECOVER COUPON USAGE API (WHEN REMOVED OR ORDER CANCELLED/CLOSED)
+    @PostMapping("/release")
+    public synchronized ResponseEntity<?> releaseCoupon(@RequestBody Map<String, String> req) {
+        String code = req.get("code") != null ? req.get("code").toString().trim() : "";
+        if (code.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Mã giảm giá không hợp lệ!"));
+        }
+
+        Optional<CouponEntity> couponOpt = couponRepository.findByCodeIgnoreCase(code);
+        if (couponOpt.isPresent()) {
+            CouponEntity coupon = couponOpt.get();
+            int currentUses = coupon.getUsedCount() != null ? coupon.getUsedCount() : 0;
+            if (currentUses > 0) {
+                coupon.setUsedCount(currentUses - 1);
+                couponRepository.save(coupon);
+            }
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "code", coupon.getCode(),
+                "usedCount", coupon.getUsedCount(),
+                "message", "Đã hoàn trả lượt sử dụng cho mã [" + coupon.getCode() + "]"
+            ));
+        }
+        return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Mã giảm giá không tồn tại!"));
     }
 }

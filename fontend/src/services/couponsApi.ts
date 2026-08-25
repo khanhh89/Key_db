@@ -78,3 +78,19 @@ export async function applyCouponInBackend(code: string, orderAmount: number, ap
   }
   return { valid: false, message: 'Không thể kết nối đến máy chủ xác thực mã giảm giá.' };
 }
+
+export async function releaseCouponInBackend(code: string): Promise<boolean> {
+  if (!code) return false;
+  try {
+    const res = await fetch(`${API_BASE_URL}/coupons/release`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code })
+    });
+    return res.ok;
+  } catch (err) {
+    console.warn('Backend release coupon failed', err);
+    return false;
+  }
+}
+
