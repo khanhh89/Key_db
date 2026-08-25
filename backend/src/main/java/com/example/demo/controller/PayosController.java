@@ -105,10 +105,17 @@ public class PayosController {
                 && activeApiKey != null && !activeApiKey.isBlank()) {
             Map<String, Object> payosData = createPayosRequestWithRetry(order, numericOrderCode, activeClientId, activeApiKey, activeChecksumKey);
             if (payosData != null) {
+                if (payosData.containsKey("orderCode") && payosData.get("orderCode") != null) {
+                    try {
+                        long savedCode = Long.parseLong(payosData.get("orderCode").toString());
+                        order.setPayosOrderCode(savedCode);
+                        orderRepository.save(order);
+                        response.put("orderCode", savedCode);
+                    } catch (Exception ignored) {}
+                }
                 if (payosData.containsKey("checkoutUrl")) response.put("checkoutUrl", payosData.get("checkoutUrl"));
                 if (payosData.containsKey("qrCode")) response.put("qrCode", payosData.get("qrCode"));
                 if (payosData.containsKey("rawQrCode")) response.put("rawQrCode", payosData.get("rawQrCode"));
-                if (payosData.containsKey("orderCode")) response.put("orderCode", payosData.get("orderCode"));
                 return ResponseEntity.ok(response);
             }
         }
@@ -247,10 +254,14 @@ public class PayosController {
         }
 
         long numericOrderCode;
-        try {
-            numericOrderCode = Long.parseLong(order.getPaymentCode().replaceAll("[^0-9]", ""));
-        } catch (Exception e) {
-            numericOrderCode = System.currentTimeMillis() % 1000000;
+        if (order.getPayosOrderCode() != null && order.getPayosOrderCode() > 0) {
+            numericOrderCode = order.getPayosOrderCode();
+        } else {
+            try {
+                numericOrderCode = Long.parseLong(order.getPaymentCode().replaceAll("[^0-9]", ""));
+            } catch (Exception e) {
+                numericOrderCode = System.currentTimeMillis() % 1000000;
+            }
         }
 
         try {
@@ -342,9 +353,18 @@ public class PayosController {
                 Object orderCodeObj = data.get("orderCode");
                 String orderCodeStr = String.valueOf(orderCodeObj);
 
+                Long webhookOrderCode = null;
+                try {
+                    webhookOrderCode = Long.parseLong(orderCodeStr);
+                } catch (Exception ignored) {}
+
+                final Long finalWebhookCode = webhookOrderCode;
+
                 // Find matching order in MySQL Database
                 Optional<OrderEntity> matchedOrder = orderRepository.findAll().stream()
-                        .filter(o -> o.getPaymentCode().contains(orderCodeStr) || o.getId().contains(orderCodeStr))
+                        .filter(o -> (finalWebhookCode != null && finalWebhookCode.equals(o.getPayosOrderCode()))
+                                || o.getPaymentCode().contains(orderCodeStr)
+                                || o.getId().contains(orderCodeStr))
                         .findFirst();
 
                 if (matchedOrder.isPresent()) {

@@ -212,10 +212,14 @@ public class OrderController {
 
             if (Boolean.TRUE.equals(isPayosEnabled) && activeClientId != null && !activeClientId.isBlank() && activeApiKey != null && !activeApiKey.isBlank()) {
                 long numericOrderCode;
-                try {
-                    numericOrderCode = Long.parseLong(order.getPaymentCode().replaceAll("[^0-9]", ""));
-                } catch (Exception e) {
-                    numericOrderCode = System.currentTimeMillis() % 1000000;
+                if (order.getPayosOrderCode() != null && order.getPayosOrderCode() > 0) {
+                    numericOrderCode = order.getPayosOrderCode();
+                } else {
+                    try {
+                        numericOrderCode = Long.parseLong(order.getPaymentCode().replaceAll("[^0-9]", ""));
+                    } catch (Exception e) {
+                        numericOrderCode = System.currentTimeMillis() % 1000000;
+                    }
                 }
 
                 HttpHeaders headers = new HttpHeaders();

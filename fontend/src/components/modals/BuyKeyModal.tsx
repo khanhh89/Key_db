@@ -15,6 +15,7 @@ import {
   type CouponApplyResult
 } from '../../services/api';
 import { copyTextToClipboard } from '../../utils/clipboard';
+import { verifyCustomerPaymentInBackend } from '../../services/ordersApi';
 
 interface BuyKeyModalProps {
   app: AppItem;
@@ -69,6 +70,7 @@ export function BuyKeyModal({
   const [qrFallbackIndex, setQrFallbackIndex] = useState<number>(0);
   const [qrImageFailed, setQrImageFailed] = useState<boolean>(false);
   const [showManualBankDetails, setShowManualBankDetails] = useState<boolean>(false);
+  const [isVerifyingManual, setIsVerifyingManual] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(900); // 15 minutes
 
   // Coupon Promo Code States & Refs for Auto-Release Cleanup
@@ -424,6 +426,29 @@ export function BuyKeyModal({
     const success = await copyTextToClipboard(text);
     if (success) {
       showToast(lang === 'vi' ? `📋 Đã sao chép ${label} thành công!` : `📋 Copied ${label} successfully!`);
+    }
+  };
+
+  const handleManualVerify = async () => {
+    if (!order) return;
+    setIsVerifyingManual(true);
+    showToast(lang === 'vi' ? '⚡ Đang kiểm tra tiền về hệ thống...' : 'Checking payment status...');
+
+    try {
+      const res = await verifyCustomerPaymentInBackend(order.id);
+      if (res.success && res.data && res.data.status === 'PAID' && res.data.deliveredKey) {
+        setOrder(res.data);
+        saveLocalOrder(res.data);
+        playSuccessChime();
+        showToast(lang === 'vi' ? '🎉 Thanh toán thành công! Đã nhận Key VIP.' : 'Payment verified! Key delivered.');
+      } else {
+        const msg = res.message || (lang === 'vi' ? `⏳ Hệ thống chưa nhận được tiền cho nội dung [${order.paymentCode}]. Vui lòng thử lại sau vài giây.` : 'Payment not recorded yet.');
+        showToast(msg);
+      }
+    } catch (err) {
+      showToast(lang === 'vi' ? '❌ Có lỗi xảy ra khi kiểm tra đơn hàng.' : 'Error checking order.');
+    } finally {
+      setIsVerifyingManual(false);
     }
   };
 
@@ -887,6 +912,42 @@ export function BuyKeyModal({
               }}>
                 ⏰ {lang === 'vi' ? 'Hủy sau:' : 'Expires in:'} {formatCountdown(timeLeft)}
               </div>
+            </div>
+
+            <div style={{ marginTop: '14px', textAlign: 'center' }}>
+              <button
+                type="button"
+                className="manual-verify-now-btn"
+                onClick={handleManualVerify}
+                disabled={isVerifyingManual}
+                style={{
+                  width: '100%',
+                  padding: '14px 20px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontWeight: 800,
+                  fontSize: '14.5px',
+                  cursor: isVerifyingManual ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 20px rgba(2, 132, 199, 0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease',
+                  opacity: isVerifyingManual ? 0.7 : 1
+                }}
+              >
+                {isVerifyingManual ? (
+                  <>⚡ {lang === 'vi' ? 'ĐANG KIỂM TRA HỆ THỐNG...' : 'CHECKING...'}</>
+                ) : (
+                  <>🔍 {lang === 'vi' ? 'XÁC NHẬN ĐÃ CHUYỂN TIỀN' : 'I HAVE TRANSFERRED (VERIFY NOW)'}</>
+                )}
+              </button>
+              <small style={{ display: 'block', marginTop: '6px', color: '#94a3b8', fontSize: '11.5px' }}>
+                {lang === 'vi' ? 'Ấn vào đây nếu bạn đã chuyển khoản xong để hệ thống kiểm tra và cấp Key ngay lập tức' : 'Click here after transfer to check payment immediately'}
+              </small>
             </div>
           </div>
         )}

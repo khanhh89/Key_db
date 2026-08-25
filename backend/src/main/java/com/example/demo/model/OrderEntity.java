@@ -53,6 +53,9 @@ public class OrderEntity {
     @Column(name = "payment_code", nullable = false)
     private String paymentCode; // MK88219
 
+    @Column(name = "payos_order_code")
+    private Long payosOrderCode; // Exact numeric order code registered on PayOS
+
     @Column(name = "status")
     private String status; // "PENDING", "PAID", "CANCELLED"
 
