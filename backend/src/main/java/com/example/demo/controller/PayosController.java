@@ -53,6 +53,17 @@ public class PayosController {
 
         OrderEntity order = orderOpt.get();
 
+        // Update order amount in DB if custom/discounted amount was passed
+        if (req.get("amount") != null) {
+            try {
+                double requestAmount = Double.parseDouble(req.get("amount").toString());
+                if (requestAmount > 0) {
+                    order.setAmount(requestAmount);
+                    orderRepository.save(order);
+                }
+            } catch (Exception ignored) {}
+        }
+
         BankConfigEntity bankConfig = bankConfigRepository.findAll().stream().findFirst()
                 .orElseGet(() -> BankConfigEntity.builder()
                         .bankId("")

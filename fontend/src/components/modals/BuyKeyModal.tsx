@@ -137,6 +137,9 @@ export function BuyKeyModal({
 
   // Load bank details and DB keys on mount
   useEffect(() => {
+    if (initialOrder && initialOrder.amount) {
+      setOriginalPrice(initialOrder.amount);
+    }
     fetchBankConfigFromBackend().then((cfg) => {
       if (cfg) setBank(cfg);
     });
@@ -144,7 +147,7 @@ export function BuyKeyModal({
       const appKeys = allKeys.filter((k) => k.appId === app.id);
       setAvailableKeys(appKeys);
     });
-  }, [app.id]);
+  }, [app.id, initialOrder]);
 
   // Compute dynamic package options from DB
   const getPackageOptions = () => {
