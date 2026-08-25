@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { AppItem, ServiceItem, SystemConfig, LightboxItem, Language, OrderItem } from '../types';
-import { trackClientEvent, getLocalOrders } from '../services/api';
+import { trackClientEvent, getLocalOrders, saveLocalOrder, API_BASE_URL } from '../services/api';
 import { CursorGlow } from '../components/common/CursorGlow';
 import { Navbar } from '../components/layout/Navbar';
 import { HeroSection } from '../components/sections/HeroSection';
@@ -64,12 +64,53 @@ export function HomePage({
     const localList = getLocalOrders();
     const activePending = localList.find((o) => o.status === 'PENDING');
     if (activePending) {
-      setPendingDraftOrder(activePending);
+      // Verify real-time status with backend DB before displaying banner
+      fetch(`${API_BASE_URL}/orders/${activePending.id}/status`)
+        .then((res) => {
+          if (res.status === 404) {
+            const current = getLocalOrders();
+            const updated = current.filter((o) => o.id !== activePending.id);
+            localStorage.setItem('modlienquan_orders', JSON.stringify(updated));
+            setPendingDraftOrder(null);
+            return null;
+          }
+          if (res.ok) {
+            return res.json();
+          }
+          return null;
+        })
+        .then((realOrder: OrderItem | null) => {
+          if (realOrder) {
+            saveLocalOrder(realOrder); // Sync local storage with DB state
+            if (realOrder.status === 'PAID') {
+              setPendingDraftOrder(null); // Hide banner if order is PAID!
+            } else {
+              setPendingDraftOrder(realOrder);
+            }
+          }
+        })
+        .catch(() => {
+          setPendingDraftOrder(activePending);
+        });
     }
   }, []);
 
-  const handleResumePendingOrder = () => {
+  const handleResumePendingOrder = async () => {
     if (!pendingDraftOrder) return;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/orders/${pendingDraftOrder.id}/status`);
+      if (res.ok) {
+        const realOrder: OrderItem = await res.json();
+        saveLocalOrder(realOrder);
+        if (realOrder.status === 'PAID') {
+          setPendingDraftOrder(null);
+          showToast(lang === 'vi' ? '🎉 Đơn hàng này đã được thanh toán thành công!' : 'Order is already PAID!');
+          return;
+        }
+      }
+    } catch (ignored) {}
+
     const targetApp = apps.find((a) => a.id === pendingDraftOrder.appId) || {
       id: pendingDraftOrder.appId,
       name: pendingDraftOrder.appName,
@@ -81,6 +122,15 @@ export function HomePage({
     };
     setInitialOrderForModal(pendingDraftOrder);
     setBuyApp(targetApp);
+  };
+
+  const handleDismissPendingBanner = () => {
+    if (pendingDraftOrder) {
+      const current = getLocalOrders();
+      const updated = current.filter((o) => o.id !== pendingDraftOrder.id);
+      localStorage.setItem('modlienquan_orders', JSON.stringify(updated));
+    }
+    setPendingDraftOrder(null);
   };
 
   return (
@@ -128,7 +178,7 @@ export function HomePage({
               🚀 {lang === 'vi' ? 'Tiếp tục thanh toán' : 'Resume Order'}
             </button>
             <button
-              onClick={() => setPendingDraftOrder(null)}
+              onClick={handleDismissPendingBanner}
               style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
             >
               ✕
