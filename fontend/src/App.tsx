@@ -16,7 +16,7 @@ import {
 } from './services/api';
 
 // Components & Router
-import { Toast } from './components/common/Toast';
+import { Toast, type ToastItem } from './components/common/Toast';
 import { AppRoutes } from './router/AppRoutes';
 
 export default function App() {
@@ -42,7 +42,34 @@ export default function App() {
   const [initialOrderForModal, setInitialOrderForModal] = useState<OrderItem | null>(null);
   const [lightbox, setLightbox] = useState<LightboxItem | null>(null);
   const [isLookupOpen, setIsLookupOpen] = useState<boolean>(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const showToast = (msg: string, type?: 'success' | 'error' | 'warning' | 'info') => {
+    if (!msg || !msg.trim()) return;
+    const id = 'toast-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+
+    let detectedType: 'success' | 'error' | 'warning' | 'info' = type || 'info';
+    if (!type) {
+      if (msg.includes('❌') || msg.includes('Error') || msg.includes('Thất bại') || msg.includes('hủy') || msg.includes('Hủy') || msg.includes('thất bại')) {
+        detectedType = 'error';
+      } else if (msg.includes('🎉') || msg.includes('✓') || msg.includes('✅') || msg.includes('Thành công') || msg.includes('Success') || msg.includes('thành công')) {
+        detectedType = 'success';
+      } else if (msg.includes('⚠️') || msg.includes('⛔') || msg.includes('⏰') || msg.includes('Cảnh báo')) {
+        detectedType = 'warning';
+      }
+    }
+
+    const newItem: ToastItem = { id, message: msg, type: detectedType };
+    setToasts((prev) => [...prev.slice(-4), newItem]);
+
+    setTimeout(() => {
+      removeToast(id);
+    }, 4000);
+  };
 
   // Fetch real data from Backend REST API on mount
   useEffect(() => {
@@ -63,11 +90,6 @@ export default function App() {
 
     loadRealBackendData();
   }, []);
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
-  };
 
   // Handle PayOS return redirect URL params (?code=00&orderCode=... or ?status=PAID&...)
   useEffect(() => {
@@ -96,7 +118,7 @@ export default function App() {
 
             setInitialOrderForModal(paidOrder);
             setBuyApp(matchedApp);
-            showToast(lang === 'vi' ? '🎉 Thanh toán PayOS thành công! .' : 'PayOS payment verified! Key delivered.');
+            showToast(lang === 'vi' ? '🎉 Thanh toán PayOS thành công!' : 'PayOS payment verified! Key delivered.');
           } else {
             showToast(lang === 'vi' ? `⏳ chưa ghi nhận thanh toán cho đơn [${targetCode}]!` : 'Payment pending verification...');
           }
@@ -167,7 +189,7 @@ export default function App() {
         openBuyModal={openBuyModal}
         showToast={showToast}
       />
-      {toast && <Toast message={toast} />}
+      <Toast toasts={toasts} onRemove={removeToast} />
     </>
   );
 }

@@ -68,6 +68,9 @@ public class OrderController {
                 .appName(original.getAppName())
                 .keyId(original.getKeyId())
                 .amount(original.getAmount())
+                .originalAmount(original.getOriginalAmount() != null ? original.getOriginalAmount() : original.getAmount())
+                .couponCode(original.getCouponCode())
+                .discountAmount(original.getDiscountAmount())
                 .durationDays(original.getDurationDays())
                 .paymentCode(original.getPaymentCode())
                 .status(original.getStatus())
@@ -84,12 +87,14 @@ public class OrderController {
             @RequestBody OrderEntity orderReq) {
         String orderId = "ORD-" + (10000 + new Random().nextInt(90000));
         String paymentCode = "MK" + (10000 + new Random().nextInt(90000));
+        double initialAmount = orderReq.getAmount() > 0 ? orderReq.getAmount() : 50000.0;
 
         OrderEntity newOrder = OrderEntity.builder()
                 .id(orderId)
                 .appId(orderReq.getAppId())
                 .appName(orderReq.getAppName() != null ? orderReq.getAppName() : "MOD VIP KEY")
-                .amount(orderReq.getAmount() > 0 ? orderReq.getAmount() : 50000.0)
+                .amount(initialAmount)
+                .originalAmount(initialAmount)
                 .durationDays(orderReq.getDurationDays() != null ? orderReq.getDurationDays() : 30)
                 .customerEmail(orderReq.getCustomerEmail())
                 .paymentCode(paymentCode)

@@ -18,6 +18,9 @@ public class CouponController {
     @Autowired
     private CouponRepository couponRepository;
 
+    @Autowired
+    private com.example.demo.repository.OrderRepository orderRepository;
+
     @GetMapping
     public List<CouponEntity> getAllCoupons() {
         return couponRepository.findAll();
@@ -91,6 +94,7 @@ public class CouponController {
     @PostMapping("/apply")
     public synchronized ResponseEntity<?> applyCoupon(@RequestBody Map<String, Object> req) {
         String code = req.get("code") != null ? req.get("code").toString().trim() : "";
+        String orderId = req.get("orderId") != null ? req.get("orderId").toString().trim() : "";
         double orderAmount = 0.0;
         if (req.get("orderAmount") != null) {
             try {
@@ -98,6 +102,16 @@ public class CouponController {
             } catch (Exception ignored) {}
         }
         String appId = req.get("appId") != null ? req.get("appId").toString() : "ALL";
+
+        Optional<com.example.demo.model.OrderEntity> targetOrderOpt = !orderId.isBlank() ? orderRepository.findById(orderId) : Optional.empty();
+        if (targetOrderOpt.isPresent()) {
+            com.example.demo.model.OrderEntity targetOrder = targetOrderOpt.get();
+            if (targetOrder.getOriginalAmount() != null && targetOrder.getOriginalAmount() > 0) {
+                orderAmount = targetOrder.getOriginalAmount();
+            } else if (targetOrder.getAmount() != null && targetOrder.getAmount() > 0) {
+                orderAmount = targetOrder.getAmount();
+            }
+        }
 
         if (code.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("valid", false, "message", "Vui lòng nhập mã giảm giá!"));
@@ -135,7 +149,7 @@ public class CouponController {
         coupon.setUsedCount(currentUses + 1);
         couponRepository.save(coupon);
 
-        // Calculate discount amount
+        // Calculate discount amount from original un-discounted price
         double discountAmount = 0.0;
         if ("PERCENTAGE".equalsIgnoreCase(coupon.getDiscountType())) {
             discountAmount = (orderAmount * coupon.getDiscountValue()) / 100.0;
@@ -152,6 +166,14 @@ public class CouponController {
         }
 
         double finalAmount = Math.max(0.0, orderAmount - discountAmount);
+
+        if (targetOrderOpt.isPresent()) {
+            com.example.demo.model.OrderEntity targetOrder = targetOrderOpt.get();
+            targetOrder.setAmount(finalAmount);
+            targetOrder.setCouponCode(coupon.getCode());
+            targetOrder.setDiscountAmount(discountAmount);
+            orderRepository.save(targetOrder);
+        }
 
         Map<String, Object> res = new HashMap<>();
         res.put("valid", true);
@@ -170,6 +192,21 @@ public class CouponController {
     @PostMapping("/release")
     public synchronized ResponseEntity<?> releaseCoupon(@RequestBody Map<String, String> req) {
         String code = req.get("code") != null ? req.get("code").toString().trim() : "";
+        String orderId = req.get("orderId") != null ? req.get("orderId").toString().trim() : "";
+
+        if (!orderId.isBlank()) {
+            Optional<com.example.demo.model.OrderEntity> orderOpt = orderRepository.findById(orderId);
+            if (orderOpt.isPresent()) {
+                com.example.demo.model.OrderEntity order = orderOpt.get();
+                if (order.getOriginalAmount() != null && order.getOriginalAmount() > 0) {
+                    order.setAmount(order.getOriginalAmount());
+                }
+                order.setCouponCode(null);
+                order.setDiscountAmount(0.0);
+                orderRepository.save(order);
+            }
+        }
+
         if (code.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Mã giảm giá không hợp lệ!"));
         }

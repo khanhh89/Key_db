@@ -100,7 +100,7 @@ export function BuyKeyModal({
 
   const handleCloseModal = async () => {
     if (appliedCoupon && appliedCoupon.code && order?.status !== 'PAID') {
-      await releaseCouponInBackend(appliedCoupon.code);
+      await releaseCouponInBackend(appliedCoupon.code, order?.id);
       setAppliedCoupon(null);
     }
     onClose();
@@ -135,10 +135,25 @@ export function BuyKeyModal({
     } catch (e) {}
   };
 
-  // Load bank details and DB keys on mount
+  // Load bank details, DB keys, and restore applied coupon status on mount
   useEffect(() => {
-    if (initialOrder && initialOrder.amount) {
-      setOriginalPrice(initialOrder.amount);
+    const activeOrder = order || initialOrder;
+    if (activeOrder) {
+      const basePrice = activeOrder.originalAmount || activeOrder.amount;
+      if (basePrice) setOriginalPrice(basePrice);
+
+      if (activeOrder.couponCode && !appliedCoupon) {
+        setCouponCodeInput(activeOrder.couponCode);
+        setAppliedCoupon({
+          valid: true,
+          code: activeOrder.couponCode,
+          discountAmount: activeOrder.discountAmount || 0,
+          finalAmount: activeOrder.amount,
+          message: lang === 'vi'
+            ? `🎉 Mã giảm giá [${activeOrder.couponCode}] đã áp dụng!`
+            : `Promo code [${activeOrder.couponCode}] applied!`
+        });
+      }
     }
     fetchBankConfigFromBackend().then((cfg) => {
       if (cfg) setBank(cfg);
@@ -147,7 +162,7 @@ export function BuyKeyModal({
       const appKeys = allKeys.filter((k) => k.appId === app.id);
       setAvailableKeys(appKeys);
     });
-  }, [app.id, initialOrder]);
+  }, [app.id, initialOrder, order?.id]);
 
   // Compute dynamic package options from DB
   const getPackageOptions = () => {
@@ -199,24 +214,33 @@ export function BuyKeyModal({
     if (!couponCodeInput.trim()) return;
     setIsApplyingCoupon(true);
 
+    const targetOrder = order || initialOrder;
+
     // If another coupon was previously applied, release it first
     if (appliedCoupon && appliedCoupon.code) {
-      await releaseCouponInBackend(appliedCoupon.code);
+      await releaseCouponInBackend(appliedCoupon.code, targetOrder?.id);
       setAppliedCoupon(null);
     }
 
-    const baseAmount = originalPrice > 0 ? originalPrice : (order ? order.amount : 50000);
-    const result = await applyCouponInBackend(couponCodeInput.trim(), baseAmount, app.id);
+    const baseAmount = targetOrder?.originalAmount && targetOrder.originalAmount > 0
+      ? targetOrder.originalAmount
+      : (originalPrice > 0 ? originalPrice : (targetOrder ? targetOrder.amount : 50000));
+
+    const result = await applyCouponInBackend(couponCodeInput.trim(), baseAmount, app.id, targetOrder?.id);
 
     if (result.valid && result.finalAmount !== undefined) {
       setAppliedCoupon(result);
       const newAmount = result.finalAmount;
 
-      if (order) {
-        setOrder({
-          ...order,
-          amount: newAmount
-        });
+      if (targetOrder) {
+        const updatedOrder: OrderItem = {
+          ...targetOrder,
+          amount: newAmount,
+          originalAmount: baseAmount,
+          couponCode: result.code,
+          discountAmount: result.discountAmount
+        };
+        setOrder(updatedOrder);
 
         // Reset QR image states & trigger reload with discounted price
         setIsQrImgLoaded(false);
@@ -226,7 +250,7 @@ export function BuyKeyModal({
 
         if (bank.payosEnabled !== false) {
           setIsPayosLoading(true);
-          const linkData = await createPayosPaymentLinkInBackend(order.id, newAmount);
+          const linkData = await createPayosPaymentLinkInBackend(targetOrder.id, newAmount);
           if (linkData) setPayosLink(linkData);
           setIsPayosLoading(false);
         }
@@ -240,16 +264,26 @@ export function BuyKeyModal({
   };
 
   const handleRemoveCoupon = async () => {
+    const targetOrder = order || initialOrder;
     if (appliedCoupon && appliedCoupon.code) {
-      await releaseCouponInBackend(appliedCoupon.code);
+      await releaseCouponInBackend(appliedCoupon.code, targetOrder?.id);
     }
     setAppliedCoupon(null);
     setCouponCodeInput('');
-    if (order && originalPrice > 0) {
-      setOrder({
-        ...order,
-        amount: originalPrice
-      });
+
+    const baseAmount = targetOrder?.originalAmount && targetOrder.originalAmount > 0
+      ? targetOrder.originalAmount
+      : (originalPrice > 0 ? originalPrice : 50000);
+
+    if (targetOrder) {
+      const updatedOrder: OrderItem = {
+        ...targetOrder,
+        amount: baseAmount,
+        originalAmount: baseAmount,
+        couponCode: undefined,
+        discountAmount: undefined
+      };
+      setOrder(updatedOrder);
 
       // Reset QR image states & trigger reload with original price
       setIsQrImgLoaded(false);
@@ -259,7 +293,7 @@ export function BuyKeyModal({
 
       if (bank.payosEnabled !== false) {
         setIsPayosLoading(true);
-        const linkData = await createPayosPaymentLinkInBackend(order.id, originalPrice);
+        const linkData = await createPayosPaymentLinkInBackend(targetOrder.id, baseAmount);
         if (linkData) setPayosLink(linkData);
         setIsPayosLoading(false);
       }
@@ -269,7 +303,7 @@ export function BuyKeyModal({
 
   const handleCreateOrder = async (days: number, basePrice: number) => {
     if (appliedCoupon && appliedCoupon.code) {
-      await releaseCouponInBackend(appliedCoupon.code);
+      await releaseCouponInBackend(appliedCoupon.code, order?.id);
       setAppliedCoupon(null);
       setCouponCodeInput('');
     }
@@ -451,9 +485,17 @@ export function BuyKeyModal({
 
   const qrImageSrc = getQrImageUrl();
 
+  const handleOverlayClick = () => {
+    // Prevent closing modal when clicking outside if key payment is completed
+    if (order && order.status === 'PAID') {
+      return;
+    }
+    handleCloseModal();
+  };
+
   return (
     <ModalPortal>
-      <div className="sub-modal-overlay" onClick={handleCloseModal}>
+      <div className="sub-modal-overlay" onClick={handleOverlayClick}>
         <div className="buy-key-modal-card" onClick={(e) => e.stopPropagation()}>
           <button className="close" onClick={handleCloseModal}>
             ×

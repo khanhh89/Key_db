@@ -53,6 +53,9 @@ export interface OrderItem {
   appName: string;
   keyId?: string;
   amount: number;
+  originalAmount?: number;
+  couponCode?: string;
+  discountAmount?: number;
   durationDays?: number;
   paymentCode: string;
   status: 'PENDING' | 'PAID' | 'CANCELLED';

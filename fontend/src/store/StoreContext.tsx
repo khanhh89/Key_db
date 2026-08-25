@@ -10,6 +10,12 @@ import {
   revokeAdminToken
 } from '../services/api';
 
+export interface ToastItem {
+  id: string;
+  message: string;
+  type?: 'success' | 'error' | 'warning' | 'info';
+}
+
 export interface StoreContextType {
   // Language & Translations
   lang: Language;
@@ -37,7 +43,9 @@ export interface StoreContextType {
 
   // Toast Notifications
   toast: string | null;
-  showToast: (msg: string) => void;
+  toasts: ToastItem[];
+  showToast: (msg: string, type?: 'success' | 'error' | 'warning' | 'info') => void;
+  removeToast: (id: string) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -55,20 +63,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   };
 
   const toggleLang = () => {
-    setLang(lang === 'vi' ? 'en' : 'vi');
+    const nextLang = lang === 'vi' ? 'en' : 'vi';
+    setLang(nextLang);
   };
 
   const t = getTranslation(lang);
 
   // 2. Theme State
   const [dark, setDarkState] = useState<boolean>(() => {
-    const saved = localStorage.getItem('modlienquan_theme');
-    return saved ? saved === 'dark' : true;
+    const saved = localStorage.getItem('modlienquan_dark');
+    return saved !== null ? saved === 'true' : true;
   });
 
   const setDark = (isDark: boolean) => {
     setDarkState(isDark);
-    localStorage.setItem('modlienquan_theme', isDark ? 'dark' : 'light');
+    localStorage.setItem('modlienquan_dark', String(isDark));
   };
 
   const toggleDark = () => {
@@ -77,7 +86,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   // 3. Auth State
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return localStorage.getItem('modlienquan_admin_auth') === 'true';
+    return Boolean(localStorage.getItem('modlienquan_admin_auth'));
   });
 
   // 4. Data States
@@ -96,12 +105,35 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return local ? JSON.parse(local) : initialConfig;
   });
 
-  // 5. Toast State
-  const [toast, setToast] = useState<string | null>(null);
+  // 5. Toast Stack State
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
 
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3000);
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const showToast = (msg: string, type?: 'success' | 'error' | 'warning' | 'info') => {
+    if (!msg || !msg.trim()) return;
+    const id = 'toast-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+
+    let detectedType: 'success' | 'error' | 'warning' | 'info' = type || 'info';
+    if (!type) {
+      if (msg.includes('❌') || msg.includes('Error') || msg.includes('Thất bại') || msg.includes('hủy') || msg.includes('Hủy') || msg.includes('thất bại')) {
+        detectedType = 'error';
+      } else if (msg.includes('🎉') || msg.includes('✓') || msg.includes('✅') || msg.includes('Thành công') || msg.includes('Success') || msg.includes('thành công')) {
+        detectedType = 'success';
+      } else if (msg.includes('⚠️') || msg.includes('⛔') || msg.includes('⏰') || msg.includes('Cảnh báo')) {
+        detectedType = 'warning';
+      }
+    }
+
+    const newItem: ToastItem = { id, message: msg, type: detectedType };
+
+    setToasts((prev) => [...prev.slice(-4), newItem]);
+
+    setTimeout(() => {
+      removeToast(id);
+    }, 4000);
   };
 
   // Load backend data on mount
@@ -125,12 +157,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   // Auth Functions
   const loginAdmin = async (user: string, pass: string): Promise<boolean> => {
-    localStorage.removeItem('modlienquan_admin_password'); // Clean up any legacy password key
+    localStorage.removeItem('modlienquan_admin_password');
     const result = await loginAdminInBackend(user, pass);
     if (result.success) {
       setIsAuthenticated(true);
       localStorage.setItem('modlienquan_admin_auth', 'true');
-      showToast(lang === 'vi' ? '🎉 Đăng nhập Admin thành công! Đã cấp Token mới.' : 'Admin logged in! New token generated.');
+      showToast(lang === 'vi' ? '🎉 Đăng nhập Admin thành công!' : 'Admin logged in!');
       return true;
     }
     showToast(lang === 'vi' ? (result.message || '❌ Sai tài khoản hoặc mật khẩu Admin!') : 'Invalid login credentials!');
@@ -161,8 +193,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setServices,
     config,
     setConfig,
-    toast,
-    showToast
+    toast: toasts.length > 0 ? toasts[toasts.length - 1].message : null,
+    toasts,
+    showToast,
+    removeToast
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

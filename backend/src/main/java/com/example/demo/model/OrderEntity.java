@@ -38,6 +38,15 @@ public class OrderEntity {
     @Column(name = "amount", nullable = false)
     private Double amount;
 
+    @Column(name = "original_amount")
+    private Double originalAmount; // Un-discounted base price
+
+    @Column(name = "coupon_code")
+    private String couponCode; // Applied coupon code
+
+    @Column(name = "discount_amount")
+    private Double discountAmount; // Discounted money amount
+
     @Column(name = "duration_days")
     private Integer durationDays;
 
@@ -63,6 +72,9 @@ public class OrderEntity {
     public void prePersist() {
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+        }
+        if (this.originalAmount == null) {
+            this.originalAmount = this.amount;
         }
     }
 }

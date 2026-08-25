@@ -60,12 +60,12 @@ export interface CouponApplyResult {
   message: string;
 }
 
-export async function applyCouponInBackend(code: string, orderAmount: number, appId?: string): Promise<CouponApplyResult> {
+export async function applyCouponInBackend(code: string, orderAmount: number, appId?: string, orderId?: string): Promise<CouponApplyResult> {
   try {
     const res = await fetch(`${API_BASE_URL}/coupons/apply`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, orderAmount, appId })
+      body: JSON.stringify({ code, orderAmount, appId, orderId })
     });
     const data = await res.json();
     if (res.ok && data.valid) {
@@ -79,13 +79,13 @@ export async function applyCouponInBackend(code: string, orderAmount: number, ap
   return { valid: false, message: 'Không thể kết nối đến máy chủ xác thực mã giảm giá.' };
 }
 
-export async function releaseCouponInBackend(code: string): Promise<boolean> {
-  if (!code) return false;
+export async function releaseCouponInBackend(code: string, orderId?: string): Promise<boolean> {
+  if (!code && !orderId) return false;
   try {
     const res = await fetch(`${API_BASE_URL}/coupons/release`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code })
+      body: JSON.stringify({ code, orderId })
     });
     return res.ok;
   } catch (err) {
