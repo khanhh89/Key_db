@@ -76,6 +76,13 @@ export interface LicenseKeyItem {
   soldAt?: string;
 }
 
+export interface KeyPricePreset {
+  id: string;
+  name: string;
+  durationDays: number;
+  price: number;
+}
+
 export interface BankConfig {
   id?: number;
   bankId: string;

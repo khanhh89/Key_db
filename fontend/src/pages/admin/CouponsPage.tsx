@@ -298,8 +298,8 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                     type="number"
                     min="1"
                     required
-                    value={discountValue === 0 ? '' : discountValue}
-                    onChange={(e) => setDiscountValue(e.target.value === '' ? 0 : Number(e.target.value))}
+                    value={discountValue || ''}
+                    onChange={(e) => setDiscountValue(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
                   />
                 </div>
               </div>
@@ -310,8 +310,8 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                   <input
                     type="number"
                     min="0"
-                    value={minOrderAmount === 0 ? '' : minOrderAmount}
-                    onChange={(e) => setMinOrderAmount(e.target.value === '' ? 0 : Number(e.target.value))}
+                    value={minOrderAmount || ''}
+                    onChange={(e) => setMinOrderAmount(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
                   />
                 </div>
 
@@ -320,8 +320,8 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                   <input
                     type="number"
                     min="0"
-                    value={maxDiscountAmount === 0 ? '' : maxDiscountAmount}
-                    onChange={(e) => setMaxDiscountAmount(e.target.value === '' ? 0 : Number(e.target.value))}
+                    value={maxDiscountAmount || ''}
+                    onChange={(e) => setMaxDiscountAmount(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
                   />
                 </div>
               </div>
@@ -332,8 +332,8 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                   <input
                     type="number"
                     min="0"
-                    value={maxUses === 0 ? '' : maxUses}
-                    onChange={(e) => setMaxUses(e.target.value === '' ? 0 : Number(e.target.value))}
+                    value={maxUses || ''}
+                    onChange={(e) => setMaxUses(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
                   />
                 </div>
 

@@ -1,4 +1,4 @@
-import type { LicenseKeyItem } from '../types';
+import type { LicenseKeyItem, KeyPricePreset } from '../types';
 import { API_BASE_URL, refreshAdminRollingToken } from './authApi';
 
 // Fetch Keys inventory for Public site (Masked keyCode strings)
@@ -158,4 +158,53 @@ export async function batchUpdateKeyStatusInBackend(ids: string[], status: 'AVAI
     console.warn('Backend batch status key update failed', err);
   }
   return { success: false, count: 0, message: 'Lỗi khi đổi trạng thái hàng loạt.' };
+}
+
+// Fetch Price Presets from MySQL DB
+export async function fetchPricePresetsFromBackend(): Promise<KeyPricePreset[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/price-presets`);
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn('Backend fetch price presets failed', err);
+  }
+  return [];
+}
+
+// Save/Create Price Preset in MySQL DB
+export async function savePricePresetToBackend(preset: Partial<KeyPricePreset>): Promise<KeyPricePreset | null> {
+  try {
+    const token = await refreshAdminRollingToken();
+    const res = await fetch(`${API_BASE_URL}/price-presets`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Auth': token
+      },
+      body: JSON.stringify(preset)
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn('Backend save price preset failed', err);
+  }
+  return null;
+}
+
+// Delete Price Preset from MySQL DB
+export async function deletePricePresetFromBackend(id: string): Promise<boolean> {
+  try {
+    const token = await refreshAdminRollingToken();
+    const res = await fetch(`${API_BASE_URL}/price-presets/${id}`, {
+      method: 'DELETE',
+      headers: { 'X-Admin-Auth': token }
+    });
+    return res.ok;
+  } catch (err) {
+    console.warn('Backend delete price preset failed', err);
+    return false;
+  }
 }

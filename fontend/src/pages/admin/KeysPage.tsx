@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import type { LicenseKeyItem, AppItem, Language } from '../../types';
+import type { LicenseKeyItem, AppItem, Language, KeyPricePreset } from '../../types';
 import {
   fetchAdminKeysFromBackend,
   saveKeyToBackend,
@@ -7,12 +7,40 @@ import {
   deleteKeyFromBackend,
   updateKeyPricesByCategoryInBackend,
   batchDeleteKeysFromBackend,
-  batchUpdateKeyStatusInBackend
+  batchUpdateKeyStatusInBackend,
+  fetchPricePresetsFromBackend,
+  savePricePresetToBackend,
+  deletePricePresetFromBackend
 } from '../../services/api';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
 import { ModalPortal } from '../../components/common/ModalPortal';
 import { Pagination } from '../../components/common/Pagination';
 import { copyTextToClipboard } from '../../utils/clipboard';
+
+export const defaultKeyPricePresets: KeyPricePreset[] = [
+  { id: 'preset-1', name: 'Gói 1 Ngày', durationDays: 1, price: 15000 },
+  { id: 'preset-3', name: 'Gói 3 Ngày', durationDays: 3, price: 25000 },
+  { id: 'preset-7', name: 'Gói 7 Ngày', durationDays: 7, price: 35000 },
+  { id: 'preset-15', name: 'Gói 15 Ngày', durationDays: 15, price: 65000 },
+  { id: 'preset-30', name: 'Gói 1 Tháng (30 Ngày)', durationDays: 30, price: 100000 },
+  { id: 'preset-90', name: 'Gói 3 Tháng (90 Ngày)', durationDays: 90, price: 250000 },
+  { id: 'preset-365', name: 'Gói 1 Năm (365 Ngày)', durationDays: 365, price: 500000 },
+  { id: 'preset-9999', name: 'Gói Vĩnh Viễn', durationDays: 9999, price: 1000000 }
+];
+
+export function getStoredPresets(): KeyPricePreset[] {
+  try {
+    const saved = localStorage.getItem('modlienquan_key_price_presets');
+    if (saved) return JSON.parse(saved);
+  } catch (e) {}
+  return defaultKeyPricePresets;
+}
+
+export function saveStoredPresets(presets: KeyPricePreset[]) {
+  try {
+    localStorage.setItem('modlienquan_key_price_presets', JSON.stringify(presets));
+  } catch (e) {}
+}
 
 interface KeysPageProps {
   lang: Language;
@@ -75,10 +103,68 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
   const [price, setPrice] = useState<number>(50000);
   const [editingStatus, setEditingStatus] = useState<'AVAILABLE' | 'SOLD'>('AVAILABLE');
 
+  // Key Price Presets States
+  const [presets, setPresets] = useState<KeyPricePreset[]>(getStoredPresets);
+  const [selectedPresetId, setSelectedPresetId] = useState<string>('preset-7');
+  const [isPresetsManagerOpen, setIsPresetsManagerOpen] = useState<boolean>(false);
+
+  // New Preset Form State
+  const [newPresetName, setNewPresetName] = useState<string>('');
+  const [newPresetDays, setNewPresetDays] = useState<number>(7);
+  const [newPresetPrice, setNewPresetPrice] = useState<number>(35000);
+
+  const handleSelectPreset = (presetId: string) => {
+    setSelectedPresetId(presetId);
+    if (presetId === 'custom') return;
+    const found = presets.find((p) => p.id === presetId);
+    if (found) {
+      setDurationDays(found.durationDays);
+      setPrice(found.price);
+    }
+  };
+
+  const handleAddPreset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPresetName.trim() || newPresetDays <= 0 || newPresetPrice < 2000) {
+      showToast(lang === 'vi' ? '⚠️ Vui lòng điền Tên gói, Số ngày > 0 và Giá >= 2,000đ!' : 'Please enter valid preset details!');
+      return;
+    }
+    const newPresetData: Partial<KeyPricePreset> = {
+      name: newPresetName.trim(),
+      durationDays: newPresetDays,
+      price: newPresetPrice
+    };
+    const saved = await savePricePresetToBackend(newPresetData);
+    if (saved) {
+      const updated = [...presets.filter((p) => p.id !== saved.id), saved];
+      setPresets(updated);
+      saveStoredPresets(updated);
+      setNewPresetName('');
+      showToast(lang === 'vi' ? `🎉 Đã lưu gói giá mẫu vào MySQL DB: ${saved.name}!` : `Saved price preset ${saved.name} to DB!`);
+    } else {
+      showToast(lang === 'vi' ? '❌ Lỗi khi lưu gói giá vào máy chủ.' : 'Failed to save preset.');
+    }
+  };
+
+  const handleDeletePreset = async (presetId: string) => {
+    await deletePricePresetFromBackend(presetId);
+    const updated = presets.filter((p) => p.id !== presetId);
+    setPresets(updated);
+    saveStoredPresets(updated);
+    showToast(lang === 'vi' ? '🗑 Đã xóa gói giá mẫu khỏi MySQL DB!' : 'Deleted price preset from DB!');
+  };
+
   const loadKeys = async () => {
     setIsLoading(true);
-    const data = await fetchAdminKeysFromBackend();
-    setKeys(data);
+    const [keysData, presetsData] = await Promise.all([
+      fetchAdminKeysFromBackend(),
+      fetchPricePresetsFromBackend()
+    ]);
+    setKeys(keysData);
+    if (presetsData && presetsData.length > 0) {
+      setPresets(presetsData);
+      saveStoredPresets(presetsData);
+    }
     setIsLoading(false);
   };
 
@@ -124,8 +210,17 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     setEditingKey(null);
     if (apps.length > 0) setSelectedAppId(apps[0].id);
     setKeyCodeStr('');
-    setDurationDays(30);
-    setPrice(50000);
+
+    if (presets.length > 0) {
+      setSelectedPresetId(presets[0].id);
+      setDurationDays(presets[0].durationDays);
+      setPrice(presets[0].price);
+    } else {
+      setSelectedPresetId('custom');
+      setDurationDays(30);
+      setPrice(50000);
+    }
+
     setEditingStatus('AVAILABLE');
     setIsModalOpen(true);
   };
@@ -136,6 +231,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     setKeyCodeStr(key.keyCode);
     setDurationDays(key.durationDays);
     setPrice(key.price);
+    setSelectedPresetId('custom');
     setEditingStatus(key.status as 'AVAILABLE' | 'SOLD');
     setIsModalOpen(true);
   };
@@ -326,6 +422,13 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
       <div className="panel-header">
         <h2>🔑 {lang === 'vi' ? 'Quản Lý Kho Key Theo Gói' : 'Keys Inventory Manager'}</h2>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            className="add-btn"
+            style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: 'none' }}
+            onClick={() => setIsPresetsManagerOpen(true)}
+          >
+            ⚙️ {lang === 'vi' ? 'Cấu Hình Bảng Giá Mẫu' : 'Price Presets'}
+          </button>
           <button
             className="add-btn"
             style={{ background: 'linear-gradient(135deg, #0284c7, #2563eb)', border: 'none' }}
@@ -676,27 +779,56 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                   </select>
                 </div>
 
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label>{lang === 'vi' ? 'Số Ngày Thời Hạn (Ngày):' : 'Duration (Days):'}</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={durationDays === 0 ? '' : durationDays}
-                      onChange={(e) => setDurationDays(e.target.value === '' ? 0 : Number(e.target.value))}
-                    />
+                {!editingKey && (
+                  <div className="form-group" style={{ background: 'rgba(99, 102, 241, 0.12)', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.4)', marginBottom: '14px' }}>
+                    <label style={{ color: '#a5b4fc', fontWeight: 'bold', fontSize: '13px', display: 'block', marginBottom: '6px' }}>
+                      💎 {lang === 'vi' ? 'Chọn Gói Giá Có Sẵn (*):' : 'Select Pre-set Package (*):'}
+                    </label>
+                    <select
+                      value={selectedPresetId}
+                      onChange={(e) => handleSelectPreset(e.target.value)}
+                      style={{ fontWeight: 800, color: '#38bdf8', background: '#0f172a', border: '1px solid #38bdf8', padding: '9px 12px', borderRadius: '8px', width: '100%', fontSize: '13.5px' }}
+                    >
+                      {presets.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} — {p.durationDays} Ngày — {p.price.toLocaleString()} VNĐ
+                        </option>
+                      ))}
+                      <option value="custom">✏️ {lang === 'vi' ? 'Tự nhập ngày & giá thủ công...' : 'Enter custom days & price...'}</option>
+                    </select>
+
+                    {selectedPresetId !== 'custom' && (
+                      <div style={{ display: 'flex', gap: '14px', marginTop: '10px', padding: '8px 12px', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.2)', fontSize: '12.5px' }}>
+                        <span style={{ color: '#38bdf8', fontWeight: 'bold' }}>⏱️ {lang === 'vi' ? 'Hạn dùng:' : 'Duration:'} {durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</span>
+                        <span style={{ color: '#4ade80', fontWeight: 'bold' }}>💰 {lang === 'vi' ? 'Giá bán:' : 'Price:'} {price.toLocaleString()} đ</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="form-group">
-                    <label>{lang === 'vi' ? 'Giá Bán Gói (VNĐ - Tối thiểu 2,000đ):' : 'Price (VND - Min 2,000):'}</label>
-                    <input
-                      type="number"
-                      min="2000"
-                      step="1000"
-                      value={price === 0 ? '' : price}
-                      onChange={(e) => setPrice(e.target.value === '' ? 0 : Number(e.target.value))}
-                    />
+                )}
+
+                {(editingKey || selectedPresetId === 'custom') && (
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label>{lang === 'vi' ? 'Số Ngày Thời Hạn (Ngày):' : 'Duration (Days):'}</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={durationDays || ''}
+                        onChange={(e) => setDurationDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>{lang === 'vi' ? 'Giá Bán Gói (VNĐ - Tối thiểu 2,000đ):' : 'Price (VND - Min 2,000):'}</label>
+                      <input
+                        type="number"
+                        min="2000"
+                        step="1000"
+                        value={price || ''}
+                        onChange={(e) => setPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {editingKey && (
                   <div className="form-group">
@@ -807,8 +939,8 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                     min="2000"
                     step="1000"
                     required
-                    value={bulkPrice === 0 ? '' : bulkPrice}
-                    onChange={(e) => setBulkPrice(e.target.value === '' ? 0 : Number(e.target.value))}
+                    value={bulkPrice || ''}
+                    onChange={(e) => setBulkPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
                     placeholder="Ví dụ: 35000 (Tối thiểu 2,000đ)"
                   />
                   <small style={{ color: '#94a3b8', marginTop: '4px', display: 'block' }}>
@@ -858,6 +990,112 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {isPresetsManagerOpen && (
+        <ModalPortal>
+          <div className="sub-modal-overlay" onClick={() => setIsPresetsManagerOpen(false)}>
+            <div className="sub-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '580px' }}>
+              <button className="close" onClick={() => setIsPresetsManagerOpen(false)}>×</button>
+              <h4 style={{ color: '#a855f7', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                ⚙️ {lang === 'vi' ? 'Cấu Hình Bảng Giá Key Mẫu' : 'Configure Key Price Presets'}
+              </h4>
+              <p style={{ color: '#94a3b8', fontSize: '12.5px', marginBottom: '16px' }}>
+                {lang === 'vi'
+                  ? 'Tạo các gói giá & ngày cố định để khi nạp key mới chỉ cần chọn từ danh sách mà không cần nhập lại nhiều lần.'
+                  : 'Manage pricing presets for faster key importation.'}
+              </p>
+
+              {/* Form Add Preset */}
+              <form onSubmit={handleAddPreset} style={{ background: 'rgba(30, 41, 59, 0.8)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.3)', marginBottom: '16px' }}>
+                <strong style={{ color: '#e9d5ff', fontSize: '13px', display: 'block', marginBottom: '10px' }}>
+                  + {lang === 'vi' ? 'Thêm Gói Mẫu Mới:' : 'Add New Preset:'}
+                </strong>
+                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1.2fr auto', gap: '8px', alignItems: 'end' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', color: '#cbd5e1' }}>{lang === 'vi' ? 'Tên Gói:' : 'Name:'}</label>
+                    <input
+                      type="text"
+                      placeholder="VD: Gói 7 Ngày"
+                      value={newPresetName}
+                      onChange={(e) => setNewPresetName(e.target.value)}
+                      style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12.5px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', color: '#cbd5e1' }}>{lang === 'vi' ? 'Số Ngày:' : 'Days:'}</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={newPresetDays || ''}
+                      onChange={(e) => setNewPresetDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
+                      style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12.5px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', color: '#cbd5e1' }}>{lang === 'vi' ? 'Giá (VNĐ):' : 'Price:'}</label>
+                    <input
+                      type="number"
+                      min="2000"
+                      step="1000"
+                      value={newPresetPrice || ''}
+                      onChange={(e) => setNewPresetPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
+                      style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12.5px' }}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    style={{
+                      background: 'linear-gradient(135deg, #a855f7, #7e22ce)',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '7px 14px',
+                      borderRadius: '6px',
+                      fontWeight: 'bold',
+                      fontSize: '12.5px',
+                      cursor: 'pointer',
+                      height: '32px'
+                    }}
+                  >
+                    + {lang === 'vi' ? 'Lưu' : 'Add'}
+                  </button>
+                </div>
+              </form>
+
+              {/* List Existing Presets */}
+              <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+                <table className="admin-table" style={{ width: '100%', fontSize: '12.5px' }}>
+                  <thead>
+                    <tr>
+                      <th>{lang === 'vi' ? 'Tên Gói' : 'Name'}</th>
+                      <th>{lang === 'vi' ? 'Thời Hạn' : 'Duration'}</th>
+                      <th>{lang === 'vi' ? 'Giá Bán (VNĐ)' : 'Price'}</th>
+                      <th style={{ textAlign: 'center' }}>{lang === 'vi' ? 'Thao tác' : 'Action'}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {presets.map((p) => (
+                      <tr key={p.id}>
+                        <td><strong>{p.name}</strong></td>
+                        <td>{p.durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</td>
+                        <td style={{ color: '#10b981', fontWeight: 'bold' }}>{p.price.toLocaleString()} đ</td>
+                        <td style={{ textAlign: 'center' }}>
+                          <button
+                            className="delete-btn"
+                            style={{ padding: '3px 8px', fontSize: '11px' }}
+                            onClick={() => handleDeletePreset(p.id)}
+                          >
+                            🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </ModalPortal>
