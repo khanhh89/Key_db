@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { FeedbackCategory, FeedbackCreatePayload } from '../../types';
 import { submitFeedback } from '../../services/feedbackApi';
+import { uploadToCloudinary } from '../../services/cloudinary';
+import { ModalPortal } from '../common/ModalPortal';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -24,6 +26,29 @@ export function FeedbackModal({ isOpen, onClose, onOpenHistory, showToast }: Fee
   const [contactInfo, setContactInfo] = useState('');
   const [attachmentUrl, setAttachmentUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
+
+  const handleAttachmentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingAttachment(true);
+    if (showToast) showToast('☁ Đang tải ảnh minh họa từ máy lên...', 'info');
+
+    try {
+      const url = await uploadToCloudinary(file);
+      if (url) {
+        setAttachmentUrl(url);
+        if (showToast) showToast('🎉 Đã tải ảnh minh họa từ máy thành công!', 'success');
+      }
+    } catch (err) {
+      if (showToast) showToast('❌ Không thể tải ảnh từ máy!', 'error');
+    } finally {
+      setIsUploadingAttachment(false);
+      e.target.value = '';
+    }
+  };
+
 
   if (!isOpen) return null;
 
@@ -66,20 +91,22 @@ export function FeedbackModal({ isOpen, onClose, onOpenHistory, showToast }: Fee
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose} style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.75)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '16px'
-    }}>
+    <ModalPortal>
+      <div className="modal-backdrop" onClick={onClose} style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 99999,
+        padding: '16px'
+      }}>
+
       <div className="feedback-modal-card" onClick={(e) => e.stopPropagation()} style={{
         background: '#1e293b',
         border: '1px solid rgba(255, 255, 255, 0.12)',
@@ -280,27 +307,48 @@ export function FeedbackModal({ isOpen, onClose, onOpenHistory, showToast }: Fee
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#94a3b8', marginBottom: '4px' }}>
-                URL Ảnh minh họa (Tùy chọn)
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
+                Ảnh minh họa đính kèm (Tùy chọn)
               </label>
-              <input
-                type="text"
-                placeholder="https://..."
-                value={attachmentUrl}
-                onChange={(e) => setAttachmentUrl(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: '8px',
-                  background: 'rgba(15, 23, 42, 0.6)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#f8fafc',
-                  fontSize: '13px',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-              />
+              {attachmentUrl ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(15, 23, 42, 0.6)', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                  <img src={attachmentUrl} alt="Attachment" style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #00f2fe' }} />
+                  <div style={{ flex: 1, fontSize: '12px', color: '#4ade80', fontWeight: 600 }}>
+                    ✓ Đã chọn ảnh minh họa thành công
+                  </div>
+                  <label style={{ padding: '6px 12px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                    {isUploadingAttachment ? '⏳ Đang tải...' : '🔄 Đổi ảnh'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      disabled={isUploadingAttachment}
+                      onChange={handleAttachmentUpload}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setAttachmentUrl('')}
+                    style={{ background: 'rgba(239, 68, 68, 0.18)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.35)', padding: '6px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}
+                  >
+                    🗑 Xóa
+                  </button>
+                </div>
+              ) : (
+                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '14px', borderRadius: '12px', border: '2px dashed rgba(56, 189, 248, 0.35)', background: 'rgba(15, 23, 42, 0.4)', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: '#38bdf8' }}>
+                  {isUploadingAttachment ? '⏳ Đang tải ảnh lên...' : '📁 Tải Ảnh Minh Họa Từ Máy Tính / Điện Thoại'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    disabled={isUploadingAttachment}
+                    onChange={handleAttachmentUpload}
+                  />
+                </label>
+              )}
             </div>
+
+
           </div>
 
           {/* Action Buttons */}
@@ -366,5 +414,7 @@ export function FeedbackModal({ isOpen, onClose, onOpenHistory, showToast }: Fee
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
+

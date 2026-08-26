@@ -107,25 +107,35 @@ export function HeroSection({ lang, config }: HeroSectionProps) {
           {t.socialTitle}
         </div>
 
-        <div className="social-bar">
-          <a href={config.facebookUrl || '#'} target="_blank" rel="noreferrer" className="social-pill social-fb hover-lift">
-            <span className="social-icon">f</span>
-            <span>Facebook</span>
-          </a>
-          <a href={config.messengerUrl || '#'} target="_blank" rel="noreferrer" className="social-pill social-msg hover-lift">
-            <span className="social-icon">⚡</span>
-            <span>Messenger</span>
-          </a>
-          <a href={config.zaloUrl || '#'} target="_blank" rel="noreferrer" className="social-pill social-zalo hover-lift">
-            <span className="social-icon">Z</span>
-            <span>Zalo Chat</span>
-          </a>
-          <a href={config.telegramUrl || '#'} target="_blank" rel="noreferrer" className="social-pill social-tele hover-lift">
-            <span className="social-icon">✈</span>
-            <span>Telegram Channel</span>
-          </a>
-        </div>
+        {(() => {
+          const channelsToRender = config.socialChannels && config.socialChannels.length > 0
+            ? config.socialChannels
+            : [
+                { id: 'fb', name: 'Facebook', url: config.facebookUrl, logoUrl: config.facebookLogoUrl },
+                { id: 'msg', name: 'Messenger', url: config.messengerUrl, logoUrl: config.messengerLogoUrl },
+                { id: 'zalo', name: 'Zalo Chat', url: config.zaloUrl, logoUrl: config.zaloLogoUrl },
+                { id: 'tele', name: 'Telegram Channel', url: config.telegramUrl, logoUrl: config.telegramLogoUrl }
+              ].filter(c => c.url && c.url.trim() !== '');
+
+          return (
+            <div className="social-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+              {channelsToRender.map((chan) => (
+                <a key={chan.id} href={chan.url} target="_blank" rel="noreferrer" className="social-pill hover-lift">
+                  <span className="social-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {chan.logoUrl ? (
+                      <img src={chan.logoUrl} alt={chan.name} style={{ width: '22px', height: '22px', objectFit: 'contain', borderRadius: '4px' }} />
+                    ) : (
+                      chan.name.charAt(0).toUpperCase()
+                    )}
+                  </span>
+                  <span>{chan.name}</span>
+                </a>
+              ))}
+            </div>
+          );
+        })()}
       </div>
     </section>
   );
 }
+

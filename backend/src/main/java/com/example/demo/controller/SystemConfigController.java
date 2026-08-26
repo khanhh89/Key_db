@@ -42,6 +42,11 @@ public class SystemConfigController {
                     .messengerUrl(config.getMessengerUrl())
                     .zaloUrl(config.getZaloUrl())
                     .telegramUrl(config.getTelegramUrl())
+                    .facebookLogoUrl(config.getFacebookLogoUrl())
+                    .messengerLogoUrl(config.getMessengerLogoUrl())
+                    .zaloLogoUrl(config.getZaloLogoUrl())
+                    .telegramLogoUrl(config.getTelegramLogoUrl())
+                    .socialChannels(config.getSocialChannels())
                     .specialties(config.getSpecialties())
                     .faviconUrl(config.getFaviconUrl())
                     .cloudinaryCloudName(null)
@@ -70,12 +75,18 @@ public class SystemConfigController {
         config.setMessengerUrl(configDetails.getMessengerUrl());
         config.setZaloUrl(configDetails.getZaloUrl());
         config.setTelegramUrl(configDetails.getTelegramUrl());
+        config.setFacebookLogoUrl(configDetails.getFacebookLogoUrl());
+        config.setMessengerLogoUrl(configDetails.getMessengerLogoUrl());
+        config.setZaloLogoUrl(configDetails.getZaloLogoUrl());
+        config.setTelegramLogoUrl(configDetails.getTelegramLogoUrl());
+        config.setSocialChannels(configDetails.getSocialChannels());
         config.setSpecialties(configDetails.getSpecialties());
         config.setFaviconUrl(configDetails.getFaviconUrl());
         config.setCloudinaryCloudName(configDetails.getCloudinaryCloudName());
         config.setCloudinaryUploadPreset(configDetails.getCloudinaryUploadPreset());
         config.setCloudinaryApiKey(configDetails.getCloudinaryApiKey());
         config.setCloudinaryApiSecret(configDetails.getCloudinaryApiSecret());
+
         if (configDetails.getAdminUsername() != null && !configDetails.getAdminUsername().isEmpty()) {
             config.setAdminUsername(configDetails.getAdminUsername());
         }

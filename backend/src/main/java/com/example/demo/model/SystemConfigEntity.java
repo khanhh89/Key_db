@@ -44,8 +44,25 @@ public class SystemConfigEntity {
     @Column(name = "telegram_url", length = 500)
     private String telegramUrl;
 
+    @Column(name = "facebook_logo_url", columnDefinition = "TEXT")
+    private String facebookLogoUrl;
+
+    @Column(name = "messenger_logo_url", columnDefinition = "TEXT")
+    private String messengerLogoUrl;
+
+    @Column(name = "zalo_logo_url", columnDefinition = "TEXT")
+    private String zaloLogoUrl;
+
+    @Column(name = "telegram_logo_url", columnDefinition = "TEXT")
+    private String telegramLogoUrl;
+
+    @Column(name = "social_channels", columnDefinition = "LONGTEXT")
+    private String socialChannels;
+
     @Column(name = "specialties", columnDefinition = "TEXT")
     private String specialties;
+
+
 
     @Column(name = "favicon_url", columnDefinition = "TEXT")
     private String faviconUrl;

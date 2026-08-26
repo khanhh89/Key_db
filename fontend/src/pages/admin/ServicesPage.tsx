@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ServiceItem, Language } from '../../types';
 import { saveServiceToBackend, deleteServiceFromBackend, fetchServicesFromBackend } from '../../services/api';
+import { uploadToCloudinary } from '../../services/cloudinary';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
 import { ModalPortal } from '../../components/common/ModalPortal';
 
@@ -19,6 +20,7 @@ export function ServicesPage({
 }: ServicesPageProps) {
   const [editingService, setEditingService] = useState<ServiceItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUploadingIcon, setIsUploadingIcon] = useState(false);
 
   // Confirm delete state
   const [deletingService, setDeletingService] = useState<{ id: string; title: string } | null>(null);
@@ -29,6 +31,26 @@ export function ServicesPage({
   const [srvIcon, setSrvIcon] = useState('');
   const [srvCls, setSrvCls] = useState('');
   const [srvUrl, setSrvUrl] = useState('');
+
+  const handleIconFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingIcon(true);
+    showToast(lang === 'vi' ? '☁ Đang tải logo ảnh từ máy lên...' : 'Uploading logo image...');
+    try {
+      const url = await uploadToCloudinary(file);
+      if (url) {
+        setSrvIcon(url);
+        showToast(lang === 'vi' ? '🎉 Đã tải logo ảnh từ máy thành công!' : 'Uploaded logo image!');
+      }
+    } catch (err) {
+      showToast(lang === 'vi' ? '❌ Thất bại khi tải ảnh từ máy!' : 'Upload failed!');
+    } finally {
+      setIsUploadingIcon(false);
+      e.target.value = '';
+    }
+  };
+
 
   const openNewServiceModal = () => {
     setEditingService(null);
@@ -200,15 +222,49 @@ export function ServicesPage({
                 </div>
 
                 <div className="form-grid">
-                  <div className="form-group">
-                    <label>{lang === 'vi' ? 'Icon hoặc Link Logo Ảnh (https://...):' : 'Icon char or Image Logo Link:'}</label>
-                    <input
-                      type="text"
-                      placeholder="https://... hoặc ◈, 🌐, 📺"
-                      value={srvIcon}
-                      onChange={(e) => setSrvIcon(e.target.value)}
-                    />
+                  <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                    <label>{lang === 'vi' ? '🖼️ Logo Ảnh Dịch Vụ (Tải từ máy tính):' : 'Service Logo Image (Upload from computer):'}</label>
+                    <div style={{ marginTop: '6px' }}>
+                      {srvIcon ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: 'rgba(15, 23, 42, 0.6)', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                          <img src={srvIcon} alt="Preview" style={{ width: '48px', height: '48px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #00f2fe' }} />
+                          <div style={{ flex: 1, fontSize: '13px', color: '#4ade80', fontWeight: 600 }}>
+                            ✓ Đã chọn logo ảnh thành công
+                          </div>
+                          <label className="upload-btn-cloud" style={{ margin: 0, padding: '8px 14px', cursor: 'pointer', fontSize: '12px' }}>
+                            {isUploadingIcon ? '⏳ Đang tải...' : '🔄 Đổi ảnh khác'}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              style={{ display: 'none' }}
+                              disabled={isUploadingIcon}
+                              onChange={handleIconFileUpload}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setSrvIcon('')}
+                            style={{ background: 'rgba(239, 68, 68, 0.18)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.35)', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}
+                          >
+                            🗑 Xóa
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="upload-btn-cloud" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderRadius: '12px', border: '2px dashed rgba(56, 189, 248, 0.4)', background: 'rgba(15, 23, 42, 0.4)', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: '#38bdf8' }}>
+                          {isUploadingIcon ? '⏳ Đang tải ảnh lên...' : '📁 Tải Ảnh Logo Từ Máy Tính'}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            disabled={isUploadingIcon}
+                            onChange={handleIconFileUpload}
+                          />
+                        </label>
+                      )}
+                    </div>
                   </div>
+
+
                   <div className="form-group">
                     <label>{lang === 'vi' ? 'Phối màu Icon:' : 'Icon Color:'}</label>
                     <select value={srvCls} onChange={(e) => setSrvCls(e.target.value)}>

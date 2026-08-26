@@ -26,6 +26,14 @@ export interface ServiceItem {
   url: string;
 }
 
+export interface ContactChannel {
+  id: string;
+  name: string;
+  url: string;
+  logoUrl?: string;
+  color?: string;
+}
+
 export interface SystemConfig {
   brandName: string;
   domain: string;
@@ -33,6 +41,11 @@ export interface SystemConfig {
   messengerUrl: string;
   zaloUrl: string;
   telegramUrl: string;
+  facebookLogoUrl?: string;
+  messengerLogoUrl?: string;
+  zaloLogoUrl?: string;
+  telegramLogoUrl?: string;
+  socialChannels?: ContactChannel[];
   specialties: string[];
   faviconUrl?: string;
   cloudinaryCloudName?: string;
@@ -40,6 +53,8 @@ export interface SystemConfig {
   cloudinaryApiKey?: string;
   cloudinaryApiSecret?: string;
 }
+
+
 
 export interface LightboxItem {
   label: string;
