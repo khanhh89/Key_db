@@ -57,35 +57,17 @@ export function FeedbackHistoryModal({ isOpen, onClose, onOpenNewFeedback }: Fee
 
   return (
     <ModalPortal>
-      <div className="modal-backdrop" onClick={onClose} style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-        backdropFilter: 'blur(8px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 99999,
-        padding: '16px'
-      }}>
-
-      <div className="feedback-history-card" onClick={(e) => e.stopPropagation()} style={{
-        background: '#1e293b',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
-        borderRadius: '20px',
-        width: '100%',
-        maxWidth: '640px',
-        maxHeight: '80vh',
-        color: '#f8fafc',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        animation: 'modalSlideIn 0.25s ease-out'
-      }}>
+      <div className="sub-modal-overlay" onClick={onClose}>
+        <div className="feedback-history-card" onClick={(e) => e.stopPropagation()} style={{
+          width: '100%',
+          maxWidth: '640px',
+          maxHeight: '85vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          padding: 0,
+          animation: 'modalSlideIn 0.25s ease-out'
+        }}>
         {/* Header */}
         <div style={{
           padding: '20px 24px',

@@ -11,8 +11,6 @@ interface FloatingWidgetProps {
 export function FloatingWidget({ config, lang, onOpenFeedback, isHidden }: FloatingWidgetProps) {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  if (isHidden) return null;
-
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 300) {
@@ -24,6 +22,8 @@ export function FloatingWidget({ config, lang, onOpenFeedback, isHidden }: Float
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  if (isHidden) return null;
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -2254,7 +2254,11 @@
 }
 
 /* STRICT MODAL OVERLAY FIX - PREVENT PUSHING OR DISPLACING PAGE LAYOUT */
-.modal-portal-wrapper {
+.modal-portal-wrapper,
+.modal-portal-wrapper.app,
+.modal-portal-wrapper.app.dark,
+.modal-portal-wrapper.app.light,
+.modal-portal-wrapper.admin-portal {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
@@ -2265,10 +2269,14 @@
   inset: 0 !important;
   z-index: 9999999 !important;
   pointer-events: auto;
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 .modal-overlay,
-.sub-modal-overlay {
+.sub-modal-overlay,
+.modal-backdrop,
+.lightbox-modal-overlay {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
@@ -2284,6 +2292,9 @@
   overflow-y: auto !important;
   margin: 0 !important;
   box-sizing: border-box !important;
+  background: rgba(8, 12, 20, 0.82) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* ==========================================================================

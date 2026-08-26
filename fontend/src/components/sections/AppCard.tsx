@@ -23,6 +23,7 @@ export function AppCard({
   const t = getTranslation(lang).apps;
 
   const handleOpenBuy = () => {
+    console.log('👉 [CLICK MUA KEY] User clicked buy key for app:', { id: app.id, name: app.name, allowSellKey: app.allowSellKey, app });
     trackClientEvent('CLIENT_CLICK_BUY', `Khách hàng bấm Mua VIP Key cho ứng dụng [${app.name}]`);
     openBuyModal(app);
   };

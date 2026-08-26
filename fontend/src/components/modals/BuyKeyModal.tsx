@@ -158,10 +158,13 @@ export function BuyKeyModal({
       }
     }
     fetchBankConfigFromBackend().then((cfg) => {
+      console.log('🏦 [BuyKeyModal] BankConfig loaded from API:', cfg);
       if (cfg) setBank(cfg);
     });
     fetchKeysFromBackend().then((allKeys) => {
+      console.log('🔑 [BuyKeyModal] Total keys in DB:', allKeys.length);
       const appKeys = allKeys.filter((k) => k.appId === app.id);
+      console.log(`🔑 [BuyKeyModal] Keys matching app [${app.name}] (ID: ${app.id}):`, appKeys);
       setAvailableKeys(appKeys);
     });
   }, [app.id, initialOrder, order?.id]);
@@ -517,6 +520,8 @@ export function BuyKeyModal({
     }
     handleCloseModal();
   };
+
+  console.log(`🛒 [BuyKeyModal RENDERING] App: "${app.name}" (ID: ${app.id}) | AvailableKeys: ${availableKeys.length} | PackageOptions: ${packageOptions.length}`);
 
   return (
     <ModalPortal>

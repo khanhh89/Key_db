@@ -33,7 +33,10 @@ export function ModalPortal({ children }: ModalPortalProps) {
   if (!mounted) return null;
 
   return createPortal(
-    <div className={`modal-portal-wrapper ${themeClass}`}>
+    <div
+      className={`modal-portal-wrapper ${themeClass}`}
+      style={{ background: 'transparent', backgroundColor: 'transparent' }}
+    >
       {children}
     </div>,
     document.body
