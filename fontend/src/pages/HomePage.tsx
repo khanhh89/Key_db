@@ -13,6 +13,9 @@ import { BuyKeyModal } from '../components/modals/BuyKeyModal';
 import { FreeKeyModal } from '../components/modals/FreeKeyModal';
 import { LightboxModal } from '../components/modals/LightboxModal';
 import { OrderLookupModal } from '../components/modals/OrderLookupModal';
+import { FeedbackModal } from '../components/modals/FeedbackModal';
+import { FeedbackHistoryModal } from '../components/modals/FeedbackHistoryModal';
+import { syncDeviceWithBackend } from '../services/feedbackApi';
 import { Footer } from '../components/layout/Footer';
 
 interface HomePageProps {
@@ -56,8 +59,11 @@ export function HomePage({
 }: HomePageProps) {
   const [freeKeyApp, setFreeKeyApp] = useState<AppItem | null>(null);
   const [pendingDraftOrder, setPendingDraftOrder] = useState<OrderItem | null>(null);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isFeedbackHistoryOpen, setIsFeedbackHistoryOpen] = useState(false);
 
   useEffect(() => {
+    syncDeviceWithBackend();
     trackClientEvent('CLIENT_PAGE_VIEW', 'Khách hàng truy cập trang chủ Cửa hàng MOD');
 
     // Check for active pending draft order created within 15 mins
@@ -258,10 +264,27 @@ export function HomePage({
             showToast={showToast}
           />
         )}
+
+        <FeedbackModal
+          isOpen={isFeedbackOpen}
+          onClose={() => setIsFeedbackOpen(false)}
+          onOpenHistory={() => setIsFeedbackHistoryOpen(true)}
+          showToast={showToast}
+        />
+
+        <FeedbackHistoryModal
+          isOpen={isFeedbackHistoryOpen}
+          onClose={() => setIsFeedbackHistoryOpen(false)}
+          onOpenNewFeedback={() => setIsFeedbackOpen(true)}
+        />
       </main>
 
       {/* Floating Support & Back To Top Widgets */}
-      <FloatingWidget config={config} lang={lang} />
+      <FloatingWidget
+        config={config}
+        lang={lang}
+        onOpenFeedback={() => setIsFeedbackOpen(true)}
+      />
 
       <Footer lang={lang} config={config} />
     </div>

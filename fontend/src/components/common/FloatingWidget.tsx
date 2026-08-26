@@ -4,9 +4,10 @@ import type { SystemConfig, Language } from '../../types';
 interface FloatingWidgetProps {
   config: SystemConfig;
   lang: Language;
+  onOpenFeedback?: () => void;
 }
 
-export function FloatingWidget({ config, lang }: FloatingWidgetProps) {
+export function FloatingWidget({ config, lang, onOpenFeedback }: FloatingWidgetProps) {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -29,6 +30,31 @@ export function FloatingWidget({ config, lang }: FloatingWidgetProps) {
 
   return (
     <div className="floating-widgets-container">
+      {/* Quick Anonymous Feedback Button */}
+      {onOpenFeedback && (
+        <button
+          onClick={onOpenFeedback}
+          className="float-btn float-feedback-btn hover-lift"
+          title={lang === 'vi' ? 'Phản hồi & Báo lỗi' : 'Feedback & Bug Report'}
+          style={{
+            background: 'linear-gradient(135deg, #00f2fe, #4facfe)',
+            color: '#0f172a',
+            fontWeight: 700,
+            border: 'none',
+            borderRadius: '24px',
+            padding: '10px 16px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px rgba(0, 242, 254, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <span>💌</span>
+          <span>{lang === 'vi' ? 'Góp Ý' : 'Feedback'}</span>
+        </button>
+      )}
+
       {/* Quick Live Support Float Button */}
       <a
         href={supportLink}

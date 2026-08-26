@@ -8,3 +8,4 @@ export * from './ordersApi';
 export * from './keysApi';
 export * from './bankApi';
 export * from './couponsApi';
+export * from './feedbackApi';

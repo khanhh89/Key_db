@@ -108,5 +108,31 @@ export interface CouponItem {
   active?: boolean;
   createdAt?: string;
   validUntil?: string;
+}export type FeedbackCategory = 'BUG_REPORT' | 'FEATURE_REQUEST' | 'GENERAL_FEEDBACK' | 'COMPLAINT';
+export type FeedbackStatus = 'PENDING' | 'IN_PROGRESS' | 'RESOLVED' | 'REJECTED';
+
+export interface FeedbackItem {
+  id: number;
+  deviceId: string;
+  category: FeedbackCategory;
+  title: string;
+  content: string;
+  rating?: number;
+  contactInfo?: string;
+  attachmentUrls?: string;
+  status: FeedbackStatus;
+  adminReply?: string;
+  isApprovedForHome?: boolean;
+  repliedAt?: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
+export interface FeedbackCreatePayload {
+  category: FeedbackCategory;
+  title: string;
+  content: string;
+  rating?: number;
+  contactInfo?: string;
+  attachmentUrls?: string[];
+}

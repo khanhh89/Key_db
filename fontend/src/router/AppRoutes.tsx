@@ -15,6 +15,7 @@ const OrdersPage = lazy(() => import('../pages/admin/OrdersPage').then((m) => ({
 const CouponsPage = lazy(() => import('../pages/admin/CouponsPage').then((m) => ({ default: m.CouponsPage })));
 const ConfigPage = lazy(() => import('../pages/admin/ConfigPage').then((m) => ({ default: m.ConfigPage })));
 const LogsPage = lazy(() => import('../pages/admin/LogsPage').then((m) => ({ default: m.LogsPage })));
+const AdminFeedbackPage = lazy(() => import('../pages/admin/AdminFeedbackPage').then((m) => ({ default: m.AdminFeedbackPage })));
 
 export function PageLoader() {
   return (
@@ -214,6 +215,15 @@ export function AppRoutes({
               path="logs"
               element={
                 <LogsPage
+                  lang={lang}
+                  showToast={showToast}
+                />
+              }
+            />
+            <Route
+              path="feedbacks"
+              element={
+                <AdminFeedbackPage
                   lang={lang}
                   showToast={showToast}
                 />
