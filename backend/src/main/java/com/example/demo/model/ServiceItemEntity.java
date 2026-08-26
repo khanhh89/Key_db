@@ -24,7 +24,7 @@ public class ServiceItemEntity {
     @Column(name = "cls", length = 50)
     private String cls;
 
-    @Column(name = "icon", length = 50)
+    @Column(name = "icon", columnDefinition = "TEXT")
     private String icon;
 
     @Column(name = "title", nullable = false)

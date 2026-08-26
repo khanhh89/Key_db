@@ -117,8 +117,12 @@ export function ServicesPage({
             {services.map((srv) => (
               <tr key={srv.id}>
                 <td>
-                  <span className={`service-icon-preview ${srv.cls}`}>
-                    {srv.icon}
+                  <span className={`service-icon-preview ${srv.cls}`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '42px', minHeight: '42px', padding: '4px' }}>
+                    {srv.icon && (srv.icon.startsWith('http://') || srv.icon.startsWith('https://') || srv.icon.startsWith('/') || srv.icon.startsWith('data:')) ? (
+                      <img src={srv.icon} alt={srv.title} style={{ width: '38px', height: '38px', objectFit: 'contain', borderRadius: '8px' }} />
+                    ) : (
+                      srv.icon
+                    )}
                   </span>
                 </td>
                 <td>
@@ -197,9 +201,10 @@ export function ServicesPage({
 
                 <div className="form-grid">
                   <div className="form-group">
-                    <label>{lang === 'vi' ? 'Ký tự Icon (ví dụ: ◈, ▣, ➤, ♪, ▶):' : 'Icon char:'}</label>
+                    <label>{lang === 'vi' ? 'Icon hoặc Link Logo Ảnh (https://...):' : 'Icon char or Image Logo Link:'}</label>
                     <input
                       type="text"
+                      placeholder="https://... hoặc ◈, 🌐, 📺"
                       value={srvIcon}
                       onChange={(e) => setSrvIcon(e.target.value)}
                     />
@@ -215,6 +220,7 @@ export function ServicesPage({
                     </select>
                   </div>
                 </div>
+
 
                 <div className="form-group">
                   <label>URL Link:</label>
