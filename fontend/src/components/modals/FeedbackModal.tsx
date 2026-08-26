@@ -86,6 +86,9 @@ export function FeedbackModal({ isOpen, onClose, onOpenHistory, showToast }: Fee
         borderRadius: '20px',
         width: '100%',
         maxWidth: '540px',
+        maxHeight: '90vh',
+        display: 'flex',
+        flexDirection: 'column',
         color: '#f8fafc',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
         overflow: 'hidden',
@@ -98,7 +101,8 @@ export function FeedbackModal({ isOpen, onClose, onOpenHistory, showToast }: Fee
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          flexShrink: 0
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
@@ -144,7 +148,7 @@ export function FeedbackModal({ isOpen, onClose, onOpenHistory, showToast }: Fee
         </div>
 
         {/* Modal Body */}
-        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px', overflowY: 'auto', flex: 1 }}>
           {/* Category Chips */}
           <div>
             <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#cbd5e1', marginBottom: '8px' }}>

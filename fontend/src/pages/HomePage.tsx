@@ -284,6 +284,7 @@ export function HomePage({
         config={config}
         lang={lang}
         onOpenFeedback={() => setIsFeedbackOpen(true)}
+        isHidden={isFeedbackOpen || isFeedbackHistoryOpen || Boolean(buyApp) || Boolean(freeKeyApp) || Boolean(lightbox) || isLookupOpen}
       />
 
       <Footer lang={lang} config={config} />

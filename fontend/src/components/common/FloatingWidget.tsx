@@ -5,10 +5,13 @@ interface FloatingWidgetProps {
   config: SystemConfig;
   lang: Language;
   onOpenFeedback?: () => void;
+  isHidden?: boolean;
 }
 
-export function FloatingWidget({ config, lang, onOpenFeedback }: FloatingWidgetProps) {
+export function FloatingWidget({ config, lang, onOpenFeedback, isHidden }: FloatingWidgetProps) {
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  if (isHidden) return null;
 
   useEffect(() => {
     const handleScroll = () => {

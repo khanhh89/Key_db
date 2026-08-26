@@ -1,4 +1,6 @@
-export const API_BASE_URL = 'https://modlienquan-backend.onrender.com/api';
+export const API_BASE_URL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:8080/api'
+  : 'https://modlienquan-backend.onrender.com/api';
 export const ADMIN_AUTH_TOKEN = 'admin-secret-key-2026';
 
 let activeAdminToken: string = sessionStorage.getItem('admin_rolling_token') || ADMIN_AUTH_TOKEN;

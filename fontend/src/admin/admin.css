@@ -3630,6 +3630,34 @@
   color: #64748b;
 }
 
+/* ==========================================================================
+   ULTRA-SMOOTH ADMIN PORTAL UI ENHANCEMENTS
+   ========================================================================== */
+.admin-sidebar .sidebar-nav-item {
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.admin-sidebar .sidebar-nav-item:hover {
+  transform: translateX(4px);
+}
+
+.admin-portal table tbody tr {
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.admin-portal table tbody tr:hover {
+  background: rgba(56, 189, 248, 0.06) !important;
+}
+
+.admin-portal button {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.admin-portal button:active {
+  transform: scale(0.96) !important;
+}
+
+
 
 
 
