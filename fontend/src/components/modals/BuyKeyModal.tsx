@@ -546,8 +546,20 @@ export function BuyKeyModal({
     const cleanAccountNo = bank.accountNo || '';
     const activeCode = order ? order.paymentCode : 'MK888';
     
-    // Use correct VietQR Deeplink with required 'app' parameter
-    const url = `https://dl.vietqr.io/pay?app=${appId}&ba=${cleanAccountNo}@${activeBankId.toLowerCase()}&am=${currentAmount}&tn=${encodeURIComponent(activeCode)}`;
+    let url = '';
+    
+    // Check if we have the raw NAPAS 247 QR string (from PayOS)
+    // Passing the raw 'vqr' is the most reliable way to prefill all transfer details across all banking apps
+    const rawQr = payosLink?.rawQrCode || (payosLink?.qrCode && !payosLink.qrCode.startsWith('http') ? payosLink.qrCode : null);
+    
+    if (rawQr) {
+      url = `https://dl.vietqr.io/pay?app=${appId}&vqr=${encodeURIComponent(rawQr)}`;
+    } else {
+      // Fallback to explicit params. 
+      // CRITICAL: Many banks require 'bn' (Beneficiary Name) to be present, otherwise they drop the intent.
+      url = `https://dl.vietqr.io/pay?app=${appId}&ba=${cleanAccountNo}@${activeBankId.toLowerCase()}&am=${currentAmount}&tn=${encodeURIComponent(activeCode)}&bn=${encodeURIComponent(bank.accountName || '')}`;
+    }
+    
     window.open(url, '_blank');
     setShowBankSelector(false);
   };
