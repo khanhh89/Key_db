@@ -17,6 +17,21 @@ import {
 import { copyTextToClipboard } from '../../utils/clipboard';
 import { verifyCustomerPaymentInBackend } from '../../services/ordersApi';
 
+const COMMON_BANKS = [
+  { id: 'mb', name: 'MB Bank', color: '#1B1464' },
+  { id: 'vcb', name: 'Vietcombank', color: '#74B14C' },
+  { id: 'bidv', name: 'BIDV', color: '#00558F' },
+  { id: 'icb', name: 'VietinBank', color: '#0067B1' },
+  { id: 'tcb', name: 'Techcombank', color: '#E12017' },
+  { id: 'acb', name: 'ACB', color: '#005DAB' },
+  { id: 'vpb', name: 'VPBank', color: '#00904C' },
+  { id: 'tpb', name: 'TPBank', color: '#7E2B7D' },
+  { id: 'vba', name: 'Agribank', color: '#C8102E' },
+  { id: 'momo', name: 'MoMo', color: '#A50064' },
+  { id: 'zalopay', name: 'ZaloPay', color: '#008FE5' },
+  { id: 'viettelmoney', name: 'Viettel Money', color: '#EE0033' },
+];
+
 interface BuyKeyModalProps {
   app: AppItem;
   lang: Language;
@@ -72,6 +87,7 @@ export function BuyKeyModal({
   const [showManualBankDetails, setShowManualBankDetails] = useState<boolean>(false);
   const [isVerifyingManual, setIsVerifyingManual] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(900); // 15 minutes
+  const [showBankSelector, setShowBankSelector] = useState<boolean>(false);
 
   // Coupon Promo Code States & Refs for Auto-Release Cleanup
   const [couponCodeInput, setCouponCodeInput] = useState<string>('');
@@ -522,15 +538,18 @@ export function BuyKeyModal({
   };
 
   const handleFastTransfer = () => {
+    setShowBankSelector(true);
+  };
+
+  const executeFastTransfer = (appId: string) => {
     const activeBankId = bank.bankId || 'MB';
     const cleanAccountNo = bank.accountNo || '';
-    const encodedName = encodeURIComponent(bank.accountName || '');
     const activeCode = order ? order.paymentCode : 'MK888';
-    const encodedAddInfo = encodeURIComponent(activeCode);
     
-    // Sử dụng Deeplink VietQR chung cho mọi ngân hàng, KHÔNG mở trang PayOS
-    const url = `https://dl.vietqr.io/pay?bank=${activeBankId}&acc=${cleanAccountNo}&amount=${currentAmount}&des=${encodedAddInfo}&name=${encodedName}`;
+    // Use correct VietQR Deeplink with required 'app' parameter
+    const url = `https://dl.vietqr.io/pay?app=${appId}&ba=${cleanAccountNo}@${activeBankId.toLowerCase()}&am=${currentAmount}&tn=${encodeURIComponent(activeCode)}`;
     window.open(url, '_blank');
+    setShowBankSelector(false);
   };
 
   console.log(`🛒 [BuyKeyModal RENDERING] App: "${app.name}" (ID: ${app.id}) | AvailableKeys: ${availableKeys.length} | PackageOptions: ${packageOptions.length}`);
@@ -991,6 +1010,87 @@ export function BuyKeyModal({
                 {lang === 'vi' ? 'Ấn vào đây nếu bạn đã chuyển khoản xong để hệ thống kiểm tra và cấp Key ngay lập tức' : 'Click here after transfer to check payment immediately'}
               </small>
             </div>
+          </div>
+        )}
+
+        {/* Bank Selector Popup for Fast Transfer */}
+        {showBankSelector && (
+          <div style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(15, 23, 42, 0.95)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 100,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+            borderRadius: '24px',
+            animation: 'fadeIn 0.2s ease'
+          }}>
+            <h3 style={{ color: '#fff', margin: '0 0 8px 0', fontSize: '18px', textAlign: 'center' }}>
+              {lang === 'vi' ? 'Chọn Ứng Dụng Ngân Hàng' : 'Select Banking App'}
+            </h3>
+            <p style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '20px', textAlign: 'center' }}>
+              {lang === 'vi' ? 'Vui lòng chọn ngân hàng bạn đang sử dụng để tự động điền thông tin chuyển khoản:' : 'Please select your bank to autofill payment details:'}
+            </p>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '12px',
+              width: '100%',
+              maxWidth: '320px',
+              maxHeight: '350px',
+              overflowY: 'auto',
+              padding: '4px'
+            }}>
+              {COMMON_BANKS.map((b) => (
+                <button
+                  key={b.id}
+                  onClick={() => executeFastTransfer(b.id)}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: `1px solid ${b.color}40`,
+                    padding: '12px 8px',
+                    borderRadius: '12px',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.background = `${b.color}20`; e.currentTarget.style.borderColor = b.color; }}
+                  onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.borderColor = `${b.color}40`; }}
+                >
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#fff', fontWeight: 'bold' }}>
+                    {b.id.substring(0, 2).toUpperCase()}
+                  </div>
+                  {b.name}
+                </button>
+              ))}
+            </div>
+            
+            <button
+              onClick={() => setShowBankSelector(false)}
+              style={{
+                marginTop: '24px',
+                background: 'transparent',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: '#fff',
+                padding: '10px 24px',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontSize: '13px'
+              }}
+            >
+              {lang === 'vi' ? '✕ Đóng' : '✕ Close'}
+            </button>
           </div>
         )}
       </div>
