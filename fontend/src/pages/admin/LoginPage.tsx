@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { Language, SystemConfig } from '../../types';
 import '../../admin/admin.css';
 
@@ -15,6 +15,9 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
   const [usernameTouched, setUsernameTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const usernameInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
 
   // Field validation rules
   const usernameError = !username.trim()
@@ -37,7 +40,12 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
     setUsernameTouched(true);
     setPasswordTouched(true);
 
-    if (usernameError || passwordError) {
+    if (usernameError) {
+      usernameInputRef.current?.focus();
+      return;
+    }
+    if (passwordError) {
+      passwordInputRef.current?.focus();
       return;
     }
 
@@ -83,7 +91,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
             </label>
             <input
               type="text"
-              required
+              ref={usernameInputRef}
               value={username}
               placeholder={lang === 'vi' ? 'Nhập tên đăng nhập Admin...' : 'Enter Admin username...'}
               onChange={(e) => {
@@ -121,7 +129,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
             </label>
             <input
               type="password"
-              required
+              ref={passwordInputRef}
               value={password}
               placeholder={lang === 'vi' ? 'Nhập mật khẩu Admin...' : 'Enter Admin password...'}
               onChange={(e) => {

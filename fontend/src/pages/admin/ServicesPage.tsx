@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { ServiceItem, Language } from '../../types';
 import { saveServiceToBackend, deleteServiceFromBackend, fetchServicesFromBackend } from '../../services/api';
 import { uploadToCloudinary } from '../../services/cloudinary';
@@ -21,6 +21,7 @@ export function ServicesPage({
   const [editingService, setEditingService] = useState<ServiceItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploadingIcon, setIsUploadingIcon] = useState(false);
+  const srvTitleInputRef = useRef<HTMLInputElement>(null);
 
   // Confirm delete state
   const [deletingService, setDeletingService] = useState<{ id: string; title: string } | null>(null);
@@ -74,7 +75,11 @@ export function ServicesPage({
 
   const handleSaveService = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!srvTitle.trim()) return;
+    if (!srvTitle.trim()) {
+      showToast(lang === 'vi' ? '⚠️ Tiêu đề không được để trống!' : '⚠️ Title cannot be empty!');
+      srvTitleInputRef.current?.focus();
+      return;
+    }
 
     const isEdit = Boolean(editingService);
     const srvPayload: ServiceItem = {
@@ -206,7 +211,7 @@ export function ServicesPage({
                   <label>{lang === 'vi' ? 'Tên Dịch Vụ / Kênh (*):' : 'Service Title (*):'}</label>
                   <input
                     type="text"
-                    required
+                    ref={srvTitleInputRef}
                     value={srvTitle}
                     onChange={(e) => setSrvTitle(e.target.value)}
                   />

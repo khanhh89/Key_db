@@ -521,6 +521,18 @@ export function BuyKeyModal({
     handleCloseModal();
   };
 
+  const handleFastTransfer = () => {
+    const activeBankId = bank.bankId || 'MB';
+    const cleanAccountNo = bank.accountNo || '';
+    const encodedName = encodeURIComponent(bank.accountName || '');
+    const activeCode = order ? order.paymentCode : 'MK888';
+    const encodedAddInfo = encodeURIComponent(activeCode);
+    
+    // Sử dụng Deeplink VietQR chung cho mọi ngân hàng, KHÔNG mở trang PayOS
+    const url = `https://dl.vietqr.io/pay?bank=${activeBankId}&acc=${cleanAccountNo}&amount=${currentAmount}&des=${encodedAddInfo}&name=${encodedName}`;
+    window.open(url, '_blank');
+  };
+
   console.log(`🛒 [BuyKeyModal RENDERING] App: "${app.name}" (ID: ${app.id}) | AvailableKeys: ${availableKeys.length} | PackageOptions: ${packageOptions.length}`);
 
   return (
@@ -832,6 +844,31 @@ export function BuyKeyModal({
                   {showManualBankDetails
                     ? (lang === 'vi' ? '▲ Thu gọn thông tin tài khoản' : '▲ Hide Manual Bank Info')
                     : (lang === 'vi' ? '📋 Xem STK & Ngân hàng thủ công' : '📋 Show Manual Bank Info')}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleFastTransfer}
+                  style={{
+                    marginTop: '12px',
+                    padding: '10px 16px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    width: '100%',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                  }}
+                >
+                  🚀 {lang === 'vi' ? 'Chuyển Khoản Nhanh' : 'Fast Transfer'}
                 </button>
 
                 {showManualBankDetails && (

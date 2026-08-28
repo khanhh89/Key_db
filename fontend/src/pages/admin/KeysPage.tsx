@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import type { LicenseKeyItem, AppItem, Language, KeyPricePreset } from '../../types';
 import {
   fetchAdminKeysFromBackend,
@@ -123,10 +123,17 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     }
   };
 
+  const appIdSelectRef = useRef<HTMLSelectElement>(null);
+  const keyCodeInputRef = useRef<HTMLInputElement>(null);
+  const keyCodeTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const bulkPriceInputRef = useRef<HTMLInputElement>(null);
+  const newPresetNameInputRef = useRef<HTMLInputElement>(null);
+
   const handleAddPreset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPresetName.trim() || newPresetDays <= 0 || newPresetPrice < 2000) {
       showToast(lang === 'vi' ? '⚠️ Vui lòng điền Tên gói, Số ngày > 0 và Giá >= 2,000đ!' : 'Please enter valid preset details!');
+      newPresetNameInputRef.current?.focus();
       return;
     }
     const newPresetData: Partial<KeyPricePreset> = {
@@ -190,6 +197,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     e.preventDefault();
     if (bulkPrice < 2000) {
       showToast(lang === 'vi' ? '⚠️ Giá bán tối thiểu phải từ 2,000 VNĐ trở lên!' : 'Minimum price must be at least 2,000 VND!');
+      bulkPriceInputRef.current?.focus();
       return;
     }
     setIsBulkSubmitting(true);
@@ -248,7 +256,17 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
 
   const handleSaveKey = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!keyCodeStr.trim() || !selectedAppId) return;
+    if (!selectedAppId) {
+      showToast(lang === 'vi' ? '⚠️ Vui lòng chọn App!' : '⚠️ Please select an App!');
+      appIdSelectRef.current?.focus();
+      return;
+    }
+    if (!keyCodeStr.trim()) {
+      showToast(lang === 'vi' ? '⚠️ Mã Key không được để trống!' : '⚠️ Key Code cannot be empty!');
+      if (editingKey) keyCodeInputRef.current?.focus();
+      else keyCodeTextareaRef.current?.focus();
+      return;
+    }
 
     if (editingKey) {
       // UPDATE EXISTING KEY MODE
@@ -778,6 +796,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                 <div className="form-group">
                   <label>{lang === 'vi' ? 'Chọn App Catalog (*):' : 'Select App (*):'}</label>
                   <select
+                    ref={appIdSelectRef}
                     value={selectedAppId}
                     onChange={(e) => setSelectedAppId(e.target.value)}
                   >
@@ -860,14 +879,14 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                   {editingKey ? (
                     <input
                       type="text"
-                      required
+                      ref={keyCodeInputRef}
                       value={keyCodeStr}
                       onChange={(e) => setKeyCodeStr(e.target.value)}
                     />
                   ) : (
                     <textarea
                       rows={5}
-                      required
+                      ref={keyCodeTextareaRef}
                       value={keyCodeStr}
                       onChange={(e) => setKeyCodeStr(e.target.value)}
                     />
@@ -946,7 +965,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                     type="number"
                     min="2000"
                     step="1000"
-                    required
+                    ref={bulkPriceInputRef}
                     value={bulkPrice || ''}
                     onChange={(e) => setBulkPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
                     placeholder="Ví dụ: 35000 (Tối thiểu 2,000đ)"

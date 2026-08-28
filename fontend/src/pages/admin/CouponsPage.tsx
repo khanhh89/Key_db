@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { CouponItem, AppItem, Language } from '../../types';
 import { fetchCouponsFromBackend, saveCouponToBackend, deleteCouponFromBackend } from '../../services/api';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
@@ -31,6 +31,9 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
   const [appId, setAppId] = useState<string>('ALL');
   const [active, setActive] = useState<boolean>(true);
   const [validUntilDate, setValidUntilDate] = useState<string>('');
+
+  const codeInputRef = useRef<HTMLInputElement>(null);
+  const discountValueInputRef = useRef<HTMLInputElement>(null);
 
   const loadCoupons = async () => {
     const data = await fetchCouponsFromBackend();
@@ -71,7 +74,16 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
 
   const handleSaveCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!code.trim()) return;
+    if (!code.trim()) {
+      showToast(lang === 'vi' ? '⚠️ Mã giảm giá không được để trống!' : '⚠️ Coupon code cannot be empty!');
+      codeInputRef.current?.focus();
+      return;
+    }
+    if (!discountValue || discountValue <= 0) {
+      showToast(lang === 'vi' ? '⚠️ Mức giảm giá phải lớn hơn 0!' : '⚠️ Discount value must be greater than 0!');
+      discountValueInputRef.current?.focus();
+      return;
+    }
 
     const payload: Partial<CouponItem> = {
       id: editingCoupon ? editingCoupon.id : undefined,
@@ -271,7 +283,7 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                 <label>Mã Giảm Giá (Code Promo - Viết hoa, VD: MODVIP10):</label>
                 <input
                   type="text"
-                  required
+                  ref={codeInputRef}
                   placeholder="VD: MODVIP10, KHANH89"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
@@ -297,7 +309,7 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                   <input
                     type="number"
                     min="1"
-                    required
+                    ref={discountValueInputRef}
                     value={discountValue || ''}
                     onChange={(e) => setDiscountValue(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
                   />

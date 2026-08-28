@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { AppItem, SystemConfig, Language } from '../../types';
 import { saveAppToBackend, deleteAppFromBackend, fetchAppsFromBackend } from '../../services/api';
 import { uploadToCloudinary } from '../../services/cloudinary';
@@ -18,6 +18,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
   const [editingApp, setEditingApp] = useState<AppItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploadingIcon, setIsUploadingIcon] = useState(false);
+  const appNameInputRef = useRef<HTMLInputElement>(null);
 
   // Confirm delete state
   const [deletingApp, setDeletingApp] = useState<{ id: string; name: string } | null>(null);
@@ -158,7 +159,11 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
 
   const handleSaveApp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!appName.trim()) return;
+    if (!appName.trim()) {
+      showToast(lang === 'vi' ? '⚠️ Tên App không được để trống!' : '⚠️ App Name cannot be empty!');
+      appNameInputRef.current?.focus();
+      return;
+    }
 
     const shotsArray = appShotsStr.trim()
       ? appShotsStr.split(',').map((s) => s.trim()).filter(Boolean)
@@ -410,7 +415,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                     <label>{lang === 'vi' ? 'Tên App (*):' : 'App Name (*):'}</label>
                     <input
                       type="text"
-                      required
+                      ref={appNameInputRef}
                       value={appName}
                       onChange={(e) => setAppName(e.target.value)}
                     />
