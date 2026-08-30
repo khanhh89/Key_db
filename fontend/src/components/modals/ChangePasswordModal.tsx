@@ -63,7 +63,11 @@ export function ChangePasswordModal({ isOpen, onClose, lang, showToast }: Change
     // Save new password via Backend REST API (zero localStorage used for password)
     const result = await changeAdminPasswordInBackend(newPass.trim());
     if (result.success) {
-      showToast(lang === 'vi' ? '🎉 Đã cập nhật mật khẩu Admin mới thành công!' : '🎉 Admin password updated successfully!');
+      const username = result.username || 'admin';
+      const successMsg = lang === 'vi' 
+          ? `🎉 Đã đổi mật khẩu! Tài khoản: ${username} - Mật khẩu mới: ${newPass.trim()}`
+          : `🎉 Password updated! Username: ${username} - New Password: ${newPass.trim()}`;
+      showToast(successMsg);
       setNewPass('');
       setConfirmPass('');
       onClose();

@@ -90,7 +90,7 @@ export async function loginAdminInBackend(user: string, pass: string, otpCode?: 
   return { success: false, message: 'Sai tài khoản hoặc mật khẩu Admin!' };
 }
 
-export async function changeAdminPasswordInBackend(newPassword: string): Promise<{ success: boolean; message: string }> {
+export async function changeAdminPasswordInBackend(newPassword: string): Promise<{ success: boolean; message: string; username?: string }> {
   try {
     const token = await refreshAdminRollingToken();
     const res = await fetch(`${API_BASE_URL}/auth/change-password`, {
@@ -105,7 +105,8 @@ export async function changeAdminPasswordInBackend(newPassword: string): Promise
     const data = await res.json();
     return {
       success: res.ok && data.success,
-      message: data.message || (res.ok ? 'Đã cập nhật mật khẩu Admin mới thành công!' : 'Đổi mật khẩu thất bại!')
+      message: data.message || (res.ok ? 'Đã cập nhật mật khẩu Admin mới thành công!' : 'Đổi mật khẩu thất bại!'),
+      username: data.username
     };
   } catch (err) {
     console.warn('Change password API call failed', err);

@@ -203,8 +203,13 @@ public class AuthController {
 
             systemLogService.log(request, "ADMIN_CHANGE_PASSWORD_SUCCESS", "Admin đã đổi mật khẩu bảo mật mới và lưu mã hóa thành công.");
 
+            String currentUsername = (config.getAdminUsername() != null && !config.getAdminUsername().isEmpty()) 
+                    ? config.getAdminUsername() 
+                    : "admin";
+
             response.put("success", true);
             response.put("message", "Đã mã hóa và cập nhật mật khẩu Admin mới thành công!");
+            response.put("username", currentUsername);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             systemLogService.log(request, "ADMIN_CHANGE_PASSWORD_ERROR", "Lỗi server khi đổi mật khẩu: " + e.getMessage());
