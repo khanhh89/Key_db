@@ -5,7 +5,7 @@ import '../../admin/admin.css';
 interface LoginPageProps {
   lang: Language;
   config?: SystemConfig;
-  onLogin: (username: string, pass: string) => boolean | Promise<boolean>;
+  onLogin: (username: string, pass: string, otpCode?: string, setupSecret?: string) => Promise<any>;
   onBackToSite: () => void;
 }
 
@@ -15,6 +15,12 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
   const [usernameTouched, setUsernameTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [requiresSetup2FA, setRequiresSetup2FA] = useState(false);
+  const [qrUrl, setQrUrl] = useState('');
+  const [setupSecret, setSetupSecret] = useState('');
+  const [otpCode, setOtpCode] = useState('');
 
   const usernameInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
@@ -51,7 +57,16 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
 
     setIsSubmitting(true);
     try {
-      await onLogin(username.trim(), password.trim());
+      const res = await onLogin(username.trim(), password.trim(), otpCode.trim(), setupSecret);
+      if (res && res.success) {
+        if (res.requiresSetup2FA) {
+          setRequiresSetup2FA(true);
+          setQrUrl(res.qrUrl);
+          setSetupSecret(res.setupSecret);
+        } else if (res.requires2FA) {
+          setRequires2FA(true);
+        }
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -79,6 +94,38 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
         </div>
 
         <form onSubmit={handleSubmit} className="login-form" autoComplete="off">
+          {(requires2FA || requiresSetup2FA) ? (
+            <div style={{ textAlign: 'center', marginBottom: '15px' }}>
+              <h3 style={{ color: '#00f2fe', marginBottom: '10px', fontSize: '18px' }}>{lang === 'vi' ? 'BẢO MẬT 2 LỚP (2FA)' : '2-STEP VERIFICATION'}</h3>
+              {requiresSetup2FA && (
+                <div style={{ marginBottom: '15px', background: 'rgba(0,0,0,0.3)', padding: '15px', borderRadius: '10px' }}>
+                  <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '10px', lineHeight: '1.5' }}>
+                    {lang === 'vi' ? 'Quét mã QR này bằng ứng dụng Google Authenticator hoặc Authy:' : 'Scan this QR with Google Authenticator or Authy:'}
+                  </p>
+                  {qrUrl && <img src={qrUrl} alt="QR Code" style={{ width: '150px', height: '150px', borderRadius: '8px', border: '3px solid #fff' }} />}
+                  <p style={{ fontSize: '12px', color: '#64748b', marginTop: '10px' }}>
+                    Secret Key: <span style={{ color: '#00f2fe', fontWeight: 'bold' }}>{setupSecret}</span>
+                  </p>
+                </div>
+              )}
+              <div className="form-field">
+                <label style={{ display: 'flex', justifyContent: 'center' }}>
+                  <span>{lang === 'vi' ? 'NHẬP MÃ OTP 6 SỐ:' : 'ENTER 6-DIGIT OTP:'}</span>
+                </label>
+                <input
+                  type="text"
+                  value={otpCode}
+                  placeholder="------"
+                  maxLength={6}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                  style={{ textAlign: 'center', fontSize: '20px', letterSpacing: '5px' }}
+                  autoComplete="off"
+                  autoFocus
+                />
+              </div>
+            </div>
+          ) : (
+            <>
           {/* USERNAME FIELD WITH VALIDATION STATUS */}
           <div className="form-field">
             <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -155,14 +202,19 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
             )}
           </div>
 
+            </>
+          )}
+
           <button
             type="submit"
             className="login-btn"
-            disabled={isSubmitting}
-            style={{ opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}
+            disabled={isSubmitting || ((requires2FA || requiresSetup2FA) && otpCode.length !== 6)}
+            style={{ opacity: (isSubmitting || ((requires2FA || requiresSetup2FA) && otpCode.length !== 6)) ? 0.7 : 1, cursor: (isSubmitting || ((requires2FA || requiresSetup2FA) && otpCode.length !== 6)) ? 'not-allowed' : 'pointer' }}
           >
             {isSubmitting
               ? (lang === 'vi' ? '⏳ Đang kiểm tra xác thực...' : '⏳ Authenticating...')
+              : (requires2FA || requiresSetup2FA)
+              ? (lang === 'vi' ? '✓ XÁC NHẬN MÃ OTP' : 'VERIFY OTP')
               : (lang === 'vi' ? '🔓 ĐĂNG NHẬP HỆ THỐNG' : 'LOGIN TO PORTAL')}
           </button>
         </form>

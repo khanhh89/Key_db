@@ -11,10 +11,8 @@ interface ChangePasswordModalProps {
 }
 
 export function ChangePasswordModal({ isOpen, onClose, lang, showToast }: ChangePasswordModalProps) {
-  const [currentPass, setCurrentPass] = useState('');
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
-  const [showCurrentPass, setShowCurrentPass] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
   const [error, setError] = useState('');
@@ -22,6 +20,29 @@ export function ChangePasswordModal({ isOpen, onClose, lang, showToast }: Change
   if (!isOpen) return null;
 
   const passwordsMatch = confirmPass.length > 0 && newPass === confirmPass;
+
+  const calculateStrength = (pass: string) => {
+    let score = 0;
+    if (!pass) return 0;
+    if (pass.length > 5) score += 1;
+    if (pass.length > 8) score += 1;
+    if (/[A-Z]/.test(pass)) score += 1;
+    if (/[0-9]/.test(pass)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pass)) score += 1;
+    return score;
+  };
+  const strength = calculateStrength(newPass);
+  const getStrengthColor = () => {
+    if (strength <= 1) return '#ef4444';
+    if (strength <= 3) return '#eab308';
+    return '#10b981';
+  };
+  const getStrengthLabel = () => {
+    if (strength === 0) return '';
+    if (strength <= 1) return lang === 'vi' ? 'Yếu' : 'Weak';
+    if (strength <= 3) return lang === 'vi' ? 'Trung bình' : 'Fair';
+    return lang === 'vi' ? 'Mạnh' : 'Strong';
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,10 +61,9 @@ export function ChangePasswordModal({ isOpen, onClose, lang, showToast }: Change
     }
 
     // Save new password via Backend REST API (zero localStorage used for password)
-    const result = await changeAdminPasswordInBackend(currentPass, newPass.trim());
+    const result = await changeAdminPasswordInBackend(newPass.trim());
     if (result.success) {
       showToast(lang === 'vi' ? '🎉 Đã cập nhật mật khẩu Admin mới thành công!' : '🎉 Admin password updated successfully!');
-      setCurrentPass('');
       setNewPass('');
       setConfirmPass('');
       onClose();
@@ -176,62 +196,6 @@ export function ChangePasswordModal({ isOpen, onClose, lang, showToast }: Change
         )}
 
         <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* CURRENT PASSWORD */}
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#cbd5e1', marginBottom: '6px', letterSpacing: '0.5px' }}>
-              {lang === 'vi' ? 'MẬT KHẨU HIỆN TẠI:' : 'CURRENT PASSWORD:'}
-            </label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type={showCurrentPass ? 'text' : 'password'}
-                required
-                value={currentPass}
-                onChange={(e) => {
-                  setCurrentPass(e.target.value);
-                  if (error) setError('');
-                }}
-                placeholder={lang === 'vi' ? 'Nhập mật khẩu hiện tại...' : 'Enter current password...'}
-                style={{
-                  width: '100%',
-                  padding: '11px 42px 11px 14px',
-                  borderRadius: '10px',
-                  background: '#0b1120',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#fff',
-                  fontSize: '14px',
-                  outline: 'none',
-                  transition: 'border-color 0.2s, box-shadow 0.2s'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#00f2fe';
-                  e.target.style.boxShadow = '0 0 12px rgba(0, 242, 254, 0.3)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-                  e.target.style.boxShadow = 'none';
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowCurrentPass(!showCurrentPass)}
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  color: '#94a3b8',
-                  cursor: 'pointer',
-                  fontSize: '15px'
-                }}
-                title={showCurrentPass ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-              >
-                {showCurrentPass ? '🙈' : '👁️'}
-              </button>
-            </div>
-          </div>
-
           {/* NEW PASSWORD */}
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#cbd5e1', marginBottom: '6px', letterSpacing: '0.5px' }}>
@@ -239,6 +203,7 @@ export function ChangePasswordModal({ isOpen, onClose, lang, showToast }: Change
             </label>
             <div style={{ position: 'relative' }}>
               <input
+                autoFocus
                 type={showNewPass ? 'text' : 'password'}
                 required
                 value={newPass}
@@ -286,6 +251,17 @@ export function ChangePasswordModal({ isOpen, onClose, lang, showToast }: Change
                 {showNewPass ? '🙈' : '👁️'}
               </button>
             </div>
+            {newPass.length > 0 && (
+              <div style={{ marginTop: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 600, color: '#cbd5e1', marginBottom: '4px' }}>
+                  <span>{lang === 'vi' ? 'Độ mạnh mật khẩu:' : 'Password strength:'}</span>
+                  <span style={{ color: getStrengthColor() }}>{getStrengthLabel()}</span>
+                </div>
+                <div style={{ height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${(strength / 5) * 100}%`, background: getStrengthColor(), transition: 'all 0.3s ease' }} />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* CONFIRM NEW PASSWORD */}

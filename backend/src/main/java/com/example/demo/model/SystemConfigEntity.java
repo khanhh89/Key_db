@@ -84,4 +84,7 @@ public class SystemConfigEntity {
 
     @Column(name = "admin_password")
     private String adminPassword;
+
+    @Column(name = "totp_secret")
+    private String totpSecret;
 }

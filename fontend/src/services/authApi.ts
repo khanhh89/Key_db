@@ -61,18 +61,26 @@ export function getLanguageHeader(): Record<string, string> {
   };
 }
 
-export async function loginAdminInBackend(user: string, pass: string): Promise<{ success: boolean; token?: string; message?: string }> {
+export async function loginAdminInBackend(user: string, pass: string, otpCode?: string, setupSecret?: string): Promise<{ success: boolean; token?: string; message?: string; requires2FA?: boolean; requiresSetup2FA?: boolean; qrUrl?: string; setupSecret?: string }> {
   try {
     const res = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...getLanguageHeader() },
-      body: JSON.stringify({ username: user, password: pass })
+      body: JSON.stringify({ username: user, password: pass, otpCode, setupSecret })
     });
     const data = await res.json();
-    if (res.ok && data.success && data.token) {
-      activeAdminToken = data.token;
-      sessionStorage.setItem('admin_rolling_token', data.token);
-      return { success: true, token: data.token, message: data.message };
+    if (res.ok && data.success) {
+      if (data.requires2FA) {
+        return { success: true, requires2FA: true, message: data.message };
+      }
+      if (data.requiresSetup2FA) {
+        return { success: true, requiresSetup2FA: true, setupSecret: data.setupSecret, qrUrl: data.qrUrl, message: data.message };
+      }
+      if (data.token) {
+        activeAdminToken = data.token;
+        sessionStorage.setItem('admin_rolling_token', data.token);
+        return { success: true, token: data.token, message: data.message };
+      }
     } else {
       return { success: false, message: data.message || 'Tên đăng nhập hoặc mật khẩu không chính xác!' };
     }
@@ -82,7 +90,7 @@ export async function loginAdminInBackend(user: string, pass: string): Promise<{
   return { success: false, message: 'Sai tài khoản hoặc mật khẩu Admin!' };
 }
 
-export async function changeAdminPasswordInBackend(currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+export async function changeAdminPasswordInBackend(newPassword: string): Promise<{ success: boolean; message: string }> {
   try {
     const token = await refreshAdminRollingToken();
     const res = await fetch(`${API_BASE_URL}/auth/change-password`, {
@@ -92,7 +100,7 @@ export async function changeAdminPasswordInBackend(currentPassword: string, newP
         'X-Admin-Auth': token,
         ...getLanguageHeader()
       },
-      body: JSON.stringify({ currentPassword, newPassword })
+      body: JSON.stringify({ newPassword })
     });
     const data = await res.json();
     return {

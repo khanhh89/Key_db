@@ -46,7 +46,7 @@ export interface AppRoutesProps {
   isLookupOpen: boolean;
   setIsLookupOpen: (open: boolean) => void;
   isAuthenticated: boolean;
-  handleAdminLogin: (user: string, pass: string) => Promise<boolean>;
+  handleAdminLogin: (user: string, pass: string, otpCode?: string, setupSecret?: string) => Promise<any>;
   handleAdminLogout: () => void;
   openBuyModal: (app: AppItem) => void;
   showToast: (msg: string) => void;

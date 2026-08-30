@@ -30,6 +30,32 @@ export function AdminLayout({ lang, config, onLogout, showToast }: AdminLayoutPr
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Auto Logout on Idle (30 minutes)
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+    const IDLE_TIME = 30 * 60 * 1000; // 30 minutes
+
+    const resetTimer = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        if (showToast) {
+          showToast(lang === 'vi' ? '⚠️ Đã tự động đăng xuất do không hoạt động quá lâu!' : '⚠️ Auto-logged out due to inactivity!');
+        }
+        onLogout();
+      }, IDLE_TIME);
+    };
+
+    const events = ['mousemove', 'keydown', 'click', 'scroll'];
+    events.forEach(evt => window.addEventListener(evt, resetTimer));
+
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeout);
+      events.forEach(evt => window.removeEventListener(evt, resetTimer));
+    };
+  }, [onLogout, showToast, lang]);
+
   // Dynamically update browser tab favicon icon for Admin pages
   useEffect(() => {
     if (config?.faviconUrl) {

@@ -131,18 +131,24 @@ export default function App() {
   }, [apps, lang]);
 
   // Auth Handlers
-  const handleAdminLogin = async (user: string, pass: string) => {
+  const handleAdminLogin = async (user: string, pass: string, otpCode?: string, setupSecret?: string) => {
     localStorage.removeItem('modlienquan_admin_password'); // Clean up any legacy localStorage password
-    const result = await loginAdminInBackend(user, pass);
-    if (result.success) {
+    const result = await loginAdminInBackend(user, pass, otpCode, setupSecret);
+    
+    if (result.success && result.token) {
       setIsAuthenticated(true);
       localStorage.setItem('modlienquan_admin_auth', 'true');
       showToast(lang === 'vi' ? '🎉 Đăng nhập Admin thành công! Đã cấp Token mới.' : 'Admin logged in! New token generated.');
       navigate('/admin');
-      return true;
+      return { success: true };
     }
+    
+    if (result.success && (result.requires2FA || result.requiresSetup2FA)) {
+      return result;
+    }
+
     showToast(lang === 'vi' ? (result.message || '❌ Sai tài khoản hoặc mật khẩu Admin!') : 'Invalid login credentials!');
-    return false;
+    return { success: false, message: result.message };
   };
 
   const handleAdminLogout = () => {
