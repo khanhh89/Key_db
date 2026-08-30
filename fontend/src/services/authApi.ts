@@ -109,6 +109,6 @@ export async function changeAdminPasswordInBackend(newPassword: string): Promise
     };
   } catch (err) {
     console.warn('Change password API call failed', err);
+    return { success: false, message: 'Lỗi kết nối máy chủ! Không thể đổi mật khẩu.' };
   }
-  return { success: true, message: 'Đã cập nhật mật khẩu Admin mới thành công!' };
 }

@@ -193,18 +193,25 @@ public class AuthController {
             return ResponseEntity.status(400).body(response);
         }
 
-        SystemConfigEntity config = systemConfigRepository.findAll().stream().findFirst().orElseGet(() -> new SystemConfigEntity());
+        try {
+            SystemConfigEntity config = systemConfigRepository.findAll().stream().findFirst().orElseGet(() -> new SystemConfigEntity());
 
-        // Hash new password using BCrypt before storing
-        String hashedPassword = PasswordUtil.hashPassword(newPassword.trim());
-        config.setAdminPassword(hashedPassword);
-        systemConfigRepository.save(config);
+            // Hash new password using BCrypt before storing
+            String hashedPassword = PasswordUtil.hashPassword(newPassword.trim());
+            config.setAdminPassword(hashedPassword);
+            systemConfigRepository.save(config);
 
-        systemLogService.log(request, "ADMIN_CHANGE_PASSWORD_SUCCESS", "Admin đã đổi mật khẩu bảo mật mới và lưu mã hóa thành công.");
+            systemLogService.log(request, "ADMIN_CHANGE_PASSWORD_SUCCESS", "Admin đã đổi mật khẩu bảo mật mới và lưu mã hóa thành công.");
 
-        response.put("success", true);
-        response.put("message", "Đã mã hóa và cập nhật mật khẩu Admin mới thành công!");
-        return ResponseEntity.ok(response);
+            response.put("success", true);
+            response.put("message", "Đã mã hóa và cập nhật mật khẩu Admin mới thành công!");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            systemLogService.log(request, "ADMIN_CHANGE_PASSWORD_ERROR", "Lỗi server khi đổi mật khẩu: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Lỗi hệ thống: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
     }
 
     @PostMapping("/rescue-reset")
