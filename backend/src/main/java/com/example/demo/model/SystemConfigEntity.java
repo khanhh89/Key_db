@@ -56,7 +56,7 @@ public class SystemConfigEntity {
     @Column(name = "telegram_logo_url", columnDefinition = "TEXT")
     private String telegramLogoUrl;
 
-    @Column(name = "social_channels", columnDefinition = "LONGTEXT")
+    @Column(name = "social_channels", columnDefinition = "TEXT")
     private String socialChannels;
 
     @Column(name = "specialties", columnDefinition = "TEXT")
