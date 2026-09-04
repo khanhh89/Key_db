@@ -363,6 +363,41 @@ body {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
 }
 
+/* Common close button style for modals */
+.close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #94a3b8;
+  font-size: 24px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.light .close {
+  background: rgba(0, 0, 0, 0.05);
+  color: #64748b;
+}
+
+.light .close:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+}
+
 .buy-key-header h3 {
   font-family: var(--font-heading);
   font-size: 22px;
@@ -3452,7 +3487,8 @@ footer {
 
 .modal-overlay,
 .modal-backdrop,
-.lightbox-modal-overlay {
+.lightbox-modal-overlay,
+.sub-modal-overlay {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
@@ -3476,7 +3512,8 @@ footer {
 
 .light .modal-overlay,
 .light .modal-backdrop,
-.light .lightbox-modal-overlay {
+.light .lightbox-modal-overlay,
+.light .sub-modal-overlay {
   background: rgba(15, 23, 42, 0.55) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
