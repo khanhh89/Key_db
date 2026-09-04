@@ -154,51 +154,51 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
   const paginatedCoupons = coupons.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
-    <div className="manager-panel">
-      <div className="panel-header">
-        <h2>🎁 {lang === 'vi' ? 'Quản Lý Mã Giảm Giá (Coupons & Promo)' : 'Discount Coupons Manager'}</h2>
-        <button className="add-btn" onClick={openNewModal}>
+    <div className="bg-[#0f172a]/60 border border-[#1e293b] rounded-[24px] p-7 flex flex-col gap-6">
+      <div className="flex justify-between items-center flex-wrap gap-4">
+        <h2 className="m-0 font-heading text-[22px] font-extrabold">🎁 {lang === 'vi' ? 'Quản Lý Mã Giảm Giá (Coupons & Promo)' : 'Discount Coupons Manager'}</h2>
+        <button className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={openNewModal}>
           + {lang === 'vi' ? 'Tạo Mã Giảm Giá Mới' : 'Create New Coupon'}
         </button>
       </div>
 
-      <div className="admin-table-wrap">
-        <table className="admin-table">
+      <div className="w-full overflow-x-auto rounded-2xl border border-[#1e293b] bg-[#0f172a]/50 backdrop-blur-[10px]">
+        <table className="w-full border-collapse text-left text-sm">
           <thead>
-            <tr>
-              <th>Mã Code</th>
-              <th>Loại Giảm Giá</th>
-              <th>Mức Giảm</th>
-              <th>Đơn Tối Thiểu</th>
-              <th>Hạn Sử Dụng (dd/mm/yy)</th>
-              <th>Lượt Dùng (Đã / Tối đa)</th>
-              <th>App Áp Dụng</th>
-              <th>Trạng Thái</th>
-              <th>Thao Tác</th>
+            <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Mã Code</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Loại Giảm Giá</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Mức Giảm</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Đơn Tối Thiểu</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Hạn Sử Dụng (dd/mm/yy)</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Lượt Dùng (Đã / Tối đa)</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">App Áp Dụng</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Trạng Thái</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Thao Tác</th>
             </tr>
           </thead>
           <tbody>
             {paginatedCoupons.length === 0 ? (
-              <tr>
-                <td colSpan={9} style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>
+              <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
+                <td colSpan={9} className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>
                   Chưa có mã giảm giá nào. Bấm "+ Tạo Mã Giảm Giá Mới" để tạo ngay!
                 </td>
               </tr>
             ) : (
               paginatedCoupons.map((cpn) => (
-                <tr key={cpn.id}>
-                  <td>
+                <tr key={cpn.id} className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
+                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                     <code style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '4px 10px', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px' }}>
                       {cpn.code}
                     </code>
                   </td>
-                  <td>
+                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                     {cpn.discountType === 'PERCENTAGE' ? (
-                      <span className="tag-badge" style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8' }}>
+                      <span className="inline-block px-[10px] py-1 rounded-lg bg-[#6366f1]/15 text-[#818cf8] border border-[#6366f1]/30 font-bold text-[11px]" style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8' }}>
                         % Theo Phần Trăm
                       </span>
                     ) : (
-                      <span className="tag-badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#34d399' }}>
+                      <span className="inline-block px-[10px] py-1 rounded-lg bg-[#6366f1]/15 text-[#818cf8] border border-[#6366f1]/30 font-bold text-[11px]" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#34d399' }}>
                         💵 Số Tiền Cố Định
                       </span>
                     )}
@@ -206,19 +206,19 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                   <td style={{ fontWeight: 'bold', color: '#10b981' }}>
                     {cpn.discountType === 'PERCENTAGE' ? `-${cpn.discountValue}%` : `-${cpn.discountValue.toLocaleString()}đ`}
                   </td>
-                  <td>{cpn.minOrderAmount ? `${cpn.minOrderAmount.toLocaleString()}đ` : '0đ (Không áp dụng)'}</td>
-                  <td>
+                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">{cpn.minOrderAmount ? `${cpn.minOrderAmount.toLocaleString()}đ` : '0đ (Không áp dụng)'}</td>
+                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                     <span style={{ fontSize: '13px', fontWeight: 600, color: cpn.validUntil ? '#f59e0b' : '#94a3b8' }}>
                       {formatDateDDMMYY(cpn.validUntil)}
                     </span>
                   </td>
-                  <td>
+                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                     {cpn.usedCount || 0} / {cpn.maxUses && cpn.maxUses > 0 ? cpn.maxUses : '∞ Không giới hạn'}
                   </td>
-                  <td>
+                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                     <small style={{ fontWeight: 600 }}>{getAppName(cpn.appId)}</small>
                   </td>
-                  <td>
+                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                     <button
                       onClick={() => toggleActiveStatus(cpn)}
                       style={{
@@ -234,12 +234,12 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                       {cpn.active !== false ? '🟢 Đang Bật' : '🔴 Đã Khóa'}
                     </button>
                   </td>
-                  <td>
-                    <div className="btn-group">
-                      <button className="edit-btn" onClick={() => openEditModal(cpn)}>
+                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                    <div className="flex items-center gap-2">
+                      <button className="bg-[#38bdf8]/12 text-[#38bdf8] border border-[#38bdf8]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#38bdf8] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]" onClick={() => openEditModal(cpn)}>
                         ✎ Sửa
                       </button>
-                      <button className="delete-btn" onClick={() => setDeletingId(cpn.id)}>
+                      <button className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]" onClick={() => setDeletingId(cpn.id)}>
                         🗑 Xóa
                       </button>
                     </div>
@@ -272,16 +272,16 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
 
       {isModalOpen && (
         <ModalPortal>
-          <div className="sub-modal-overlay" onClick={() => setIsModalOpen(false)}>
-          <div className="sub-modal-card" onClick={(e) => e.stopPropagation()}>
-            <button className="close" onClick={() => setIsModalOpen(false)} aria-label="Close modal">
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-[14px] flex justify-center items-start z-[999999] p-[20px_16px] overflow-y-auto animate-[fadeIn_0.25s_ease-out]" onClick={() => setIsModalOpen(false)}>
+          <div className="w-[min(640px,94vw)] h-auto max-h-[calc(100vh-40px)] m-auto flex flex-col bg-[#0f172a] border border-[#38bdf8]/30 rounded-[28px] p-7 shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <button className="absolute top-5 right-[22px] bg-transparent border-none text-[#94a3b8] text-2xl cursor-pointer z-10 transition-colors duration-200 hover:text-[#f87171]" onClick={() => setIsModalOpen(false)} aria-label="Close modal">
               ×
             </button>
-            <h4>🎁 {editingCoupon ? 'Chỉnh Sửa Mã Giảm Giá' : 'Tạo Mã Giảm Giá Mới'}</h4>
-            <form onSubmit={handleSaveCoupon} className="modal-form">
-              <div className="form-group">
-                <label>Mã Giảm Giá (Code Promo - Viết hoa, VD: MODVIP10):</label>
-                <input
+            <h4 className="font-heading text-[20px] font-extrabold m-0 mb-4 text-[#38bdf8] shrink-0 pr-[30px]">🎁 {editingCoupon ? 'Chỉnh Sửa Mã Giảm Giá' : 'Tạo Mã Giảm Giá Mới'}</h4>
+            <form onSubmit={handleSaveCoupon} className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-170px)] pr-1">
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-bold text-[#cbd5e1]">Mã Giảm Giá (Code Promo - Viết hoa, VD: MODVIP10):</label>
+                <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                   type="text"
                   ref={codeInputRef}
                   placeholder="VD: MODVIP10, KHANH89"
@@ -290,10 +290,10 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                 />
               </div>
 
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Loại Giảm Giá:</label>
-                  <select
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#cbd5e1]">Loại Giảm Giá:</label>
+                  <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     value={discountType}
                     onChange={(e) => setDiscountType(e.target.value as any)}
                   >
@@ -302,11 +302,11 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label>
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#cbd5e1]">
                     {discountType === 'PERCENTAGE' ? 'Số Phần Trăm Giảm (%):' : 'Số Tiền Giảm (VNĐ):'}
                   </label>
-                  <input
+                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     type="number"
                     min="1"
                     ref={discountValueInputRef}
@@ -316,10 +316,10 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                 </div>
               </div>
 
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Đơn Hàng Tối Thiểu (VNĐ - 0 = Không áp dụng):</label>
-                  <input
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#cbd5e1]">Đơn Hàng Tối Thiểu (VNĐ - 0 = Không áp dụng):</label>
+                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     type="number"
                     min="0"
                     value={minOrderAmount || ''}
@@ -327,9 +327,9 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>Số Tiền Giảm Tối Đa (% - 0 = Không giới hạn):</label>
-                  <input
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#cbd5e1]">Số Tiền Giảm Tối Đa (% - 0 = Không giới hạn):</label>
+                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     type="number"
                     min="0"
                     value={maxDiscountAmount || ''}
@@ -338,10 +338,10 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                 </div>
               </div>
 
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Giới Hạn Lượt Dùng (0 = Không giới hạn):</label>
-                  <input
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#cbd5e1]">Giới Hạn Lượt Dùng (0 = Không giới hạn):</label>
+                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     type="number"
                     min="0"
                     value={maxUses || ''}
@@ -349,9 +349,9 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>Áp Dụng Cho App Catalog:</label>
-                  <select
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#cbd5e1]">Áp Dụng Cho App Catalog:</label>
+                  <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     value={appId}
                     onChange={(e) => setAppId(e.target.value)}
                   >
@@ -365,19 +365,19 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                 </div>
               </div>
 
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Ngày Hết Hạn (dd/mm/yy - Để trống nếu vĩnh viễn):</label>
-                  <input
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#cbd5e1]">Ngày Hết Hạn (dd/mm/yy - Để trống nếu vĩnh viễn):</label>
+                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     type="date"
                     value={validUntilDate}
                     onChange={(e) => setValidUntilDate(e.target.value)}
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>Trạng Thái Mã:</label>
-                  <select
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#cbd5e1]">Trạng Thái Mã:</label>
+                  <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     value={active ? 'true' : 'false'}
                     onChange={(e) => setActive(e.target.value === 'true')}
                   >
@@ -387,15 +387,15 @@ export function CouponsPage({ lang, apps, showToast }: CouponsPageProps) {
                 </div>
               </div>
 
-              <div className="modal-btn-actions">
+              <div className="flex justify-end gap-3 mt-3.5 pt-3.5 border-t border-white/10 shrink-0">
                 <button
                   type="button"
-                  className="cancel-btn"
+                  className="px-5 py-3 rounded-xl border border-[#334155] bg-[#1e293b] text-[#e2e8f0] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]"
                   onClick={() => setIsModalOpen(false)}
                 >
                   Hủy
                 </button>
-                <button type="submit" className="save-btn">
+                <button type="submit" className="px-6 py-3 rounded-xl border-0 bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)]">
                   💾 {editingCoupon ? 'Cập Nhật Mã' : 'Tạo Mã Ngay'}
                 </button>
               </div>

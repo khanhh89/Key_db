@@ -121,56 +121,56 @@ export function ServicesPage({
   };
 
   return (
-    <div className="manager-panel">
-      <div className="panel-header">
+    <div className="bg-[#0f172a]/60 border border-[#1e293b] rounded-[24px] p-7 flex flex-col gap-6">
+      <div className="flex justify-between items-center flex-wrap gap-4">
         <h2>🌐 {lang === 'vi' ? 'Quản Lý Dịch Vụ & Truyền Thông' : 'Services Catalog Manager'}</h2>
-        <button className="add-btn" onClick={openNewServiceModal}>
+        <button className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={openNewServiceModal}>
           + {lang === 'vi' ? 'Thêm Dịch Vụ Mới' : 'Add New Service'}
         </button>
       </div>
 
-      <div className="admin-table-wrap">
-        <table className="admin-table">
+      <div className="w-full overflow-x-auto rounded-2xl border border-[#1e293b] bg-[#0f172a]/50 backdrop-blur-[10px]">
+        <table className="w-full border-collapse text-left text-sm">
           <thead>
-            <tr>
-              <th>Icon</th>
-              <th>{lang === 'vi' ? 'Tiêu đề' : 'Title'}</th>
-              <th>{lang === 'vi' ? 'Mô tả' : 'Description'}</th>
-              <th>URL</th>
-              <th>{lang === 'vi' ? 'Thao tác' : 'Actions'}</th>
+            <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Icon</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Tiêu đề' : 'Title'}</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Mô tả' : 'Description'}</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">URL</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Thao tác' : 'Actions'}</th>
             </tr>
           </thead>
           <tbody>
             {services.map((srv) => (
               <tr key={srv.id}>
-                <td>
-                  <span className={`service-icon-preview ${srv.cls}`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '42px', minHeight: '42px', padding: '4px' }}>
+                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                  <span className={`service-icon-preview ${srv.cls} inline-flex items-center justify-center min-w-[42px] min-h-[42px] p-1`}>
                     {srv.icon && (srv.icon.startsWith('http://') || srv.icon.startsWith('https://') || srv.icon.startsWith('/') || srv.icon.startsWith('data:')) ? (
-                      <img src={srv.icon} alt={srv.title} style={{ width: '38px', height: '38px', objectFit: 'contain', borderRadius: '8px' }} />
+                      <img src={srv.icon} alt={srv.title} className="w-[38px] h-[38px] object-contain rounded-lg" />
                     ) : (
                       srv.icon
                     )}
                   </span>
                 </td>
-                <td>
+                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                   <strong>{srv.title}</strong>
                 </td>
                 <td className="note-cell">{srv.text}</td>
-                <td>
+                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                   <a href={srv.url} target="_blank" rel="noreferrer" className="link-preview">
                     {srv.url}
                   </a>
                 </td>
-                <td>
-                  <div className="btn-group">
+                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                  <div className="flex items-center gap-2">
                     <button
-                      className="edit-btn"
+                      className="bg-[#38bdf8]/12 text-[#38bdf8] border border-[#38bdf8]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#38bdf8] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]"
                       onClick={() => openEditServiceModal(srv)}
                     >
                       ✎ {lang === 'vi' ? 'Sửa' : 'Edit'}
                     </button>
                     <button
-                      className="delete-btn"
+                      className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
                       onClick={() => setDeletingService({ id: srv.id, title: srv.title })}
                     >
                       🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
@@ -199,17 +199,17 @@ export function ServicesPage({
 
       {isModalOpen && (
         <ModalPortal>
-          <div className="sub-modal-overlay" onClick={() => setIsModalOpen(false)}>
-            <div className="sub-modal-card" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-[14px] flex justify-center items-start z-[999999] p-[20px_16px] overflow-y-auto animate-[fadeIn_0.25s_ease-out]" onClick={() => setIsModalOpen(false)}>
+            <div className="w-[min(640px,94vw)] h-auto max-h-[calc(100vh-40px)] m-auto flex flex-col bg-[#0f172a] border border-[#38bdf8]/30 rounded-[28px] p-7 shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
               <h4>
                 {editingService
                   ? lang === 'vi' ? 'Sửa Dịch Vụ' : 'Edit Service'
                   : lang === 'vi' ? 'Thêm Dịch Vụ Mới' : 'Add New Service'}
               </h4>
-              <form onSubmit={handleSaveService} className="modal-form">
-                <div className="form-group">
+              <form onSubmit={handleSaveService} className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-170px)] pr-1">
+                <div className="flex flex-col gap-2">
                   <label>{lang === 'vi' ? 'Tên Dịch Vụ / Kênh (*):' : 'Service Title (*):'}</label>
-                  <input
+                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     type="text"
                     ref={srvTitleInputRef}
                     value={srvTitle}
@@ -217,28 +217,28 @@ export function ServicesPage({
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="flex flex-col gap-2">
                   <label>{lang === 'vi' ? 'Mô tả chi tiết:' : 'Description:'}</label>
-                  <input
+                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     type="text"
                     value={srvText}
                     onChange={(e) => setSrvText(e.target.value)}
                   />
                 </div>
 
-                <div className="form-grid">
-                  <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2" style={{ gridColumn: '1 / -1' }}>
                     <label>{lang === 'vi' ? '🖼️ Logo Ảnh Dịch Vụ (Tải từ máy tính):' : 'Service Logo Image (Upload from computer):'}</label>
                     <div style={{ marginTop: '6px' }}>
                       {srvIcon ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: 'rgba(15, 23, 42, 0.6)', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-                          <img src={srvIcon} alt="Preview" style={{ width: '48px', height: '48px', objectFit: 'contain', borderRadius: '8px', border: '1px solid #00f2fe' }} />
-                          <div style={{ flex: 1, fontSize: '13px', color: '#4ade80', fontWeight: 600 }}>
+                        <div className="flex items-center gap-3.5 bg-[#0f172a]/60 p-[10px_14px] rounded-xl border border-[#38bdf8]/30">
+                          <img src={srvIcon} alt="Preview" className="w-12 h-12 object-contain rounded-lg border border-[#00f2fe]" />
+                          <div className="flex-1 text-[13px] text-[#4ade80] font-semibold">
                             ✓ Đã chọn logo ảnh thành công
                           </div>
                           <label className="upload-btn-cloud" style={{ margin: 0, padding: '8px 14px', cursor: 'pointer', fontSize: '12px' }}>
                             {isUploadingIcon ? '⏳ Đang tải...' : '🔄 Đổi ảnh khác'}
-                            <input
+                            <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                               type="file"
                               accept="image/*"
                               style={{ display: 'none' }}
@@ -257,7 +257,7 @@ export function ServicesPage({
                       ) : (
                         <label className="upload-btn-cloud" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderRadius: '12px', border: '2px dashed rgba(56, 189, 248, 0.4)', background: 'rgba(15, 23, 42, 0.4)', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: '#38bdf8' }}>
                           {isUploadingIcon ? '⏳ Đang tải ảnh lên...' : '📁 Tải Ảnh Logo Từ Máy Tính'}
-                          <input
+                          <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                             type="file"
                             accept="image/*"
                             style={{ display: 'none' }}
@@ -270,7 +270,7 @@ export function ServicesPage({
                   </div>
 
 
-                  <div className="form-group">
+                  <div className="flex flex-col gap-2">
                     <label>{lang === 'vi' ? 'Phối màu Icon:' : 'Icon Color:'}</label>
                     <select value={srvCls} onChange={(e) => setSrvCls(e.target.value)}>
                       <option value="cyan">Cyan</option>
@@ -283,24 +283,24 @@ export function ServicesPage({
                 </div>
 
 
-                <div className="form-group">
+                <div className="flex flex-col gap-2">
                   <label>URL Link:</label>
-                  <input
+                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     type="text"
                     value={srvUrl}
                     onChange={(e) => setSrvUrl(e.target.value)}
                   />
                 </div>
 
-                <div className="modal-btn-actions">
+                <div className="flex justify-end gap-3 mt-3.5 pt-3.5 border-t border-white/10 shrink-0">
                   <button
                     type="button"
-                    className="cancel-btn"
+                    className="px-5 py-3 rounded-xl border border-[#334155] bg-[#1e293b] text-[#e2e8f0] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]"
                     onClick={() => setIsModalOpen(false)}
                   >
                     {lang === 'vi' ? 'Hủy' : 'Cancel'}
                   </button>
-                  <button type="submit" className="save-btn">
+                  <button type="submit" className="px-6 py-3 rounded-xl border-0 bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)]">
                     {lang === 'vi' ? 'Lưu Thay Đổi' : 'Save Changes'}
                   </button>
                 </div>

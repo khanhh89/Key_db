@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
   --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
@@ -2065,28 +2069,6 @@ body {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
 }
 
-.close {
-  position: absolute;
-  right: 18px;
-  top: 18px;
-  background: rgba(255, 255, 255, 0.06);
-  color: inherit;
-  border: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  font-size: 24px;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  transition: all 0.2s ease;
-}
-
-.close:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: rotate(90deg);
-}
-
 .modal-title {
   font-family: var(--font-heading);
   font-weight: 900;
@@ -2513,28 +2495,7 @@ footer {
   background: linear-gradient(135deg, #0284c7, #6366f1);
 }
 
-.sub-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  inset: 0;
-  z-index: 999999;
-  background: rgba(5, 8, 16, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px 16px;
-  overflow-y: auto;
-  animation: fadeIn 0.25s ease-out;
-}
-
-.sub-modal-overlay .buy-key-modal-card,
 .buy-key-modal-card,
-.sub-modal-card,
 .confirm-modal-card,
 .feedback-modal-card,
 .feedback-history-card,
@@ -2557,31 +2518,23 @@ footer {
 }
 
 /* Custom scrollbar for modal card */
-.sub-modal-overlay .buy-key-modal-card::-webkit-scrollbar,
-.sub-modal-card::-webkit-scrollbar,
 .feedback-modal-card::-webkit-scrollbar,
 .feedback-history-card::-webkit-scrollbar {
   width: 6px;
 }
 
-.sub-modal-overlay .buy-key-modal-card::-webkit-scrollbar-track,
-.sub-modal-card::-webkit-scrollbar-track,
 .feedback-modal-card::-webkit-scrollbar-track,
 .feedback-history-card::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
 }
 
-.sub-modal-overlay .buy-key-modal-card::-webkit-scrollbar-thumb,
-.sub-modal-card::-webkit-scrollbar-thumb,
 .feedback-modal-card::-webkit-scrollbar-thumb,
 .feedback-history-card::-webkit-scrollbar-thumb {
   background: rgba(56, 189, 248, 0.35);
   border-radius: 4px;
 }
 
-.light .sub-modal-overlay .buy-key-modal-card,
-.light .sub-modal-card,
 .light .confirm-modal-card,
 .light .feedback-modal-card,
 .light .feedback-history-card,
@@ -3132,7 +3085,6 @@ footer {
   /* Modals Full Screen Mobile Fit */
   .buy-key-modal-card,
   .confirm-modal-card,
-  .sub-modal-card,
   .modal-card {
     width: 95vw !important;
     max-height: 90vh !important;
@@ -3499,7 +3451,6 @@ footer {
 }
 
 .modal-overlay,
-.sub-modal-overlay,
 .modal-backdrop,
 .lightbox-modal-overlay {
   position: fixed !important;
@@ -3524,7 +3475,6 @@ footer {
 }
 
 .light .modal-overlay,
-.light .sub-modal-overlay,
 .light .modal-backdrop,
 .light .lightbox-modal-overlay {
   background: rgba(15, 23, 42, 0.55) !important;
@@ -4774,91 +4724,8 @@ footer {
 /* ==========================================
    ULTRA-PREMIUM FORM INPUT STYLING
    ========================================== */
-.modal-form input[type="text"],
-.modal-form input[type="number"],
-.modal-form input[type="email"],
-.modal-form input[type="password"],
-.modal-form select,
-.modal-form textarea,
-.sub-modal-card input[type="text"],
-.sub-modal-card input[type="number"],
-.sub-modal-card input[type="email"],
-.sub-modal-card select,
-.sub-modal-card textarea,
-.form-group input[type="text"],
-.form-group input[type="number"],
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 10px 14px;
-  background: rgba(15, 23, 42, 0.75);
-  border: 1.5px solid rgba(56, 189, 248, 0.25);
-  border-radius: 10px;
-  color: #f8fafc;
-  font-family: var(--font-sans, inherit);
-  font-size: 13.5px;
-  font-weight: 500;
-  outline: none;
-  backdrop-filter: blur(8px);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.modal-form input:hover,
-.modal-form select:hover,
-.modal-form textarea:hover,
-.sub-modal-card input:hover,
-.sub-modal-card select:hover,
-.sub-modal-card textarea:hover,
-.form-group input:hover,
-.form-group select:hover,
-.form-group textarea:hover {
-  border-color: rgba(56, 189, 248, 0.5);
-  background: rgba(15, 23, 42, 0.88);
-}
-
-.modal-form input:focus,
-.modal-form select:focus,
-.modal-form textarea:focus,
-.sub-modal-card input:focus,
-.sub-modal-card select:focus,
-.sub-modal-card textarea:focus,
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  border-color: #38bdf8;
-  background: rgba(15, 23, 42, 0.95);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25), 0 0 15px rgba(56, 189, 248, 0.15);
-}
 
 /* Light Theme Override */
-.light .modal-form input,
-.light .modal-form select,
-.light .modal-form textarea,
-.light .sub-modal-card input,
-.light .sub-modal-card select,
-.light .sub-modal-card textarea,
-.light .form-group input,
-.light .form-group select,
-.light .form-group textarea {
-  background: #ffffff;
-  border-color: #cbd5e1;
-  color: #0f172a;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.light .modal-form input:focus,
-.light .modal-form select:focus,
-.light .modal-form textarea:focus,
-.light .sub-modal-card input:focus,
-.light .sub-modal-card select:focus,
-.light .sub-modal-card textarea:focus,
-.light .form-group input:focus,
-.light .form-group select:focus,
-.light .form-group textarea:focus {
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-}
 
 ::placeholder {
   color: #64748b;

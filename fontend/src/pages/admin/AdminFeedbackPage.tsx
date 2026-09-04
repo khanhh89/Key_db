@@ -143,7 +143,7 @@ export function AdminFeedbackPage({ showToast }: AdminFeedbackPageProps) {
           <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px', fontWeight: 600 }}>
             Trạng Thái
           </label>
-          <select
+          <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
             style={{
@@ -167,7 +167,7 @@ export function AdminFeedbackPage({ showToast }: AdminFeedbackPageProps) {
           <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px', fontWeight: 600 }}>
             Loại Phản Hồi
           </label>
-          <select
+          <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
             value={categoryFilter}
             onChange={(e) => { setCategoryFilter(e.target.value); setPage(0); }}
             style={{
@@ -195,7 +195,7 @@ export function AdminFeedbackPage({ showToast }: AdminFeedbackPageProps) {
         border: '1px solid rgba(255,255,255,0.08)',
         overflow: 'hidden'
       }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+        <table className="w-full border-collapse text-left text-[13px]">
           <thead>
             <tr style={{ background: 'rgba(15, 23, 42, 0.8)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
               <th style={{ padding: '14px 16px', color: '#94a3b8' }}>ID / Đội Tác</th>
@@ -209,14 +209,14 @@ export function AdminFeedbackPage({ showToast }: AdminFeedbackPageProps) {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr>
-                <td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+              <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
+                <td colSpan={7} className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0] p-10 text-center text-[#94a3b8]">
                   ⚡ Đang tải danh sách phản hồi...
                 </td>
               </tr>
             ) : feedbacks.length === 0 ? (
-              <tr>
-                <td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+              <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
+                <td colSpan={7} className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0] p-10 text-center text-[#94a3b8]">
                   Không tìm thấy phản hồi nào phù hợp
                 </td>
               </tr>
@@ -408,7 +408,7 @@ export function AdminFeedbackPage({ showToast }: AdminFeedbackPageProps) {
                 <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 600 }}>
                   Cập nhật trạng thái
                 </label>
-                <select
+                <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                   value={replyStatus}
                   onChange={(e) => setReplyStatus(e.target.value as FeedbackStatus)}
                   style={{
@@ -432,7 +432,7 @@ export function AdminFeedbackPage({ showToast }: AdminFeedbackPageProps) {
                 <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 600 }}>
                   Nội dung phản hồi cho khách hàng
                 </label>
-                <textarea
+                <textarea className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                   rows={4}
                   placeholder="Nhập câu trả lời từ Ban Quản Trị..."
                   value={replyText}
@@ -460,7 +460,7 @@ export function AdminFeedbackPage({ showToast }: AdminFeedbackPageProps) {
                 alignItems: 'center',
                 gap: '10px'
               }}>
-                <input
+                <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                   type="checkbox"
                   id="approveHomeCheck"
                   checked={replyApprovedHome}

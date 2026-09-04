@@ -247,46 +247,46 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
   };
 
   return (
-    <div className="manager-panel">
-      <div className="panel-header">
+    <div className="bg-[#0f172a]/60 border border-[#1e293b] rounded-[24px] p-7 flex flex-col gap-6">
+      <div className="flex justify-between items-center flex-wrap gap-4">
         <h2>📱 {lang === 'vi' ? 'Quản Lý Apps Catalog' : 'Apps Catalog Manager'}</h2>
-        <button className="add-btn" onClick={openNewAppModal}>
+        <button className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={openNewAppModal}>
           + {lang === 'vi' ? 'Thêm App Mới' : 'Add New App'}
         </button>
       </div>
 
-      <div className="admin-table-wrap">
-        <table className="admin-table">
+      <div className="w-full overflow-x-auto rounded-2xl border border-[#1e293b] bg-[#0f172a]/50 backdrop-blur-[10px]">
+        <table className="w-full border-collapse text-left text-sm">
           <thead>
-            <tr>
-              <th>Icon</th>
-              <th>{lang === 'vi' ? 'Tên App' : 'App Name'}</th>
-              <th>{lang === 'vi' ? 'Tên Game' : 'Sub Title'}</th>
-              <th>{lang === 'vi' ? 'Lưu ý' : 'Note'}</th>
-              <th>{lang === 'vi' ? 'Bán Key VIP' : 'Sell Key'}</th>
-              <th>{lang === 'vi' ? 'Cấp Key Free' : 'Free Key'}</th>
-              <th>{lang === 'vi' ? 'Menu Preview' : 'Shots'}</th>
-              <th>{lang === 'vi' ? 'Thao tác' : 'Actions'}</th>
+            <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Icon</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Tên App' : 'App Name'}</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Tên Game' : 'Sub Title'}</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Lưu ý' : 'Note'}</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Bán Key VIP' : 'Sell Key'}</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Cấp Key Free' : 'Free Key'}</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Menu Preview' : 'Shots'}</th>
+              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Thao tác' : 'Actions'}</th>
             </tr>
           </thead>
           <tbody>
             {apps.map((app) => (
               <tr key={app.id}>
-                <td>
-                  <div className={`table-icon ${app.cls}`}>
+                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                  <div className={`w-[46px] h-[46px] shrink-0 flex items-center justify-center rounded-xl bg-[#1e293b] border border-[#334155] overflow-hidden ${app.cls || ''}`}>
                     {app.icon && (app.icon.startsWith('http://') || app.icon.startsWith('https://') || app.icon.startsWith('data:image/') || app.icon.startsWith('/')) ? (
-                      <LazyImage src={app.icon} alt={app.name} style={{ borderRadius: 'inherit' }} />
+                      <LazyImage src={app.icon} alt={app.name} className="w-full h-full object-cover" />
                     ) : (
-                      app.icon
+                      <span className="text-xl">{app.icon}</span>
                     )}
                   </div>
                 </td>
-                <td>
+                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                   <strong>{app.name}</strong>
                 </td>
-                <td>{app.sub}</td>
+                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">{app.sub}</td>
                 <td className="note-cell">{app.note}</td>
-                <td>
+                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                   <button
                     type="button"
                     onClick={() => toggleSellKeyStatus(app)}
@@ -294,17 +294,17 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                     title={lang === 'vi' ? 'Bấm để Bật/Tắt bán Key VIP' : 'Click to toggle VIP Key sales'}
                   >
                     {app.allowSellKey !== false ? (
-                      <span className="tag-badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                      <span className="inline-block px-[10px] py-1 rounded-lg bg-[#6366f1]/15 text-[#818cf8] border border-[#6366f1]/30 font-bold text-[11px]" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
                         🟢 {lang === 'vi' ? 'Bật Bán' : 'Enabled'}
                       </span>
                     ) : (
-                      <span className="tag-badge" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                      <span className="inline-block px-[10px] py-1 rounded-lg bg-[#6366f1]/15 text-[#818cf8] border border-[#6366f1]/30 font-bold text-[11px]" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
                         🔴 {lang === 'vi' ? 'Tắt Bán' : 'Disabled'}
                       </span>
                     )}
                   </button>
                 </td>
-                <td>
+                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                   <button
                     type="button"
                     onClick={() => toggleFreeKeyStatus(app)}
@@ -312,17 +312,17 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                     title={lang === 'vi' ? 'Bấm để Bật/Tắt cấp Key Free' : 'Click to toggle Free Key'}
                   >
                     {app.allowFreeKey !== false ? (
-                      <span className="tag-badge" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+                      <span className="inline-block px-[10px] py-1 rounded-lg bg-[#6366f1]/15 text-[#818cf8] border border-[#6366f1]/30 font-bold text-[11px]" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
                         🟢 {lang === 'vi' ? 'Bật Free' : 'Enabled'}
                       </span>
                     ) : (
-                      <span className="tag-badge" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                      <span className="inline-block px-[10px] py-1 rounded-lg bg-[#6366f1]/15 text-[#818cf8] border border-[#6366f1]/30 font-bold text-[11px]" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
                         🔴 {lang === 'vi' ? 'Tắt Free' : 'Disabled'}
                       </span>
                     )}
                   </button>
                 </td>
-                <td>
+                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                   {app.shots && app.shots.length > 0 ? (
                     <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
                       {app.shots.map((s, idx) => {
@@ -345,26 +345,26 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                             onClick={() => window.open(s, '_blank')}
                           />
                         ) : (
-                          <span key={idx} className="tag-badge">
+                          <span key={idx} className="inline-block px-[10px] py-1 rounded-lg bg-[#6366f1]/15 text-[#818cf8] border border-[#6366f1]/30 font-bold text-[11px]">
                             {s}
                           </span>
                         );
                       })}
                     </div>
                   ) : (
-                    <small className="muted">-</small>
+                    <small className="text-[#64748b]">-</small>
                   )}
                 </td>
-                <td>
-                  <div className="btn-group">
+                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                  <div className="flex items-center gap-2">
                     <button
-                      className="edit-btn"
+                      className="bg-[#38bdf8]/12 text-[#38bdf8] border border-[#38bdf8]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#38bdf8] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]"
                       onClick={() => openEditAppModal(app)}
                     >
                       ✎ {lang === 'vi' ? 'Sửa' : 'Edit'}
                     </button>
                     <button
-                      className="delete-btn"
+                      className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
                       onClick={() => setDeletingApp({ id: app.id, name: app.name })}
                     >
                       🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
@@ -393,36 +393,36 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
 
       {isModalOpen && (
         <ModalPortal>
-          <div className="sub-modal-overlay" onClick={() => setIsModalOpen(false)}>
-          <div className="app-modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="app-modal-header">
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-[14px] flex justify-center items-start z-[999999] p-[20px_16px] overflow-y-auto animate-[fadeIn_0.25s_ease-out]" onClick={() => setIsModalOpen(false)}>
+          <div className="w-[min(720px,100%)] max-h-[90vh] overflow-y-auto bg-[#0f172a]/95 border border-[#38bdf8]/35 rounded-[28px] p-8 backdrop-blur-[24px] shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_30px_rgba(56,189,248,0.15)] flex flex-col gap-5" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center border-b border-white/10 pb-4 mb-2">
               <h4>
                 📱 {editingApp
                   ? lang === 'vi' ? 'Chỉnh Sửa Ứng Dụng Catalog' : 'Edit App Catalog'
                   : lang === 'vi' ? 'Thêm Ứng Dụng Mới Vừa Catalog' : 'Add New App to Catalog'}
               </h4>
-              <button type="button" className="app-modal-close" onClick={() => setIsModalOpen(false)}>×</button>
+              <button type="button" className="bg-white/10 border border-white/15 text-[#94a3b8] w-9 h-9 rounded-full text-xl grid place-items-center cursor-pointer transition-all duration-200 hover:bg-[#ef4444] hover:text-white hover:border-[#ef4444]" onClick={() => setIsModalOpen(false)}>×</button>
             </div>
 
-            <form onSubmit={handleSaveApp} className="modal-form">
+            <form onSubmit={handleSaveApp} className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-170px)] pr-1">
               {/* SECTION 1: BASIC APP INFO */}
-              <div className="app-form-section">
+              <div className="bg-[#1e293b]/40 border border-white/10 rounded-[18px] p-5 flex flex-col gap-4">
                 <div className="app-section-title">
                   📌 {lang === 'vi' ? '1. Thông Tin Cơ Bản App' : '1. Basic App Information'}
                 </div>
-                <div className="form-grid">
-                  <div className="form-group">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
                     <label>{lang === 'vi' ? 'Tên App (*):' : 'App Name (*):'}</label>
-                    <input
+                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                       type="text"
                       ref={appNameInputRef}
                       value={appName}
                       onChange={(e) => setAppName(e.target.value)}
                     />
                   </div>
-                  <div className="form-group">
+                  <div className="flex flex-col gap-2">
                     <label>{lang === 'vi' ? 'Tên Game / Subtitle (*):' : 'Sub Title (*):'}</label>
-                    <input
+                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                       type="text"
                       value={appSub}
                       onChange={(e) => setAppSub(e.target.value)}
@@ -430,9 +430,9 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                   </div>
                 </div>
 
-                <div className="form-group" style={{ marginTop: '12px' }}>
+                <div className="flex flex-col gap-2" style={{ marginTop: '12px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
-                    <input
+                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                       type="checkbox"
                       checked={appAllowSellKey}
                       onChange={(e) => setAppAllowSellKey(e.target.checked)}
@@ -444,9 +444,9 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                   </label>
                 </div>
 
-                <div className="form-group" style={{ marginTop: '10px' }}>
+                <div className="flex flex-col gap-2" style={{ marginTop: '10px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
-                    <input
+                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                       type="checkbox"
                       checked={appAllowFreeKey}
                       onChange={(e) => setAppAllowFreeKey(e.target.checked)}
@@ -460,12 +460,12 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
               </div>
 
               {/* SECTION 2: ICON IMAGE & FILE DOWNLOAD LINKS */}
-              <div className="app-form-section">
+              <div className="bg-[#1e293b]/40 border border-white/10 rounded-[18px] p-5 flex flex-col gap-4">
                 <div className="app-section-title">
                   ☁ {lang === 'vi' ? '2. Tải Ảnh Icon App Lên Cloudinary & Tệp Tin Tải Về' : '2. App Icon Cloud Upload & Download Links'}
                 </div>
                 
-                <div className="form-group">
+                <div className="flex flex-col gap-2">
                   <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
                     <span>
                       {lang === 'vi'
@@ -480,7 +480,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <label className="upload-btn-cloud" style={{ margin: 0, padding: '14px 20px', flex: 1, justifyContent: 'center', cursor: 'pointer', textAlign: 'center', fontSize: '14px' }}>
                       {isUploadingIcon ? '⏳ Đang tải ảnh lên Cloudinary...' : '☁ Chọn Tệp Ảnh Up Cloudinary'}
-                      <input
+                      <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                         type="file"
                         accept="image/*"
                         style={{ display: 'none' }}
@@ -496,7 +496,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                         <img
                           src={appIcon}
                           alt="Preview"
-                          style={{ width: '110px', height: '110px', borderRadius: '18px', objectFit: 'cover', border: '2px solid #00f2fe', boxShadow: '0 0 20px rgba(0,242,254,0.5)', flexShrink: 0 }}
+                          className="w-[110px] h-[110px] rounded-[18px] object-cover border-2 border-[#00f2fe] shadow-[0_0_20px_rgba(0,242,254,0.5)] shrink-0"
                         />
                         <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                           <span style={{ fontSize: '14px', color: '#10b981', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -524,9 +524,9 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                   ) : null}
                 </div>
 
-                <div className="form-group" style={{ marginTop: '14px' }}>
+                <div className="flex flex-col gap-2" style={{ marginTop: '14px' }}>
                   <label>{lang === 'vi' ? '🏷️ Thẻ Nhãn Nổi Bật Cho Ứng Dụng (Custom Badges / Tags):' : '🏷️ Custom App Badges / Tags:'}</label>
-                  <input
+                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     type="text"
                     value={appTagsStr}
                     placeholder={lang === 'vi' ? 'VD: Hack Map Liên Quân, 🎮 Delta Roblox, 🍎 Mod iOS IPA, 🤖 Mod Android APK' : 'e.g. Hack Map Liên Quân, 🎮 Delta Roblox'}
@@ -569,18 +569,18 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                   </div>
                 </div>
 
-                <div className="form-grid">
-                  <div className="form-group">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
                     <label>Direct Download Link (.apk/Direct Link):</label>
-                    <input
+                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                       type="text"
                       value={appDownloadUrl}
                       onChange={(e) => setAppDownloadUrl(e.target.value)}
                     />
                   </div>
-                  <div className="form-group">
+                  <div className="flex flex-col gap-2">
                     <label>{lang === 'vi' ? 'Link Vượt Lấy Key (Link Rút Gọn / Link Vượt):' : 'Bypass Key Link:'}</label>
-                    <input
+                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                       type="text"
                       value={appIpaUrl}
                       placeholder={lang === 'vi' ? 'Bỏ trống = Tự động cấp Modal Key Free không cần vượt' : 'Leave empty for Direct Free Key Modal'}
@@ -592,9 +592,9 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                         : 'If URL filled: opens bypass link. If EMPTY: opens direct Free Key Modal!'}
                     </small>
                   </div>
-                  <div className="form-group">
+                  <div className="flex flex-col gap-2">
                     <label>{lang === 'vi' ? 'Mã Key Free (Cấu hình hệ thống):' : 'Free Key Code:'}</label>
-                    <input
+                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                       type="text"
                       value={appFreeKey}
                       placeholder={lang === 'vi' ? 'Nhập mã Key Free do Admin cài đặt...' : 'Enter Free Key code set by Admin...'}
@@ -610,21 +610,21 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
               </div>
 
               {/* SECTION 3: NOTES & MENU PREVIEW SCREENSHOTS */}
-              <div className="app-form-section">
+              <div className="bg-[#1e293b]/40 border border-white/10 rounded-[18px] p-5 flex flex-col gap-4">
                 <div className="app-section-title">
                   📸 {lang === 'vi' ? '3. Ghi Chú & Tải Ảnh Menu Preview' : '3. Notice & Menu Preview Screenshots'}
                 </div>
 
-                <div className="form-group">
+                <div className="flex flex-col gap-2">
                   <label>{lang === 'vi' ? 'Ghi chú / Lưu ý khi tải (Nhảy link vượt cấp):' : 'Notice / Download Note:'}</label>
-                  <input
+                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     type="text"
                     value={appNote}
                     onChange={(e) => setAppNote(e.target.value)}
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="flex flex-col gap-2">
                   <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
                     <span>
                       {lang === 'vi'
@@ -676,7 +676,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                           ? 'Hỗ trợ tải lên cùng lúc nhiều ảnh Menu (PNG, JPG, WEBP)'
                           : 'Supports batch upload (PNG, JPG, WEBP)'}
                       </small>
-                      <input
+                      <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                         type="file"
                         accept="image/*"
                         multiple
@@ -714,16 +714,16 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                         </button>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(115px, 1fr))', gap: '12px' }}>
+                      <div className="grid grid-cols-[repeat(auto-fill,minmax(115px,1fr))] gap-3">
                         {appShotsStr.split(',').map((s) => s.trim()).filter(Boolean).map((shotItem, idx, arr) => {
                           const isImg = shotItem.startsWith('http://') || shotItem.startsWith('https://') || shotItem.startsWith('data:image/') || shotItem.startsWith('/');
                           return (
-                            <div key={idx} style={{ position: 'relative', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(0,242,254,0.35)', borderRadius: '14px', padding: '6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                            <div key={idx} className="relative bg-[#0f172a]/80 border border-[#00f2fe]/35 rounded-[14px] p-1.5 flex flex-col items-center gap-1.5">
                               {isImg ? (
                                 <img
                                   src={shotItem}
                                   alt={`Shot ${idx + 1}`}
-                                  style={{ width: '100%', height: '90px', objectFit: 'cover', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
+                                  className="w-full h-[90px] object-cover rounded-[10px] border border-white/10 cursor-pointer"
                                   onClick={() => window.open(shotItem, '_blank')}
                                   title={lang === 'vi' ? 'Bấm để mở xem ảnh phóng to' : 'Click to open full image'}
                                 />
@@ -799,7 +799,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                         <summary style={{ cursor: 'pointer', fontSize: '12px', color: '#38bdf8', fontWeight: 'bold' }}>
                           ✏️ {lang === 'vi' ? 'Xem hoặc sửa trực tiếp danh sách Link ảnh (phân cách bằng dấu phẩy)' : 'Edit raw URL string'}
                         </summary>
-                        <textarea
+                        <textarea className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                           rows={2}
                           value={appShotsStr}
                           onChange={(e) => setAppShotsStr(e.target.value)}
@@ -822,15 +822,15 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                 </div>
               </div>
 
-              <div className="modal-btn-actions">
+              <div className="flex justify-end gap-3 mt-3.5 pt-3.5 border-t border-white/10 shrink-0">
                 <button
                   type="button"
-                  className="cancel-btn"
+                  className="px-5 py-3 rounded-xl border border-[#334155] bg-[#1e293b] text-[#e2e8f0] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]"
                   onClick={() => setIsModalOpen(false)}
                 >
                   {lang === 'vi' ? 'Hủy Bỏ' : 'Cancel'}
                 </button>
-                <button type="submit" className="save-btn">
+                <button type="submit" className="px-6 py-3 rounded-xl border-0 bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)]">
                   {lang === 'vi' ? '💾 Lưu Ứng Dụng' : '💾 Save Application'}
                 </button>
               </div>

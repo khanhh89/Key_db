@@ -1,9 +1,8 @@
 const RENDER_API_URL = 'https://modlienquan-backend.onrender.com/api';
-const LOCAL_API_URL = 'http://localhost:8080/api';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
   ? import.meta.env.VITE_API_BASE_URL
-  : (import.meta.env.VITE_USE_LOCAL_BACKEND === 'true' ? LOCAL_API_URL : RENDER_API_URL);
+  : RENDER_API_URL;
 export const ADMIN_AUTH_TOKEN = 'admin-secret-key-2026';
 
 let activeAdminToken: string = sessionStorage.getItem('admin_rolling_token') || ADMIN_AUTH_TOKEN;

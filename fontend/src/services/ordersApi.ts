@@ -93,7 +93,12 @@ export async function createPayosPaymentLinkInBackend(orderId: string, amount?: 
     const res = await fetch(`${API_BASE_URL}/payos/create-payment-link`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId, amount })
+      body: JSON.stringify({ 
+        orderId, 
+        amount,
+        returnUrl: window.location.href,
+        cancelUrl: window.location.href
+      })
     });
     if (res.ok) {
       return await res.json();
@@ -207,7 +212,11 @@ export async function fetchAllOrdersFromBackend(): Promise<OrderItem[]> {
       const orderMap = new Map<string, OrderItem>();
       localOrders.forEach((o) => orderMap.set(o.id, o));
       remoteOrders.forEach((o) => orderMap.set(o.id, o));
-      const merged = Array.from(orderMap.values());
+      const merged = Array.from(orderMap.values()).sort((a, b) => {
+        const timeA = new Date(a.createdAt || 0).getTime();
+        const timeB = new Date(b.createdAt || 0).getTime();
+        return timeB - timeA;
+      });
       localStorage.setItem('modlienquan_orders', JSON.stringify(merged));
       return merged;
     }

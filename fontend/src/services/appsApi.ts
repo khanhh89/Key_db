@@ -35,7 +35,7 @@ export async function fetchAppsFromBackend(): Promise<AppItem[]> {
           updatedAt: item.updatedAt || new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
           shots: item.shots ? item.shots.split(',').map((s: string) => s.trim()).filter(Boolean) : null
         };
-      });
+      }).reverse();
       localStorage.setItem('modlienquan_apps', JSON.stringify(formatted));
       return formatted;
     }

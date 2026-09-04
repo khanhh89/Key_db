@@ -7,8 +7,9 @@ export async function fetchServicesFromBackend(): Promise<ServiceItem[]> {
     const res = await fetch(`${API_BASE_URL}/services`);
     if (res.ok) {
       const data = await res.json();
-      localStorage.setItem('modlienquan_services', JSON.stringify(data));
-      return data;
+      const reversed = data.reverse();
+      localStorage.setItem('modlienquan_services', JSON.stringify(reversed));
+      return reversed;
     }
   } catch (err) {
     console.warn('Backend MySQL API unavailable, using local storage fallback', err);

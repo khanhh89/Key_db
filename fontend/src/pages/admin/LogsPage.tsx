@@ -76,19 +76,19 @@ export function LogsPage({ lang, showToast }: LogsPageProps) {
   };
 
   return (
-    <div className="admin-page-container" style={{ padding: '24px' }}>
+    <div className="admin-page-container p-6">
       {/* Header Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+      <div className="flex justify-between items-center flex-wrap gap-4 mb-6">
         <div>
-          <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h2 className="m-0 text-[22px] font-extrabold text-[#f8fafc] flex items-center gap-2.5">
             📜 {lang === 'vi' ? 'Nhật Ký Hoạt Động Hệ Thống' : 'System Activity Audit Logs'}
           </h2>
-          <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#94a3b8' }}>
+          <p className="mt-1 text-[13px] text-[#94a3b8]">
             {lang === 'vi' ? 'Theo dõi thời gian thực các thao tác người dùng, địa chỉ IP và hành động đăng nhập Admin.' : 'Real-time audit log of user actions, client IP addresses, and Admin activities.'}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div className="flex gap-3 items-center">
           <button
             onClick={loadLogs}
             disabled={loading}
@@ -111,7 +111,7 @@ export function LogsPage({ lang, showToast }: LogsPageProps) {
       </div>
 
       {/* Category Filter Tabs */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+      <div className="flex gap-2.5 mb-4 flex-wrap">
         <button
           onClick={() => setFilterCategory('ALL')}
           style={{
@@ -165,8 +165,8 @@ export function LogsPage({ lang, showToast }: LogsPageProps) {
       </div>
 
       {/* Search Input Bar */}
-      <div style={{ marginBottom: '20px' }}>
-        <input
+      <div className="mb-5">
+        <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -185,33 +185,33 @@ export function LogsPage({ lang, showToast }: LogsPageProps) {
       </div>
 
       {/* Logs Data Table */}
-      <div style={{ background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(12px)', border: '1px solid #1e293b', borderRadius: '16px', overflow: 'hidden' }}>
+      <div className="bg-[#0f172a]/60 backdrop-blur-md border border-[#1e293b] rounded-2xl overflow-hidden">
         {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+          <div className="p-10 text-center text-[#94a3b8]">
             ⏳ {lang === 'vi' ? 'Đang tải nhật ký hoạt động hệ thống...' : 'Loading system logs...'}
           </div>
         ) : filteredLogs.length === 0 ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+          <div className="p-10 text-center text-[#94a3b8]">
             📭 {lang === 'vi' ? 'Chưa có nhật ký hoạt động nào ghi nhận.' : 'No activity logs found.'}
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-[13px]">
               <thead>
-                <tr style={{ background: 'rgba(30, 41, 59, 0.8)', borderBottom: '1px solid #334155', color: '#94a3b8' }}>
-                  <th style={{ padding: '14px 16px', width: '160px' }}>{lang === 'vi' ? 'Thời Gian' : 'Timestamp'}</th>
-                  <th style={{ padding: '14px 16px', width: '140px' }}>{lang === 'vi' ? 'Địa Chỉ IP' : 'Client IP'}</th>
-                  <th style={{ padding: '14px 16px', width: '180px' }}>{lang === 'vi' ? 'Hành Động' : 'Action'}</th>
+                <tr className="bg-[#1e293b]/80 border-b border-[#334155] text-[#94a3b8]">
+                  <th className="p-[14px_16px] w-[160px]">{lang === 'vi' ? 'Thời Gian' : 'Timestamp'}</th>
+                  <th className="p-[14px_16px] w-[140px]">{lang === 'vi' ? 'Địa Chỉ IP' : 'Client IP'}</th>
+                  <th className="p-[14px_16px] w-[180px]">{lang === 'vi' ? 'Hành Động' : 'Action'}</th>
                   <th style={{ padding: '14px 16px' }}>{lang === 'vi' ? 'Chi Tiết Thao Tác' : 'Activity Details'}</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredLogs.map((log) => (
-                  <tr key={log.id} style={{ borderBottom: '1px solid rgba(30, 41, 59, 0.5)', transition: 'background 0.2s ease' }}>
-                    <td style={{ padding: '14px 16px', color: '#cbd5e1', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                  <tr key={log.id} className="border-b border-[#1e293b]/50 transition-colors duration-200">
+                    <td className="p-[14px_16px] text-[#cbd5e1] whitespace-nowrap font-semibold">
                       {formatDateTime(log.createdAt)}
                     </td>
-                    <td style={{ padding: '14px 16px', color: '#00f2fe', fontFamily: 'monospace', fontWeight: 700 }}>
+                    <td className="p-[14px_16px] text-[#00f2fe] font-mono font-bold">
                       {log.clientIp}
                     </td>
                     <td style={{ padding: '14px 16px' }}>
@@ -229,7 +229,7 @@ export function LogsPage({ lang, showToast }: LogsPageProps) {
                         {log.action}
                       </span>
                     </td>
-                    <td style={{ padding: '14px 16px', color: '#f1f5f9', lineHeight: 1.5 }}>
+                    <td className="p-[14px_16px] text-[#f1f5f9] leading-relaxed">
                       {log.details}
                       {log.userAgent && (
                         <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontStyle: 'italic' }}>

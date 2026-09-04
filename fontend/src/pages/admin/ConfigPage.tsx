@@ -182,25 +182,25 @@ export function ConfigPage({
   };
 
   return (
-    <div className="manager-panel">
-      <div className="panel-header">
+    <div className="bg-[#0f172a]/60 border border-[#1e293b] rounded-[24px] p-7 flex flex-col gap-6">
+      <div className="flex justify-between items-center flex-wrap gap-4">
         <h2>⚙️ {lang === 'vi' ? 'Cấu Hình Thông Tin Hệ Thống' : 'System Information Config'}</h2>
       </div>
 
       <form onSubmit={handleSaveConfig} className="admin-form">
-        <div className="form-grid">
-          <div className="form-group">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2">
             <label>{lang === 'vi' ? 'Tên Admin / Brand:' : 'Brand Name:'}</label>
-            <input
+            <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
               type="text"
               value={cfgBrand}
               onChange={(e) => setCfgBrand(e.target.value)}
             />
           </div>
 
-          <div className="form-group">
+          <div className="flex flex-col gap-2">
             <label>{lang === 'vi' ? 'Tên miền Domain:' : 'Domain Name:'}</label>
-            <input
+            <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
               type="text"
               value={cfgDomain}
               onChange={(e) => setCfgDomain(e.target.value)}
@@ -244,7 +244,7 @@ export function ConfigPage({
                     <span style={{ fontSize: '12px', fontWeight: 700, color: '#38bdf8', width: '24px' }}>#{idx + 1}</span>
                     <div style={{ flex: 1 }}>
                       <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '3px' }}>{lang === 'vi' ? 'Tên hiển thị:' : 'Name:'}</label>
-                      <input
+                      <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                         type="text"
                         value={chan.name}
                         onChange={(e) => handleUpdateChannel(chan.id, 'name', e.target.value)}
@@ -256,7 +256,7 @@ export function ConfigPage({
 
                   <div style={{ flex: 2, minWidth: '240px' }}>
                     <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '3px' }}>{lang === 'vi' ? 'Đường link URL:' : 'Link URL:'}</label>
-                    <input
+                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                       type="text"
                       value={chan.url}
                       onChange={(e) => handleUpdateChannel(chan.id, 'url', e.target.value)}
@@ -268,10 +268,10 @@ export function ConfigPage({
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     {chan.logoUrl ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <img src={chan.logoUrl} alt={chan.name} style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '6px', border: '1px solid #00f2fe' }} />
+                        <img src={chan.logoUrl} alt={chan.name} className="w-9 h-9 object-contain rounded-md border border-[#00f2fe]" />
                         <label style={{ padding: '6px 10px', borderRadius: '6px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontSize: '12px', cursor: 'pointer' }}>
                           🔄 Đổi logo
-                          <input
+                          <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                             type="file"
                             accept="image/*"
                             style={{ display: 'none' }}
@@ -286,7 +286,7 @@ export function ConfigPage({
                     ) : (
                       <label style={{ padding: '8px 12px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.15)', border: '1px dashed rgba(56, 189, 248, 0.4)', color: '#38bdf8', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         📁 Up logo từ máy
-                        <input
+                        <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                           type="file"
                           accept="image/*"
                           style={{ display: 'none' }}
@@ -312,7 +312,7 @@ export function ConfigPage({
             </div>
           </div>
 
-          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+          <div className="flex flex-col gap-2" style={{ gridColumn: '1 / -1' }}>
             <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
               <span>{lang === 'vi' ? '🖼️ Icon Logo Trang Web (Hiển thị đầu trang & Favicon):' : 'Website Icon / Favicon Logo:'}</span>
               <span style={{ fontSize: '11px', color: '#10b981', fontWeight: 'bold' }}>☁ Tải tệp từ máy tính</span>
@@ -320,13 +320,13 @@ export function ConfigPage({
             <div style={{ marginTop: '6px' }}>
               {cfgFaviconUrl ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: 'rgba(15, 23, 42, 0.6)', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-                  <img src={cfgFaviconUrl} alt="Favicon Preview" style={{ width: '44px', height: '44px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #00f2fe' }} />
+                  <img src={cfgFaviconUrl} alt="Favicon Preview" className="w-11 h-11 rounded-lg object-cover border border-[#00f2fe]" />
                   <div style={{ flex: 1, fontSize: '13px', color: '#10b981', fontWeight: 'bold' }}>
                     ✓ Logo hiển thị ở góc đầu trang Web & Thanh Tab Trình duyệt
                   </div>
                   <label className="upload-btn-cloud" style={{ margin: 0, padding: '8px 14px', cursor: 'pointer', fontSize: '12px' }}>
                     {isUploadingFavicon ? '⏳ Đang tải...' : '🔄 Đổi logo khác'}
-                    <input
+                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                       type="file"
                       accept="image/*"
                       style={{ display: 'none' }}
@@ -345,7 +345,7 @@ export function ConfigPage({
               ) : (
                 <label className="upload-btn-cloud" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderRadius: '12px', border: '2px dashed rgba(56, 189, 248, 0.4)', background: 'rgba(15, 23, 42, 0.4)', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: '#38bdf8' }}>
                   {isUploadingFavicon ? '⏳ Đang tải logo lên...' : '📁 Tải Logo Trang Web / Favicon Từ Máy Tính'}
-                  <input
+                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
                     type="file"
                     accept="image/*"
                     style={{ display: 'none' }}
@@ -358,9 +358,9 @@ export function ConfigPage({
           </div>
         </div>
 
-        <div className="form-group" style={{ marginTop: '20px' }}>
+        <div className="flex flex-col gap-2" style={{ marginTop: '20px' }}>
           <label>{lang === 'vi' ? 'Các từ khóa Specialty (phân cách bằng dấu phẩy):' : 'Specialties (comma separated):'}</label>
-          <input
+          <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
             type="text"
             value={cfgSpecialtiesStr}
             onChange={(e) => setCfgSpecialtiesStr(e.target.value)}
@@ -368,7 +368,7 @@ export function ConfigPage({
         </div>
 
         <div className="submit-btn-row" style={{ marginTop: '24px' }}>
-          <button type="submit" className="save-btn" disabled={isSaving}>
+          <button type="submit" className="px-6 py-3 rounded-xl border-0 bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)]" disabled={isSaving}>
             {isSaving ? (lang === 'vi' ? '⏳ Đang Lưu...' : 'Saving...') : (lang === 'vi' ? '💾 Lưu Cấu Hình Hệ Thống' : 'Save Config')}
           </button>
         </div>

@@ -6,7 +6,8 @@ export async function fetchKeysFromBackend(): Promise<LicenseKeyItem[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/keys`);
     if (res.ok) {
-      return await res.json();
+      const data = await res.json();
+      return data.reverse();
     }
   } catch (err) {
     console.warn('Backend fetch keys failed', err);
@@ -22,7 +23,8 @@ export async function fetchAdminKeysFromBackend(): Promise<LicenseKeyItem[]> {
       headers: { 'X-Admin-Auth': token }
     });
     if (res.ok) {
-      return await res.json();
+      const data = await res.json();
+      return data.reverse();
     }
   } catch (err) {
     console.warn('Backend fetch admin keys failed', err);

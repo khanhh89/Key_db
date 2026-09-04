@@ -103,7 +103,11 @@ public class PayosController {
         // Call real PayOS API if PayOS is enabled and active credentials exist
         if (Boolean.TRUE.equals(isPayosEnabled) && activeClientId != null && !activeClientId.isBlank()
                 && activeApiKey != null && !activeApiKey.isBlank()) {
-            Map<String, Object> payosData = createPayosRequestWithRetry(order, numericOrderCode, activeClientId, activeApiKey, activeChecksumKey);
+            
+            String reqCancelUrl = req.get("cancelUrl") != null ? req.get("cancelUrl").toString() : "https://modlienquan.com";
+            String reqReturnUrl = req.get("returnUrl") != null ? req.get("returnUrl").toString() : "https://modlienquan.com";
+
+            Map<String, Object> payosData = createPayosRequestWithRetry(order, numericOrderCode, activeClientId, activeApiKey, activeChecksumKey, reqCancelUrl, reqReturnUrl);
             if (payosData != null) {
                 if (payosData.containsKey("orderCode") && payosData.get("orderCode") != null) {
                     try {
@@ -142,14 +146,15 @@ public class PayosController {
             long initialOrderCode,
             String activeClientId,
             String activeApiKey,
-            String activeChecksumKey) {
+            String activeChecksumKey,
+            String cancelUrl,
+            String returnUrl) {
 
         long currentOrderCode = initialOrderCode;
 
         for (int attempt = 0; attempt < 3; attempt++) {
             try {
-                String cancelUrl = "http://localhost:5173";
-                String returnUrl = "http://localhost:5173";
+
                 String description = order.getPaymentCode();
                 int amountInt = order.getAmount().intValue();
 

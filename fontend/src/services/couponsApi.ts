@@ -5,7 +5,8 @@ export async function fetchCouponsFromBackend(): Promise<CouponItem[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/coupons`);
     if (res.ok) {
-      return await res.json();
+      const data = await res.json();
+      return data.reverse();
     }
   } catch (err) {
     console.warn('Backend fetch coupons failed', err);
