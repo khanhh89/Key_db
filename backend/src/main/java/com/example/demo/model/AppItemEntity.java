@@ -46,6 +46,9 @@ public class AppItemEntity {
     @Column(name = "ipa_url", columnDefinition = "TEXT")
     private String ipaUrl;
 
+    @Column(name = "platform", length = 20)
+    private String platform; // 'android', 'ios', 'both'
+
     @Column(name = "allow_sell_key")
     @JsonProperty("allowSellKey")
     private Boolean allowSellKey;

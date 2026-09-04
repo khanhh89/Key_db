@@ -24,8 +24,4 @@ public interface LicenseKeyRepository extends JpaRepository<LicenseKeyEntity, St
     List<LicenseKeyEntity> findByAppIdAndDurationDays(String appId, Integer durationDays);
     List<LicenseKeyEntity> findByAppIdAndDurationDaysAndStatus(String appId, Integer durationDays, String status);
 
-    @Modifying
-    @Transactional
-    @Query("UPDATE LicenseKeyEntity k SET k.price = :price WHERE (:durationDays IS NULL OR k.durationDays = :durationDays) AND (:appId IS NULL OR :appId = 'ALL' OR k.appId = :appId) AND (:onlyAvailable = false OR k.status = 'AVAILABLE')")
-    int bulkUpdatePrices(@Param("durationDays") Integer durationDays, @Param("appId") String appId, @Param("price") Double price, @Param("onlyAvailable") boolean onlyAvailable);
 }

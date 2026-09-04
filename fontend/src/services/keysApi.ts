@@ -74,36 +74,6 @@ export async function updateKeyInBackend(id: string, keyItem: Partial<LicenseKey
   return null;
 }
 
-// Bulk update prices by package duration / appId category
-export async function updateKeyPricesByCategoryInBackend(
-  durationDays: number | null,
-  price: number,
-  appId?: string,
-  onlyAvailable: boolean = true
-): Promise<{ success: boolean; count: number; message: string }> {
-  try {
-    const token = await refreshAdminRollingToken();
-    const res = await fetch(`${API_BASE_URL}/keys/bulk-update-price`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Admin-Auth': token
-      },
-      body: JSON.stringify({
-        durationDays: durationDays || null,
-        appId: appId && appId !== 'ALL' ? appId : null,
-        price,
-        onlyAvailable
-      })
-    });
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (err) {
-    console.warn('Backend bulk update price failed', err);
-  }
-  return { success: false, count: 0, message: 'Lỗi khi kết nối đến máy chủ hệ thống.' };
-}
 
 // Delete key from MySQL DB
 export async function deleteKeyFromBackend(id: string): Promise<boolean> {

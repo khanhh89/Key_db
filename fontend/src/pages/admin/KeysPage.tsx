@@ -5,7 +5,6 @@ import {
   saveKeyToBackend,
   updateKeyInBackend,
   deleteKeyFromBackend,
-  updateKeyPricesByCategoryInBackend,
   batchDeleteKeysFromBackend,
   batchUpdateKeyStatusInBackend,
   fetchPricePresetsFromBackend,
@@ -62,14 +61,6 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
   // Instant Search State
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Bulk Price Update Modal States
-  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
-  const [bulkDuration, setBulkDuration] = useState<string>('7');
-  const [bulkAppId, setBulkAppId] = useState<string>('ALL');
-  const [bulkPrice, setBulkPrice] = useState<number>(35000);
-  const [bulkOnlyAvailable, setBulkOnlyAvailable] = useState<boolean>(true);
-  const [isBulkSubmitting, setIsBulkSubmitting] = useState<boolean>(false);
-
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -84,7 +75,6 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsModalOpen(false);
-        setIsBulkModalOpen(false);
         setDeletingKeyId(null);
       }
     };
@@ -126,7 +116,6 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
   const appIdSelectRef = useRef<HTMLSelectElement>(null);
   const keyCodeInputRef = useRef<HTMLInputElement>(null);
   const keyCodeTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const bulkPriceInputRef = useRef<HTMLInputElement>(null);
   const newPresetNameInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddPreset = async (e: React.FormEvent) => {
@@ -178,41 +167,6 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
   useEffect(() => {
     loadKeys();
   }, []);
-
-  const openBulkPriceModal = (targetDuration?: number) => {
-    if (targetDuration !== undefined) {
-      setBulkDuration(String(targetDuration));
-      const sampleKey = keys.find(k => k.durationDays === targetDuration && (k.price || k.price === 0));
-      setBulkPrice(sampleKey?.price ? sampleKey.price : (targetDuration === 1 ? 15000 : (targetDuration === 7 ? 35000 : (targetDuration === 30 ? 50000 : 350000))));
-    } else {
-      setBulkDuration('7');
-      setBulkPrice(35000);
-    }
-    setBulkAppId('ALL');
-    setBulkOnlyAvailable(true);
-    setIsBulkModalOpen(true);
-  };
-
-  const handleBulkUpdatePrice = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (bulkPrice < 2000) {
-      showToast(lang === 'vi' ? '⚠️ Giá bán tối thiểu phải từ 2,000 VNĐ trở lên!' : 'Minimum price must be at least 2,000 VND!');
-      bulkPriceInputRef.current?.focus();
-      return;
-    }
-    setIsBulkSubmitting(true);
-    const durationNum = bulkDuration === 'ALL' ? null : Number(bulkDuration);
-    const res = await updateKeyPricesByCategoryInBackend(durationNum, bulkPrice, bulkAppId, bulkOnlyAvailable);
-    setIsBulkSubmitting(false);
-
-    if (res.success) {
-      showToast(lang === 'vi' ? `🎉 ${res.message}` : res.message);
-      await loadKeys();
-      setIsBulkModalOpen(false);
-    } else {
-      showToast(lang === 'vi' ? `⚠️ ${res.message}` : res.message);
-    }
-  };
 
   const openNewKeyModal = () => {
     setEditingKey(null);
@@ -463,13 +417,6 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
             onClick={exportKeysToCSV}
           >
             📥 {lang === 'vi' ? 'Xuất CSV Kho Key' : 'Export CSV'}
-          </button>
-          <button
-            className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]"
-            style={{ background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none' }}
-            onClick={() => openBulkPriceModal()}
-          >
-            💰 {lang === 'vi' ? 'Sửa Giá Hàng Loạt Theo Gói' : 'Bulk Edit Prices'}
           </button>
           <button className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={openNewKeyModal}>
             + {lang === 'vi' ? 'Nạp Key Mới Về Kho' : 'Import New Keys'}
@@ -911,117 +858,6 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
         </ModalPortal>
       )}
 
-      {isBulkModalOpen && (
-        <ModalPortal>
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-[14px] flex justify-center items-start z-[999999] p-[20px_16px] overflow-y-auto animate-[fadeIn_0.25s_ease-out]" onClick={() => setIsBulkModalOpen(false)}>
-            <div className="w-[min(640px,94vw)] h-auto max-h-[calc(100vh-40px)] m-auto flex flex-col bg-[#0f172a] border border-[#38bdf8]/30 rounded-[28px] p-7 shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
-              <h4>
-                💰 {lang === 'vi' ? 'Cập Nhật Giá Bán Hàng Loạt Theo Phân Loại Key' : 'Bulk Update Selling Prices By Key Package'}
-              </h4>
-              <form onSubmit={handleBulkUpdatePrice} className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-170px)] pr-1">
-                <div className="flex flex-col gap-2">
-                  <label>{lang === 'vi' ? 'Chọn Phân Loại / Gói Key (*):' : 'Select Package Category (*):'}</label>
-                  <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                    value={bulkDuration}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setBulkDuration(val);
-                      if (val !== 'ALL') {
-                        const d = Number(val);
-                        const sample = keys.find(k => k.durationDays === d && (k.price || k.price === 0));
-                        if (sample && sample.price) setBulkPrice(sample.price);
-                      }
-                    }}
-                  >
-                    <option value="ALL">🌐 Tất Cả Các Gói ({keys.length} Key)</option>
-                    <option value="1">⚡ Gói 1 Ngày ({keys.filter(k => k.durationDays === 1).length} Key)</option>
-                    <option value="7">📅 Gói 7 Ngày - Tuần ({keys.filter(k => k.durationDays === 7).length} Key)</option>
-                    <option value="30">🌟 Gói 30 Ngày - Tháng ({keys.filter(k => k.durationDays === 30).length} Key)</option>
-                    <option value="365">👑 Gói 365 Ngày - Vĩnh Viễn ({keys.filter(k => k.durationDays === 365).length} Key)</option>
-                    {uniqueDurations.filter(d => ![1, 7, 30, 365].includes(d)).map(d => (
-                      <option key={d} value={String(d)}>⏱️ Gói {d} Ngày ({keys.filter(k => k.durationDays === d).length} Key)</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <label>{lang === 'vi' ? 'Áp Dụng Cho App Catalog (*):' : 'Apply To App Catalog (*):'}</label>
-                  <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                    value={bulkAppId}
-                    onChange={(e) => setBulkAppId(e.target.value)}
-                  >
-                    <option value="ALL">🌐 Tất Cả Các App</option>
-                    {apps.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.name} ({keys.filter(k => k.appId === a.id).length} Key)
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <label>{lang === 'vi' ? 'Giá Bán Mới Hàng Loạt (VNĐ - Tối thiểu 2,000đ) (*):' : 'New Price (VND - Min 2,000) (*):'}</label>
-                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                    type="number"
-                    min="2000"
-                    step="1000"
-                    ref={bulkPriceInputRef}
-                    value={bulkPrice || ''}
-                    onChange={(e) => setBulkPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
-                    placeholder="Ví dụ: 35000 (Tối thiểu 2,000đ)"
-                  />
-                  <small style={{ color: '#94a3b8', marginTop: '4px', display: 'block' }}>
-                    {lang === 'vi' ? '💡 Nhập giá bán mới từ 2,000đ trở lên cho các key thuộc phân loại gói & app được chọn.' : 'Set new price (min 2,000 VND) for selected key package & app.'}
-                  </small>
-                </div>
-
-                <label
-                  htmlFor="bulkOnlyAvailable"
-                  className="flex items-center justify-between p-3 px-4 bg-[#080c14]/60 border border-[#38bdf8]/25 rounded-[14px] cursor-pointer select-none transition-all duration-200 text-[#e2e8f0] mt-1 hover:bg-[#1e293b]/70 hover:border-[#38bdf8]/45"
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                      type="checkbox"
-                      id="bulkOnlyAvailable"
-                      checked={bulkOnlyAvailable}
-                      onChange={(e) => setBulkOnlyAvailable(e.target.checked)}
-                      style={{
-                        width: '18px',
-                        height: '18px',
-                        accentColor: '#38bdf8',
-                        cursor: 'pointer'
-                      }}
-                    />
-                    <span style={{ fontSize: '13px', fontWeight: 600 }}>
-                      {lang === 'vi' ? 'Chỉ áp dụng Key chưa bán (CÒN HÀNG)' : 'Only apply to unsold keys (AVAILABLE)'}
-                    </span>
-                  </div>
-                  <span
-                    className={`status-badge ${bulkOnlyAvailable ? 'available' : 'sold'}`}
-                    style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px' }}
-                  >
-                    {bulkOnlyAvailable ? '● CÒN HÀNG' : 'TẤT CẢ KEY'}
-                  </span>
-                </label>
-
-                <div className="flex justify-end gap-3 mt-3.5 pt-3.5 border-t border-white/10 shrink-0">
-                  <button
-                    type="button"
-                    className="px-5 py-3 rounded-xl border border-[#334155] bg-[#1e293b] text-[#e2e8f0] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]"
-                    onClick={() => setIsBulkModalOpen(false)}
-                  >
-                    {lang === 'vi' ? 'Hủy' : 'Cancel'}
-                  </button>
-                  <button type="submit" className="px-6 py-3 rounded-xl border-0 bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)]" disabled={isBulkSubmitting} style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                    {isBulkSubmitting ? '...' : (lang === 'vi' ? '🚀 Cập Nhật Giá Hàng Loạt' : '🚀 Apply Bulk Price')}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </ModalPortal>
-      )}
-
       {isPresetsManagerOpen && (
         <ModalPortal>
           <div className="fixed inset-0 bg-black/85 backdrop-blur-[14px] flex justify-center items-start z-[999999] p-[20px_16px] overflow-y-auto animate-[fadeIn_0.25s_ease-out]" onClick={() => setIsPresetsManagerOpen(false)}>
@@ -1037,54 +873,45 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
               </p>
 
               {/* Form Add Preset */}
-              <form onSubmit={handleAddPreset} style={{ background: 'rgba(30, 41, 59, 0.8)', padding: '14px', borderRadius: '12px', border: '1px solid rgba(168, 85, 247, 0.3)', marginBottom: '16px' }}>
-                <strong style={{ color: '#e9d5ff', fontSize: '13px', display: 'block', marginBottom: '10px' }}>
+              <form onSubmit={handleAddPreset} style={{ background: 'rgba(30, 41, 59, 0.8)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(168, 85, 247, 0.3)', marginBottom: '20px' }}>
+                <strong style={{ color: '#e9d5ff', fontSize: '14px', display: 'block', marginBottom: '12px' }}>
                   + {lang === 'vi' ? 'Thêm Gói Mẫu Mới:' : 'Add New Preset:'}
                 </strong>
-                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1.2fr auto', gap: '8px', alignItems: 'end' }}>
-                  <div>
-                    <label style={{ fontSize: '11px', color: '#cbd5e1' }}>{lang === 'vi' ? 'Tên Gói:' : 'Name:'}</label>
-                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                <div className="grid grid-cols-1 sm:grid-cols-[1.5fr_1fr_1.2fr_auto] gap-3 items-end">
+                  <div className="flex flex-col gap-1.5">
+                    <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Tên Gói:' : 'Name:'}</label>
+                    <input className="w-full px-3 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20"
                       type="text"
                       placeholder="VD: Gói 7 Ngày"
                       value={newPresetName}
                       onChange={(e) => setNewPresetName(e.target.value)}
-                      style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12.5px' }}
                     />
                   </div>
-                  <div>
-                    <label style={{ fontSize: '11px', color: '#cbd5e1' }}>{lang === 'vi' ? 'Số Ngày:' : 'Days:'}</label>
-                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                  <div className="flex flex-col gap-1.5">
+                    <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Số Ngày:' : 'Days:'}</label>
+                    <input className="w-full px-3 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20"
                       type="number"
                       min="1"
                       value={newPresetDays || ''}
                       onChange={(e) => setNewPresetDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
-                      style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12.5px' }}
                     />
                   </div>
-                  <div>
-                    <label style={{ fontSize: '11px', color: '#cbd5e1' }}>{lang === 'vi' ? 'Giá (VNĐ):' : 'Price:'}</label>
-                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                  <div className="flex flex-col gap-1.5">
+                    <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Giá (VNĐ):' : 'Price:'}</label>
+                    <input className="w-full px-3 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20"
                       type="number"
                       min="2000"
                       step="1000"
                       value={newPresetPrice || ''}
                       onChange={(e) => setNewPresetPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
-                      style={{ padding: '6px 10px', borderRadius: '6px', fontSize: '12.5px' }}
                     />
                   </div>
                   <button
                     type="submit"
+                    className="h-[42px] px-4 rounded-lg font-bold text-[13px] text-white cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(168,85,247,0.4)]"
                     style={{
                       background: 'linear-gradient(135deg, #a855f7, #7e22ce)',
-                      color: '#fff',
                       border: 'none',
-                      padding: '7px 14px',
-                      borderRadius: '6px',
-                      fontWeight: 'bold',
-                      fontSize: '12.5px',
-                      cursor: 'pointer',
-                      height: '32px'
                     }}
                   >
                     + {lang === 'vi' ? 'Lưu' : 'Add'}

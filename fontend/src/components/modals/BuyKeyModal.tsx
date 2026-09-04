@@ -713,65 +713,71 @@ export function BuyKeyModal({
               </div>
             </div>
 
-            {/* Direct 1-Touch Download Buttons */}
-            {(app.ipaUrl || app.downloadUrl) && (
-              <div style={{ marginTop: '16px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                {app.ipaUrl && (
-                  <a
-                    href={app.ipaUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{
-                      flex: 1,
-                      minWidth: '140px',
-                      padding: '13px 16px',
-                      borderRadius: '14px',
-                      background: 'linear-gradient(135deg, #0284c7, #38bdf8)',
-                      color: '#ffffff',
-                      textDecoration: 'none',
-                      fontWeight: 'bold',
-                      fontSize: '13.5px',
-                      textAlign: 'center',
-                      boxShadow: '0 6px 20px rgba(2, 132, 199, 0.4)',
-                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    🍎 TẢI MOD iOS (IPA) ➔
-                  </a>
-                )}
-                {app.downloadUrl && (
-                  <a
-                    href={app.downloadUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{
-                      flex: 1,
-                      minWidth: '140px',
-                      padding: '13px 16px',
-                      borderRadius: '14px',
-                      background: 'linear-gradient(135deg, #059669, #34d399)',
-                      color: '#ffffff',
-                      textDecoration: 'none',
-                      fontWeight: 'bold',
-                      fontSize: '13.5px',
-                      textAlign: 'center',
-                      boxShadow: '0 6px 20px rgba(5, 150, 105, 0.4)',
-                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    🤖 TẢI MOD ANDROID (APK) ➔
-                  </a>
-                )}
-              </div>
-            )}
+            {/* Direct 1-Touch Download Buttons — filtered by platform */}
+            {(() => {
+              const platform = app.platform || 'both';
+              const showIos = (platform === 'ios' || platform === 'both') && app.ipaUrl;
+              const showAndroid = (platform === 'android' || platform === 'both') && app.downloadUrl;
+              if (!showIos && !showAndroid) return null;
+              return (
+                <div style={{ marginTop: '16px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  {showIos && (
+                    <a
+                      href={app.ipaUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        flex: 1,
+                        minWidth: '140px',
+                        padding: '13px 16px',
+                        borderRadius: '14px',
+                        background: 'linear-gradient(135deg, #0284c7, #38bdf8)',
+                        color: '#ffffff',
+                        textDecoration: 'none',
+                        fontWeight: 'bold',
+                        fontSize: '13.5px',
+                        textAlign: 'center',
+                        boxShadow: '0 6px 20px rgba(2, 132, 199, 0.4)',
+                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      🍎 TẢI MOD iOS (IPA) ➔
+                    </a>
+                  )}
+                  {showAndroid && (
+                    <a
+                      href={app.downloadUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        flex: 1,
+                        minWidth: '140px',
+                        padding: '13px 16px',
+                        borderRadius: '14px',
+                        background: 'linear-gradient(135deg, #059669, #34d399)',
+                        color: '#ffffff',
+                        textDecoration: 'none',
+                        fontWeight: 'bold',
+                        fontSize: '13.5px',
+                        textAlign: 'center',
+                        boxShadow: '0 6px 20px rgba(5, 150, 105, 0.4)',
+                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      🤖 TẢI MOD ANDROID (APK) ➔
+                    </a>
+                  )}
+                </div>
+              );
+            })()}
 
             <div className="order-details-mini" style={{
               marginTop: '16px',

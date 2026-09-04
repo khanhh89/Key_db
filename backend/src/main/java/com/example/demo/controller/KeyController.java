@@ -24,15 +24,7 @@ public class KeyController {
     @Autowired
     private LicenseKeyRepository licenseKeyRepository;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class BulkUpdatePriceRequest {
-        private Integer durationDays;
-        private String appId;
-        private Double price;
-        private Boolean onlyAvailable = true;
-    }
+
 
     @GetMapping
     public List<LicenseKeyEntity> getAllKeys(@RequestHeader(value = "X-Admin-Auth", required = false) String adminAuth) {
@@ -96,33 +88,7 @@ public class KeyController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/bulk-update-price")
-    public ResponseEntity<?> bulkUpdatePrice(
-            @RequestHeader(value = "X-Admin-Auth", required = false) String adminAuth,
-            @RequestBody BulkUpdatePriceRequest req) {
-        if (!AdminSecurityUtil.isValidAdmin(adminAuth)) {
-            return ResponseEntity.status(403).body("Security Error: Only authenticated Admin can update key prices.");
-        }
 
-        if (req.getPrice() == null || req.getPrice() < 2000) {
-            Map<String, Object> err = new HashMap<>();
-            err.put("success", false);
-            err.put("message", "Giá bán tối thiểu phải từ 2,000 VNĐ trở lên.");
-            return ResponseEntity.badRequest().body(err);
-        }
-
-        boolean onlyAvail = Boolean.TRUE.equals(req.getOnlyAvailable());
-        Integer duration = (req.getDurationDays() != null && req.getDurationDays() > 0) ? req.getDurationDays() : null;
-        String app = (req.getAppId() != null && !req.getAppId().isBlank()) ? req.getAppId() : "ALL";
-
-        int count = licenseKeyRepository.bulkUpdatePrices(duration, app, req.getPrice(), onlyAvail);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("count", count);
-        response.put("message", "Đã cập nhật giá mới thành công cho " + count + " key!");
-        return ResponseEntity.ok(response);
-    }
 
     @PostMapping("/batch-delete")
     public ResponseEntity<?> batchDeleteKeys(

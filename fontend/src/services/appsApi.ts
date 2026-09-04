@@ -56,6 +56,7 @@ export async function saveAppToBackend(app: AppItem, isEditMode: boolean): Promi
     shots: app.shots && app.shots.length > 0 ? app.shots.join(', ') : '',
     downloadUrl: app.downloadUrl || '',
     ipaUrl: app.ipaUrl || '',
+    platform: app.platform || 'both',
     allowSellKey: app.allowSellKey !== undefined ? app.allowSellKey : true,
     allowFreeKey: app.allowFreeKey !== undefined ? app.allowFreeKey : true,
     freeKey: app.freeKey || '',

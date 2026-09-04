@@ -10,6 +10,7 @@ export interface AppItem {
   shots: string[] | null;
   downloadUrl?: string;
   ipaUrl?: string;
+  platform?: 'android' | 'ios' | 'both';
   allowSellKey?: boolean;
   allowFreeKey?: boolean;
   freeKey?: string;

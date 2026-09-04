@@ -32,6 +32,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
   const [appShotsStr, setAppShotsStr] = useState('');
   const [appDownloadUrl, setAppDownloadUrl] = useState('');
   const [appIpaUrl, setAppIpaUrl] = useState('');
+  const [appPlatform, setAppPlatform] = useState<'android' | 'ios' | 'both'>('both');
   const [appFreeKey, setAppFreeKey] = useState('');
   const [appAllowSellKey, setAppAllowSellKey] = useState(true);
   const [appAllowFreeKey, setAppAllowFreeKey] = useState(true);
@@ -133,6 +134,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
     setAppShotsStr('');
     setAppDownloadUrl('');
     setAppIpaUrl('');
+    setAppPlatform('both');
     setAppFreeKey('');
     setAppTagsStr('');
     setAppAllowSellKey(true);
@@ -150,6 +152,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
     setAppShotsStr(app.shots ? app.shots.join(', ') : '');
     setAppDownloadUrl(app.downloadUrl || '');
     setAppIpaUrl(app.ipaUrl || '');
+    setAppPlatform((app.platform as 'android' | 'ios' | 'both') || 'both');
     setAppFreeKey(app.freeKey || '');
     setAppTagsStr(app.tags ? app.tags.join(', ') : '');
     setAppAllowSellKey(app.allowSellKey !== false);
@@ -184,6 +187,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
       shots: shotsArray,
       downloadUrl: appDownloadUrl,
       ipaUrl: appIpaUrl,
+      platform: appPlatform,
       freeKey: appFreeKey,
       tags: tagsArray,
       allowSellKey: appAllowSellKey,
@@ -577,6 +581,21 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                       value={appDownloadUrl}
                       onChange={(e) => setAppDownloadUrl(e.target.value)}
                     />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label>🖥️ {lang === 'vi' ? 'Nền tảng hỗ trợ (Hiển thị nút tải sau khi mua key):' : 'Platform (Download button after key purchase):'}</label>
+                    <select
+                      className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                      value={appPlatform}
+                      onChange={(e) => setAppPlatform(e.target.value as 'android' | 'ios' | 'both')}
+                    >
+                      <option value="both">🌐 Cả Android + iOS (Hiện cả 2 nút)</option>
+                      <option value="android">🤖 Android only (Chỉ hiện nút APK)</option>
+                      <option value="ios">🍎 iOS only (Chỉ hiện nút IPA)</option>
+                    </select>
+                    <small style={{ fontSize: '11.5px', color: '#94a3b8', display: 'block', marginTop: '2px' }}>
+                      💡 {lang === 'vi' ? 'Chọn Android: chỉ hiện nút tải APK. Chọn iOS: chỉ hiện nút tải IPA. Chọn Cả hai: hiện cả 2 nút.' : 'Controls which download button shows after user buys a key.'}
+                    </small>
                   </div>
                   <div className="flex flex-col gap-2">
                     <label>{lang === 'vi' ? 'Link Vượt Lấy Key (Link Rút Gọn / Link Vượt):' : 'Bypass Key Link:'}</label>
