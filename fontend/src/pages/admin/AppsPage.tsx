@@ -213,7 +213,12 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
 
   const confirmDeleteApp = async () => {
     if (!deletingApp) return;
-    await deleteAppFromBackend(deletingApp.id);
+    const result = await deleteAppFromBackend(deletingApp.id);
+    if (!result.success) {
+      showToast(result.message ?? '❌ Không thể xóa app này.');
+      setDeletingApp(null);
+      return;
+    }
     const freshApps = await fetchAppsFromBackend();
     setApps(freshApps);
     showToast(
@@ -223,6 +228,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
     );
     setDeletingApp(null);
   };
+
 
   const toggleSellKeyStatus = async (targetApp: AppItem) => {
     const nextStatus = targetApp.allowSellKey === false ? true : false;

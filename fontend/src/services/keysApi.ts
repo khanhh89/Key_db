@@ -166,17 +166,28 @@ export async function savePricePresetToBackend(preset: Partial<KeyPricePreset>):
   return null;
 }
 
-// Delete Price Preset from MySQL DB
-export async function deletePricePresetFromBackend(id: string): Promise<boolean> {
+// Delete Price Preset from Backend DB
+export async function deletePricePresetFromBackend(id: string): Promise<{ success: boolean; message?: string; blocked?: boolean; availableKeyCount?: number }> {
   try {
     const token = await refreshAdminRollingToken();
     const res = await fetch(`${API_BASE_URL}/price-presets/${id}`, {
       method: 'DELETE',
       headers: { 'X-Admin-Auth': token }
     });
-    return res.ok;
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      return { success: true, message: data.message };
+    }
+    // 409 Conflict - có ràng buộc dữ liệu
+    return {
+      success: false,
+      blocked: data.blocked ?? true,
+      message: data.message ?? 'Không thể xóa gói giá này.',
+      availableKeyCount: data.availableKeyCount,
+    };
   } catch (err) {
     console.warn('Backend delete price preset failed', err);
-    return false;
+    return { success: false, message: 'Lỗi kết nối server.' };
   }
 }
+

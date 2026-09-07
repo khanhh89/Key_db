@@ -98,10 +98,11 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
   const [selectedPresetId, setSelectedPresetId] = useState<string>('preset-7');
   const [isPresetsManagerOpen, setIsPresetsManagerOpen] = useState<boolean>(false);
 
-  // New Preset Form State
+  // New / Edit Preset Form State
   const [newPresetName, setNewPresetName] = useState<string>('');
   const [newPresetDays, setNewPresetDays] = useState<number>(7);
   const [newPresetPrice, setNewPresetPrice] = useState<number>(35000);
+  const [editingPreset, setEditingPreset] = useState<KeyPricePreset | null>(null);
 
   const handleSelectPreset = (presetId: string) => {
     setSelectedPresetId(presetId);
@@ -143,11 +144,65 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
   };
 
   const handleDeletePreset = async (presetId: string) => {
-    await deletePricePresetFromBackend(presetId);
+    const result = await deletePricePresetFromBackend(presetId);
+    if (!result.success) {
+      // Bị chặn vì còn ràng buộc dữ liệu
+      showToast(result.message ?? '❌ Không thể xóa gói giá này.');
+      return;
+    }
+    // Xóa thành công
     const updated = presets.filter((p) => p.id !== presetId);
     setPresets(updated);
     saveStoredPresets(updated);
-    showToast(lang === 'vi' ? '🗑 Đã xóa gói giá mẫu khỏi MySQL DB!' : 'Deleted price preset from DB!');
+    if (editingPreset?.id === presetId) {
+      setEditingPreset(null);
+      setNewPresetName('');
+      setNewPresetDays(7);
+      setNewPresetPrice(35000);
+    }
+    showToast(lang === 'vi' ? '🗑 Đã xóa gói giá mẫu!' : 'Deleted price preset!');
+  };
+
+  const handleEditPresetClick = (p: KeyPricePreset) => {
+    setEditingPreset(p);
+    setNewPresetName(p.name);
+    setNewPresetDays(p.durationDays);
+    setNewPresetPrice(p.price);
+    newPresetNameInputRef.current?.focus();
+  };
+
+  const handleCancelEditPreset = () => {
+    setEditingPreset(null);
+    setNewPresetName('');
+    setNewPresetDays(7);
+    setNewPresetPrice(35000);
+  };
+
+  const handleUpdatePreset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPreset) return;
+    if (!newPresetName.trim() || newPresetDays <= 0 || newPresetPrice < 2000) {
+      showToast(lang === 'vi' ? '⚠️ Vui lòng điền Tên gói, Số ngày > 0 và Giá >= 2,000đ!' : 'Please enter valid preset details!');
+      return;
+    }
+    const updatedData: Partial<KeyPricePreset> = {
+      name: newPresetName.trim(),
+      durationDays: newPresetDays,
+      price: newPresetPrice
+    };
+    const saved = await savePricePresetToBackend({ ...updatedData, id: editingPreset.id });
+    if (saved) {
+      const updated = presets.map((p) => p.id === saved.id ? saved : p);
+      setPresets(updated);
+      saveStoredPresets(updated);
+      setEditingPreset(null);
+      setNewPresetName('');
+      setNewPresetDays(7);
+      setNewPresetPrice(35000);
+      showToast(lang === 'vi' ? `✅ Đã cập nhật gói: ${saved.name}!` : `Updated preset: ${saved.name}!`);
+    } else {
+      showToast(lang === 'vi' ? '❌ Lỗi khi cập nhật gói giá.' : 'Failed to update preset.');
+    }
   };
 
   const loadKeys = async () => {
@@ -872,15 +927,30 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                   : 'Manage pricing presets for faster key importation.'}
               </p>
 
-              {/* Form Add Preset */}
-              <form onSubmit={handleAddPreset} style={{ background: 'rgba(30, 41, 59, 0.8)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(168, 85, 247, 0.3)', marginBottom: '20px' }}>
-                <strong style={{ color: '#e9d5ff', fontSize: '14px', display: 'block', marginBottom: '12px' }}>
-                  + {lang === 'vi' ? 'Thêm Gói Mẫu Mới:' : 'Add New Preset:'}
+              {/* Form Add / Edit Preset */}
+              <form
+                onSubmit={editingPreset ? handleUpdatePreset : handleAddPreset}
+                style={{
+                  background: editingPreset ? 'rgba(56,189,248,0.07)' : 'rgba(30, 41, 59, 0.8)',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  border: editingPreset ? '1px solid rgba(56,189,248,0.4)' : '1px solid rgba(168, 85, 247, 0.3)',
+                  marginBottom: '20px',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <strong style={{ color: editingPreset ? '#38bdf8' : '#e9d5ff', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+                  {editingPreset
+                    ? (lang === 'vi' ? '✏️ Đang Sửa Gói:' : '✏️ Editing Preset:')
+                    : ('+ ' + (lang === 'vi' ? 'Thêm Gói Mẫu Mới:' : 'Add New Preset:'))}
+                  {editingPreset && <span style={{ color: '#fbbf24' }}>{editingPreset.name}</span>}
                 </strong>
                 <div className="grid grid-cols-1 sm:grid-cols-[1.5fr_1fr_1.2fr_auto] gap-3 items-end">
                   <div className="flex flex-col gap-1.5">
                     <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Tên Gói:' : 'Name:'}</label>
-                    <input className="w-full px-3 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20"
+                    <input
+                      ref={newPresetNameInputRef}
+                      className="w-full px-3 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20"
                       type="text"
                       placeholder="VD: Gói 7 Ngày"
                       value={newPresetName}
@@ -906,16 +976,29 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                       onChange={(e) => setNewPresetPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
                     />
                   </div>
-                  <button
-                    type="submit"
-                    className="h-[42px] px-4 rounded-lg font-bold text-[13px] text-white cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(168,85,247,0.4)]"
-                    style={{
-                      background: 'linear-gradient(135deg, #a855f7, #7e22ce)',
-                      border: 'none',
-                    }}
-                  >
-                    + {lang === 'vi' ? 'Lưu' : 'Add'}
-                  </button>
+                  <div className="flex flex-col gap-1.5">
+                    <button
+                      type="submit"
+                      className="h-[42px] px-4 rounded-lg font-bold text-[13px] text-white cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
+                      style={{
+                        background: editingPreset ? 'linear-gradient(135deg, #38bdf8, #0ea5e9)' : 'linear-gradient(135deg, #a855f7, #7e22ce)',
+                        border: 'none',
+                        boxShadow: editingPreset ? '0 4px 12px rgba(56,189,248,0.4)' : '0 4px 12px rgba(168,85,247,0.4)',
+                      }}
+                    >
+                      {editingPreset ? (lang === 'vi' ? '💾 Cập Nhật' : '💾 Update') : ('+ ' + (lang === 'vi' ? 'Lưu' : 'Add'))}
+                    </button>
+                    {editingPreset && (
+                      <button
+                        type="button"
+                        onClick={handleCancelEditPreset}
+                        className="h-[42px] px-3 rounded-lg font-bold text-[12px] cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
+                        style={{ background: 'rgba(100,116,139,0.2)', border: '1px solid #475569', color: '#94a3b8' }}
+                      >
+                        {lang === 'vi' ? 'Hủy' : 'Cancel'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </form>
 
@@ -927,7 +1010,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                       <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Tên Gói' : 'Name'}</th>
                       <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Thời Hạn' : 'Duration'}</th>
                       <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Giá Bán (VNĐ)' : 'Price'}</th>
-                      <th style={{ textAlign: 'center' }}>{lang === 'vi' ? 'Thao tác' : 'Action'}</th>
+                      <th style={{ textAlign: 'center', minWidth: '120px' }}>{lang === 'vi' ? 'Thao tác' : 'Action'}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -937,13 +1020,38 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                         <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">{p.durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</td>
                         <td style={{ color: '#10b981', fontWeight: 'bold' }}>{p.price.toLocaleString()} đ</td>
                         <td style={{ textAlign: 'center' }}>
-                          <button
-                            className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
-                            style={{ padding: '3px 8px', fontSize: '11px' }}
-                            onClick={() => handleDeletePreset(p.id)}
-                          >
-                            🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
-                          </button>
+                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                            <button
+                              className="cursor-pointer transition-all duration-200 inline-flex items-center gap-[4px] whitespace-nowrap hover:-translate-y-0.5"
+                              style={{
+                                padding: '3px 8px',
+                                fontSize: '11px',
+                                fontWeight: 'bold',
+                                borderRadius: '8px',
+                                background: editingPreset?.id === p.id ? 'rgba(56,189,248,0.2)' : 'rgba(56,189,248,0.1)',
+                                color: '#38bdf8',
+                                border: '1px solid rgba(56,189,248,0.3)',
+                              }}
+                              onClick={() => editingPreset?.id === p.id ? handleCancelEditPreset() : handleEditPresetClick(p)}
+                            >
+                              ✏️ {editingPreset?.id === p.id ? (lang === 'vi' ? 'Hủy' : 'Cancel') : (lang === 'vi' ? 'Sửa' : 'Edit')}
+                            </button>
+                            <button
+                              className="cursor-pointer transition-all duration-200 inline-flex items-center gap-[4px] whitespace-nowrap hover:-translate-y-0.5"
+                              style={{
+                                padding: '3px 8px',
+                                fontSize: '11px',
+                                fontWeight: 'bold',
+                                borderRadius: '8px',
+                                background: 'rgba(239,68,68,0.1)',
+                                color: '#f87171',
+                                border: '1px solid rgba(239,68,68,0.3)',
+                              }}
+                              onClick={() => handleDeletePreset(p.id)}
+                            >
+                              🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

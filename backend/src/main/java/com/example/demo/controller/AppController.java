@@ -2,14 +2,20 @@ package com.example.demo.controller;
 
 import com.example.demo.model.AppItemEntity;
 import com.example.demo.repository.AppRepository;
+import com.example.demo.repository.LicenseKeyRepository;
+import com.example.demo.repository.OrderRepository;
 import com.example.demo.util.AdminSecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -17,8 +23,18 @@ import java.util.UUID;
 @CrossOrigin(origins = "*")
 public class AppController {
 
+    private final AppRepository appRepository;
+    private final LicenseKeyRepository licenseKeyRepository;
+    private final OrderRepository orderRepository;
+
     @Autowired
-    private AppRepository appRepository;
+    public AppController(AppRepository appRepository,
+                         LicenseKeyRepository licenseKeyRepository,
+                         OrderRepository orderRepository) {
+        this.appRepository = appRepository;
+        this.licenseKeyRepository = licenseKeyRepository;
+        this.orderRepository = orderRepository;
+    }
 
     @GetMapping
     @Cacheable(value = "apps")
@@ -96,10 +112,58 @@ public class AppController {
             return ResponseEntity.status(403).body("Security Error: Only authenticated Admin can delete apps.");
         }
 
-        if (appRepository.existsById(id)) {
-            appRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+        if (!appRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+
+        AppItemEntity app = appRepository.findById(id).get();
+
+        // Kiểm tra keys AVAILABLE còn trong kho của app này
+        long availableKeyCount = licenseKeyRepository.countByAppIdAndStatus(id, "AVAILABLE");
+        if (availableKeyCount > 0) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("blocked", true);
+            error.put("reason", "HAS_AVAILABLE_KEYS");
+            error.put("availableKeyCount", availableKeyCount);
+            error.put("message", String.format(
+                "Không thể xóa app \"%s\" vì còn %d key AVAILABLE trong kho. " +
+                "Hãy xóa hoặc bán hết các key đó trước.",
+                app.getName(), availableKeyCount
+            ));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
+
+        // Kiểm tra orders PENDING của app này
+        long pendingOrderCount = orderRepository.findByAppId(id).stream()
+                .filter(o -> "PENDING".equalsIgnoreCase(o.getStatus()))
+                .count();
+        if (pendingOrderCount > 0) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("blocked", true);
+            error.put("reason", "HAS_PENDING_ORDERS");
+            error.put("pendingOrderCount", pendingOrderCount);
+            error.put("message", String.format(
+                "Không thể xóa app \"%s\" vì còn %d đơn hàng đang PENDING. " +
+                "Hãy chờ hoặc hủy các đơn đó trước.",
+                app.getName(), pendingOrderCount
+            ));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
+
+        try {
+            appRepository.deleteById(id);
+            Map<String, Object> res = new HashMap<>();
+            res.put("success", true);
+            res.put("message", "Đã xóa app [" + app.getName() + "] khỏi hệ thống.");
+            return ResponseEntity.ok(res);
+        } catch (DataIntegrityViolationException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("blocked", true);
+            error.put("message", "Không thể xóa app vì còn dữ liệu liên quan trong hệ thống.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
     }
 }

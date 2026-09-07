@@ -24,4 +24,7 @@ public interface LicenseKeyRepository extends JpaRepository<LicenseKeyEntity, St
     List<LicenseKeyEntity> findByAppIdAndDurationDays(String appId, Integer durationDays);
     List<LicenseKeyEntity> findByAppIdAndDurationDaysAndStatus(String appId, Integer durationDays, String status);
 
+    List<LicenseKeyEntity> findByAppId(String appId);
+    long countByAppId(String appId);
+    long countByAppIdAndStatus(String appId, String status);
 }

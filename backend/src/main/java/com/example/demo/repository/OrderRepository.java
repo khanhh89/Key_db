@@ -16,6 +16,8 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<OrderEntity, String> {
     Optional<OrderEntity> findByPaymentCode(String paymentCode);
     List<OrderEntity> findByStatusAndCreatedAtBefore(String status, LocalDateTime cutoffTime);
+    List<OrderEntity> findByAppId(String appId);
+    long countByAppId(String appId);
 
     @Modifying
     @Transactional

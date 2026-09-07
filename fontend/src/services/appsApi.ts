@@ -117,24 +117,36 @@ export async function saveAppToBackend(app: AppItem, isEditMode: boolean): Promi
   return formattedApp;
 }
 
-export async function deleteAppFromBackend(id: string): Promise<boolean> {
+
+export async function deleteAppFromBackend(id: string): Promise<{ success: boolean; message?: string; blocked?: boolean; reason?: string }> {
   try {
     const token = await refreshAdminRollingToken();
     const res = await fetch(`${API_BASE_URL}/apps/${id}`, {
       method: 'DELETE',
       headers: { 'X-Admin-Auth': token }
     });
-    const local = localStorage.getItem('modlienquan_apps');
-    const currentApps: AppItem[] = local ? JSON.parse(local) : initialApps;
-    const filtered = currentApps.filter((a) => a.id !== id);
-    localStorage.setItem('modlienquan_apps', JSON.stringify(filtered));
-    return res.ok;
+
+    const data = await res.json().catch(() => ({}));
+
+    if (res.ok) {
+      // Xóa thành công → cập nhật localStorage
+      const local = localStorage.getItem('modlienquan_apps');
+      const currentApps: AppItem[] = local ? JSON.parse(local) : initialApps;
+      const filtered = currentApps.filter((a) => a.id !== id);
+      localStorage.setItem('modlienquan_apps', JSON.stringify(filtered));
+      return { success: true, message: data.message };
+    }
+
+    // Bị block (409) hoặc lỗi khác
+    return {
+      success: false,
+      blocked: data.blocked ?? false,
+      reason: data.reason,
+      message: data.message ?? 'Không thể xóa app này.',
+    };
   } catch (err) {
     console.warn('Backend API delete failed', err);
-    const local = localStorage.getItem('modlienquan_apps');
-    const currentApps: AppItem[] = local ? JSON.parse(local) : initialApps;
-    const filtered = currentApps.filter((a) => a.id !== id);
-    localStorage.setItem('modlienquan_apps', JSON.stringify(filtered));
-    return true;
+    return { success: false, message: 'Lỗi kết nối server.' };
   }
 }
+
