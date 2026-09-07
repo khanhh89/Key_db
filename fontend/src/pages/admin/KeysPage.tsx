@@ -199,11 +199,14 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
       setNewPresetName('');
       setNewPresetDays(7);
       setNewPresetPrice(35000);
-      showToast(lang === 'vi' ? `✅ Đã cập nhật gói: ${saved.name}!` : `Updated preset: ${saved.name}!`);
+      showToast(lang === 'vi' ? `✅ Đã cập nhật gói: ${saved.name}! Đang đồng bộ giá key...` : `Updated preset: ${saved.name}! Syncing key prices...`);
+      // Reload keys so the updated price is immediately reflected in the inventory table
+      await loadKeys();
     } else {
       showToast(lang === 'vi' ? '❌ Lỗi khi cập nhật gói giá.' : 'Failed to update preset.');
     }
   };
+
 
   const loadKeys = async () => {
     setIsLoading(true);

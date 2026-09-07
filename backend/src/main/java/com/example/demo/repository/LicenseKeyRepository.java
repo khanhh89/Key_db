@@ -27,4 +27,13 @@ public interface LicenseKeyRepository extends JpaRepository<LicenseKeyEntity, St
     List<LicenseKeyEntity> findByAppId(String appId);
     long countByAppId(String appId);
     long countByAppIdAndStatus(String appId, String status);
+
+    /**
+     * Bulk update price for ALL keys (AVAILABLE + SOLD) with a given durationDays.
+     * Called when admin edits a price preset to keep all key prices in sync.
+     */
+    @Modifying
+    @Transactional
+    @Query("UPDATE LicenseKeyEntity k SET k.price = :newPrice WHERE k.durationDays = :durationDays")
+    int updatePriceByDurationDays(@Param("durationDays") Integer durationDays, @Param("newPrice") Double newPrice);
 }

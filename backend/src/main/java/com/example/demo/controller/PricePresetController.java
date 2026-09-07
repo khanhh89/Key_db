@@ -63,6 +63,12 @@ public class PricePresetController {
         }
 
         PricePresetEntity saved = pricePresetRepository.save(preset);
+
+        // Sync price across all keys with same durationDays (AVAILABLE + SOLD)
+        int updatedKeyCount = licenseKeyRepository.updatePriceByDurationDays(saved.getDurationDays(), saved.getPrice());
+        System.out.println("[PricePreset] Updated price=" + saved.getPrice() + " for " + updatedKeyCount
+                + " keys with durationDays=" + saved.getDurationDays());
+
         return ResponseEntity.ok(saved);
     }
 
