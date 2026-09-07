@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { ModalPortal } from '../common/ModalPortal';
-import type { AppItem, OrderItem, Language, LicenseKeyItem, BankConfig } from '../../types';
+import type { AppItem, OrderItem, Language, LicenseKeyItem, BankConfig, KeyPricePreset } from '../../types';
 import {
   API_BASE_URL,
   createOrderInBackend,
   createPayosPaymentLinkInBackend,
   fetchBankConfigFromBackend,
   fetchKeysFromBackend,
+  fetchPricePresetsFromBackend,
   applyCouponInBackend,
   releaseCouponInBackend,
   saveLocalOrder,
@@ -77,6 +78,7 @@ export function BuyKeyModal({
   });
 
   const [availableKeys, setAvailableKeys] = useState<LicenseKeyItem[]>([]);
+  const [pricePresets, setPricePresets] = useState<KeyPricePreset[]>([]);
   const [order, setOrder] = useState<OrderItem | null>(initialOrder || null);
   const [payosLink, setPayosLink] = useState<PayosLinkData | null>(null);
   const [isCreating, setIsCreating] = useState<boolean>(false);
@@ -183,6 +185,13 @@ export function BuyKeyModal({
       console.log(`🔑 [BuyKeyModal] Keys matching app [${app.name}] (ID: ${app.id}):`, appKeys);
       setAvailableKeys(appKeys);
     });
+    // Fetch price presets — used as authoritative price source (overrides per-key price)
+    fetchPricePresetsFromBackend().then((data) => {
+      if (data && data.length > 0) {
+        console.log('💰 [BuyKeyModal] Price presets loaded:', data);
+        setPricePresets(data);
+      }
+    });
   }, [app.id, initialOrder, order?.id]);
 
   // Compute dynamic package options from DB
@@ -197,10 +206,19 @@ export function BuyKeyModal({
     const dbAvailable = availableKeys.filter((k) => k.status === 'AVAILABLE');
     const packageMap = new Map<number, { days: number; label: string; price: number; stock: number; isHot?: boolean }>();
 
+    // Get authoritative price: preset price > key price in DB > fallback default
+    // Preset is always up-to-date (admin edits it), so it takes priority
+    const getAuthorativePrice = (days: number, keyPrice: number | undefined | null, fallback: number): number => {
+      const preset = pricePresets.find((p) => p.durationDays === days);
+      if (preset && preset.price) return preset.price;
+      if (keyPrice) return keyPrice;
+      return fallback;
+    };
+
     defaultPackages.forEach((pkg) => {
       const matchingDbKeys = dbAvailable.filter((k) => k.durationDays === pkg.days);
       if (matchingDbKeys.length > 0) {
-        const realPrice = matchingDbKeys[0].price ? matchingDbKeys[0].price : pkg.defaultPrice;
+        const realPrice = getAuthorativePrice(pkg.days, matchingDbKeys[0].price, pkg.defaultPrice);
         packageMap.set(pkg.days, {
           days: pkg.days,
           label: pkg.days >= 365 ? (lang === 'vi' ? '1 Năm / Vĩnh Viễn' : '1 Year / Lifetime') : `${pkg.days} ${lang === 'vi' ? 'Ngày' : 'Days'}`,
@@ -215,10 +233,11 @@ export function BuyKeyModal({
       const days = key.durationDays || 30;
       if (!packageMap.has(days)) {
         const matchingKeys = dbAvailable.filter((k) => k.durationDays === days);
+        const realPrice = getAuthorativePrice(days, key.price, 50000);
         packageMap.set(days, {
           days,
           label: days >= 365 ? (lang === 'vi' ? 'Vĩnh Viễn' : 'Lifetime') : `${days} ${lang === 'vi' ? 'Ngày' : 'Days'}`,
-          price: key.price || 50000,
+          price: realPrice,
           stock: matchingKeys.length,
           isHot: days === 30
         });

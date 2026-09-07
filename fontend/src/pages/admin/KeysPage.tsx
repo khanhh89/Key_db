@@ -514,8 +514,10 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
             color = '#facc15';
           }
 
+          // Preset is the authoritative price source — always reflects the latest admin edit
+          const matchingPreset = presets.find((p) => p.durationDays === days);
           const matchingWithPrice = keys.find((k) => k.durationDays === days && (k.price || k.price === 0));
-          const currentPkgPrice = matchingWithPrice?.price;
+          const currentPkgPrice = matchingPreset?.price ?? matchingWithPrice?.price;
           const isActiveFilter = filterDuration === String(days);
 
           let healthLabel = '🟢 Còn hàng';
@@ -732,7 +734,12 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                   <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">{renderPackageBadge(k.durationDays)}</td>
                   <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">{k.durationDays} {lang === 'vi' ? 'ngày' : 'days'}</td>
                   <td style={{ fontWeight: 'bold', color: '#10b981' }}>
-                    {k.price ? k.price.toLocaleString() : '50,000'} đ
+                    {(() => {
+                      // Show preset price for this duration if available (authoritative source)
+                      const preset = presets.find((p) => p.durationDays === k.durationDays);
+                      const displayPrice = preset?.price ?? k.price;
+                      return displayPrice ? displayPrice.toLocaleString() : '50,000';
+                    })()} đ
                   </td>
                   <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                     <span className={`status-badge ${k.status === 'AVAILABLE' ? 'available' : 'sold'}`}>
