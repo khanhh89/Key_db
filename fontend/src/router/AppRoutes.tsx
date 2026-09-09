@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import type { AppItem, ServiceItem, SystemConfig, LightboxItem, Language, OrderItem } from '../types';
 import { ProtectedRoute } from '../components/admin/ProtectedRoute';
 
@@ -24,6 +24,14 @@ export function PageLoader() {
       <span style={{ fontSize: '13px', fontWeight: 600, opacity: 0.8 }}>⚡ Đang tải dữ liệu...</span>
     </div>
   );
+}
+
+function SecretAdminGate({ children, isAuthenticated }: { children: React.ReactNode, isAuthenticated: boolean }) {
+  const location = useLocation();
+  if (!isAuthenticated && !location.state?.secret) {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
 }
 
 export interface AppRoutesProps {
@@ -115,12 +123,14 @@ export function AppRoutes({
             isAuthenticated ? (
               <Navigate to="/admin" replace />
             ) : (
-              <LoginPage
-                lang={lang}
-                config={config}
-                onLogin={handleAdminLogin}
-                onBackToSite={() => navigate('/')}
-              />
+              <SecretAdminGate isAuthenticated={isAuthenticated}>
+                <LoginPage
+                  lang={lang}
+                  config={config}
+                  onLogin={handleAdminLogin}
+                  onBackToSite={() => navigate('/')}
+                />
+              </SecretAdminGate>
             )
           }
         />
