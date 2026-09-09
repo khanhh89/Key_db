@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { LicenseKeyItem, AppItem, Language, KeyPricePreset } from '../../types';
 import {
   fetchAdminKeysFromBackend,
@@ -8,13 +8,15 @@ import {
   batchDeleteKeysFromBackend,
   batchUpdateKeyStatusInBackend,
   fetchPricePresetsFromBackend,
-  savePricePresetToBackend,
-  deletePricePresetFromBackend
 } from '../../services/api';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
-import { ModalPortal } from '../../components/common/ModalPortal';
 import { Pagination } from '../../components/common/Pagination';
 import { copyTextToClipboard } from '../../utils/clipboard';
+import { KeyStatsGrid } from '../../components/admin/keys/KeyStatsGrid';
+import { KeyFilterBar } from '../../components/admin/keys/KeyFilterBar';
+import { KeyBatchActionBar } from '../../components/admin/keys/KeyBatchActionBar';
+import { KeyImportModal } from '../../components/admin/keys/KeyImportModal';
+import { PricePresetsModal } from '../../components/admin/keys/PricePresetsModal';
 
 export const defaultKeyPricePresets: KeyPricePreset[] = [
   { id: 'preset-1', name: 'Gói 1 Ngày', durationDays: 1, price: 15000 },
@@ -53,264 +55,74 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKey, setEditingKey] = useState<LicenseKeyItem | null>(null);
   const [deletingKeyId, setDeletingKeyId] = useState<string | null>(null);
-
-  // Multi-Select Batch Actions State
   const [selectedKeyIds, setSelectedKeyIds] = useState<string[]>([]);
   const [isBatchConfirmOpen, setIsBatchConfirmOpen] = useState<boolean>(false);
-
-  // Instant Search State
   const [searchQuery, setSearchQuery] = useState<string>('');
-
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-
-  // Filter state (Dynamic filter duration string or 'ALL')
   const [filterDuration, setFilterDuration] = useState<string>('ALL');
   const [filterAppId, setFilterAppId] = useState<string>('ALL');
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'AVAILABLE' | 'SOLD'>('ALL');
+  const [presets, setPresets] = useState<KeyPricePreset[]>(getStoredPresets);
+  const [isPresetsManagerOpen, setIsPresetsManagerOpen] = useState<boolean>(false);
 
-  // Keyboard shortcut UX (Esc to close open modals)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsModalOpen(false);
-        setDeletingKeyId(null);
-      }
+      if (e.key === 'Escape') { setIsModalOpen(false); setDeletingKeyId(null); }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterDuration, filterAppId, filterStatus, searchQuery]);
-
-  // Form state
-  const [selectedAppId, setSelectedAppId] = useState<string>('');
-  const [keyCodeStr, setKeyCodeStr] = useState<string>('');
-  const [durationDays, setDurationDays] = useState<number>(30);
-  const [price, setPrice] = useState<number>(50000);
-  const [editingStatus, setEditingStatus] = useState<'AVAILABLE' | 'SOLD'>('AVAILABLE');
-
-  // Key Price Presets States
-  const [presets, setPresets] = useState<KeyPricePreset[]>(getStoredPresets);
-  const [selectedPresetId, setSelectedPresetId] = useState<string>('preset-7');
-  const [isPresetsManagerOpen, setIsPresetsManagerOpen] = useState<boolean>(false);
-
-  // New / Edit Preset Form State
-  const [newPresetName, setNewPresetName] = useState<string>('');
-  const [newPresetDays, setNewPresetDays] = useState<number>(7);
-  const [newPresetPrice, setNewPresetPrice] = useState<number>(35000);
-  const [editingPreset, setEditingPreset] = useState<KeyPricePreset | null>(null);
-
-  const handleSelectPreset = (presetId: string) => {
-    setSelectedPresetId(presetId);
-    if (presetId === 'custom') return;
-    const found = presets.find((p) => p.id === presetId);
-    if (found) {
-      setDurationDays(found.durationDays);
-      setPrice(found.price);
-    }
-  };
-
-  const appIdSelectRef = useRef<HTMLSelectElement>(null);
-  const keyCodeInputRef = useRef<HTMLInputElement>(null);
-  const keyCodeTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const newPresetNameInputRef = useRef<HTMLInputElement>(null);
-
-  const handleAddPreset = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPresetName.trim() || newPresetDays <= 0 || newPresetPrice < 2000) {
-      showToast(lang === 'vi' ? '⚠️ Vui lòng điền Tên gói, Số ngày > 0 và Giá >= 2,000đ!' : 'Please enter valid preset details!');
-      newPresetNameInputRef.current?.focus();
-      return;
-    }
-    const newPresetData: Partial<KeyPricePreset> = {
-      name: newPresetName.trim(),
-      durationDays: newPresetDays,
-      price: newPresetPrice
-    };
-    const saved = await savePricePresetToBackend(newPresetData);
-    if (saved) {
-      const updated = [...presets.filter((p) => p.id !== saved.id), saved];
-      setPresets(updated);
-      saveStoredPresets(updated);
-      setNewPresetName('');
-      showToast(lang === 'vi' ? `🎉 Đã lưu gói giá mẫu vào MySQL DB: ${saved.name}!` : `Saved price preset ${saved.name} to DB!`);
-    } else {
-      showToast(lang === 'vi' ? '❌ Lỗi khi lưu gói giá vào máy chủ.' : 'Failed to save preset.');
-    }
-  };
-
-  const handleDeletePreset = async (presetId: string) => {
-    const result = await deletePricePresetFromBackend(presetId);
-    if (!result.success) {
-      // Bị chặn vì còn ràng buộc dữ liệu
-      showToast(result.message ?? '❌ Không thể xóa gói giá này.');
-      return;
-    }
-    // Xóa thành công
-    const updated = presets.filter((p) => p.id !== presetId);
-    setPresets(updated);
-    saveStoredPresets(updated);
-    if (editingPreset?.id === presetId) {
-      setEditingPreset(null);
-      setNewPresetName('');
-      setNewPresetDays(7);
-      setNewPresetPrice(35000);
-    }
-    showToast(lang === 'vi' ? '🗑 Đã xóa gói giá mẫu!' : 'Deleted price preset!');
-  };
-
-  const handleEditPresetClick = (p: KeyPricePreset) => {
-    setEditingPreset(p);
-    setNewPresetName(p.name);
-    setNewPresetDays(p.durationDays);
-    setNewPresetPrice(p.price);
-    newPresetNameInputRef.current?.focus();
-  };
-
-  const handleCancelEditPreset = () => {
-    setEditingPreset(null);
-    setNewPresetName('');
-    setNewPresetDays(7);
-    setNewPresetPrice(35000);
-  };
-
-  const handleUpdatePreset = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingPreset) return;
-    if (!newPresetName.trim() || newPresetDays <= 0 || newPresetPrice < 2000) {
-      showToast(lang === 'vi' ? '⚠️ Vui lòng điền Tên gói, Số ngày > 0 và Giá >= 2,000đ!' : 'Please enter valid preset details!');
-      return;
-    }
-    const updatedData: Partial<KeyPricePreset> = {
-      name: newPresetName.trim(),
-      durationDays: newPresetDays,
-      price: newPresetPrice
-    };
-    const saved = await savePricePresetToBackend({ ...updatedData, id: editingPreset.id });
-    if (saved) {
-      const updated = presets.map((p) => p.id === saved.id ? saved : p);
-      setPresets(updated);
-      saveStoredPresets(updated);
-      setEditingPreset(null);
-      setNewPresetName('');
-      setNewPresetDays(7);
-      setNewPresetPrice(35000);
-      showToast(lang === 'vi' ? `✅ Đã cập nhật gói: ${saved.name}! Đang đồng bộ giá key...` : `Updated preset: ${saved.name}! Syncing key prices...`);
-      // Reload keys so the updated price is immediately reflected in the inventory table
-      await loadKeys();
-    } else {
-      showToast(lang === 'vi' ? '❌ Lỗi khi cập nhật gói giá.' : 'Failed to update preset.');
-    }
-  };
-
+  useEffect(() => { setCurrentPage(1); }, [filterDuration, filterAppId, filterStatus, searchQuery]);
 
   const loadKeys = async () => {
     setIsLoading(true);
-    const [keysData, presetsData] = await Promise.all([
-      fetchAdminKeysFromBackend(),
-      fetchPricePresetsFromBackend()
-    ]);
+    const [keysData, presetsData] = await Promise.all([fetchAdminKeysFromBackend(), fetchPricePresetsFromBackend()]);
     setKeys(keysData);
-    if (presetsData && presetsData.length > 0) {
-      setPresets(presetsData);
-      saveStoredPresets(presetsData);
-    }
+    if (presetsData && presetsData.length > 0) { setPresets(presetsData); saveStoredPresets(presetsData); }
     setIsLoading(false);
   };
 
-  useEffect(() => {
-    loadKeys();
-  }, []);
+  useEffect(() => { loadKeys(); }, []);
 
-  const openNewKeyModal = () => {
-    setEditingKey(null);
-    if (apps.length > 0) setSelectedAppId(apps[0].id);
-    setKeyCodeStr('');
+  const getAppName = useCallback((appId: string) => {
+    const app = apps.find(a => a.id === appId);
+    return app ? app.name : appId;
+  }, [apps]);
 
-    if (presets.length > 0) {
-      setSelectedPresetId(presets[0].id);
-      setDurationDays(presets[0].durationDays);
-      setPrice(presets[0].price);
-    } else {
-      setSelectedPresetId('custom');
-      setDurationDays(30);
-      setPrice(50000);
-    }
+  const getGroupAppNames = useCallback((groupAppIds: string) => {
+    return groupAppIds.split(',').map(id => id.trim()).filter(Boolean).map(id => getAppName(id));
+  }, [getAppName]);
 
-    setEditingStatus('AVAILABLE');
-    setIsModalOpen(true);
+  const handleCopyKey = async (code: string) => {
+    if (!code) return;
+    const success = await copyTextToClipboard(code);
+    if (success) showToast(lang === 'vi' ? `📋 Đã sao chép mã Key: ${code}` : `Copied Key Code: ${code}`);
   };
 
-  const openEditKeyModal = (key: LicenseKeyItem) => {
-    setEditingKey(key);
-    setSelectedAppId(key.appId);
-    setKeyCodeStr(key.keyCode);
-    setDurationDays(key.durationDays);
-    setPrice(key.price);
-    
-    // Auto match preset package by durationDays & price
-    const matched = presets.find(
-      (p) => p.durationDays === key.durationDays && Math.abs(p.price - key.price) < 1
-    );
-    if (matched) {
-      setSelectedPresetId(matched.id);
-    } else {
-      setSelectedPresetId('custom');
-    }
-
-    setEditingStatus(key.status as 'AVAILABLE' | 'SOLD');
-    setIsModalOpen(true);
+  const handleSelectAll = () => {
+    if (selectedKeyIds.length === paginatedKeys.length && paginatedKeys.length > 0) setSelectedKeyIds([]);
+    else setSelectedKeyIds(paginatedKeys.map(k => k.id));
   };
 
-  const handleSaveKey = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedAppId) {
-      showToast(lang === 'vi' ? '⚠️ Vui lòng chọn App!' : '⚠️ Please select an App!');
-      appIdSelectRef.current?.focus();
-      return;
-    }
-    if (!keyCodeStr.trim()) {
-      showToast(lang === 'vi' ? '⚠️ Mã Key không được để trống!' : '⚠️ Key Code cannot be empty!');
-      if (editingKey) keyCodeInputRef.current?.focus();
-      else keyCodeTextareaRef.current?.focus();
-      return;
-    }
+  const toggleSelectKey = (id: string) => {
+    setSelectedKeyIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
 
-    if (editingKey) {
-      // UPDATE EXISTING KEY MODE
-      await updateKeyInBackend(editingKey.id, {
-        appId: selectedAppId,
-        keyCode: keyCodeStr.trim(),
-        durationDays,
-        price,
-        status: editingStatus
-      });
-      showToast(lang === 'vi' ? '🎉 Đã cập nhật thông tin Key thành công!' : 'Updated Key details!');
-    } else {
-      // BULK / SINGLE INSERT KEY MODE
-      const lines = keyCodeStr
-        .split('\n')
-        .map((l) => l.trim())
-        .filter(Boolean);
+  const handleBatchDelete = async () => {
+    if (selectedKeyIds.length === 0) return;
+    const res = await batchDeleteKeysFromBackend(selectedKeyIds);
+    if (res.success) { showToast(lang === 'vi' ? `🗑 ${res.message}` : res.message); setSelectedKeyIds([]); await loadKeys(); }
+    else showToast(lang === 'vi' ? `⚠️ ${res.message}` : res.message);
+    setIsBatchConfirmOpen(false);
+  };
 
-      for (const code of lines) {
-        await saveKeyToBackend({
-          appId: selectedAppId,
-          keyCode: code,
-          durationDays,
-          price,
-          status: 'AVAILABLE'
-        });
-      }
-      showToast(lang === 'vi' ? `Đã thêm ${lines.length} Key mới thành công!` : `Added ${lines.length} Keys successfully!`);
-    }
-
-    await loadKeys();
-    setIsModalOpen(false);
+  const handleBatchStatus = async (status: 'AVAILABLE' | 'SOLD') => {
+    if (selectedKeyIds.length === 0) return;
+    const res = await batchUpdateKeyStatusInBackend(selectedKeyIds, status);
+    if (res.success) { showToast(lang === 'vi' ? `🎉 ${res.message}` : res.message); setSelectedKeyIds([]); await loadKeys(); }
+    else showToast(lang === 'vi' ? `⚠️ ${res.message}` : res.message);
   };
 
   const confirmDeleteKey = async () => {
@@ -321,92 +133,51 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     setDeletingKeyId(null);
   };
 
-  const getAppName = useCallback((appId: string) => {
-    const app = apps.find((a) => a.id === appId);
-    return app ? app.name : appId;
-  }, [apps]);
-
-  // Quick 1-Click Copy Key Code
-  const handleCopyKey = async (code: string) => {
-    if (!code) return;
-    const success = await copyTextToClipboard(code);
-    if (success) {
-      showToast(lang === 'vi' ? `📋 Đã sao chép mã Key: ${code}` : `Copied Key Code: ${code}`);
-    }
-  };
-
-  // 1-Click Export Inventory to CSV File
   const exportKeysToCSV = () => {
-    if (filteredKeys.length === 0) {
-      showToast(lang === 'vi' ? '⚠️ Không có dữ liệu key để xuất!' : 'No keys to export!');
-      return;
-    }
+    if (filteredKeys.length === 0) { showToast(lang === 'vi' ? '⚠️ Không có dữ liệu key để xuất!' : 'No keys to export!'); return; }
     const headers = ['ID', 'App Name', 'Key Code', 'Duration (Days)', 'Price (VND)', 'Status', 'Created At'];
-    const rows = filteredKeys.map((k) => [
-      k.id,
-      getAppName(k.appId),
-      k.keyCode,
-      k.durationDays,
-      k.price || 50000,
-      k.status,
-      k.createdAt || ''
-    ]);
-    const csvContent = '\uFEFF' + [headers, ...rows].map((row) => row.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const rows = filteredKeys.map(k => [k.id, getAppName(k.appId), k.keyCode, k.durationDays, k.price || 50000, k.status, k.createdAt || '']);
+    const csvContent = '\uFEFF' + [headers, ...rows].map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
     link.setAttribute('download', `Kho_Key_Export_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
     showToast(lang === 'vi' ? `📥 Đã xuất ${filteredKeys.length} Key ra file CSV thành công!` : `Exported ${filteredKeys.length} Keys to CSV!`);
   };
 
-  // Multi-Select Batch Action Handlers
-  const handleSelectAll = () => {
-    if (selectedKeyIds.length === paginatedKeys.length && paginatedKeys.length > 0) {
-      setSelectedKeyIds([]);
+  const handleSaveKey = async (data: {
+    isGroupMode: boolean; selectedAppId: string; selectedGroupAppIds: string[];
+    keyCodeStr: string; durationDays: number; price: number; editingStatus: 'AVAILABLE' | 'SOLD';
+  }) => {
+    const { isGroupMode, selectedAppId, selectedGroupAppIds, keyCodeStr, durationDays, price, editingStatus } = data;
+    if (isGroupMode && selectedGroupAppIds.length < 2) { showToast(lang === 'vi' ? '⚠️ Chế độ nhóm cần chọn ít nhất 2 App!' : '⚠️ Group mode requires at least 2 Apps!'); return; }
+    if (!isGroupMode && !selectedAppId) { showToast(lang === 'vi' ? '⚠️ Vui lòng chọn App!' : '⚠️ Please select an App!'); return; }
+    if (!keyCodeStr.trim()) { showToast(lang === 'vi' ? '⚠️ Mã Key không được để trống!' : '⚠️ Key Code cannot be empty!'); return; }
+
+    const effectiveAppId = isGroupMode ? selectedGroupAppIds[0] : selectedAppId;
+    const effectiveGroupAppIds = isGroupMode ? selectedGroupAppIds.join(',') : '';
+
+    if (editingKey) {
+      await updateKeyInBackend(editingKey.id, { appId: effectiveAppId, keyCode: keyCodeStr.trim(), durationDays, price, status: editingStatus, groupAppIds: effectiveGroupAppIds || undefined });
+      showToast(lang === 'vi' ? '🎉 Đã cập nhật thông tin Key thành công!' : 'Updated Key details!');
     } else {
-      setSelectedKeyIds(paginatedKeys.map((k) => k.id));
+      const lines = keyCodeStr.split('\n').map(l => l.trim()).filter(Boolean);
+      for (const code of lines) {
+        await saveKeyToBackend({ appId: effectiveAppId, keyCode: code, durationDays, price, status: 'AVAILABLE', groupAppIds: effectiveGroupAppIds || undefined });
+      }
+      const groupLabel = isGroupMode ? ` cho nhóm [${selectedGroupAppIds.map(id => getAppName(id)).join(' + ')}]` : '';
+      showToast(lang === 'vi' ? `Đã thêm ${lines.length} Key mới${groupLabel} thành công!` : `Added ${lines.length} Keys successfully!`);
     }
+    await loadKeys();
+    setIsModalOpen(false);
   };
 
-  const toggleSelectKey = (id: string) => {
-    setSelectedKeyIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
-  };
-
-  const handleBatchDelete = async () => {
-    if (selectedKeyIds.length === 0) return;
-    const res = await batchDeleteKeysFromBackend(selectedKeyIds);
-    if (res.success) {
-      showToast(lang === 'vi' ? `🗑 ${res.message}` : res.message);
-      setSelectedKeyIds([]);
-      await loadKeys();
-    } else {
-      showToast(lang === 'vi' ? `⚠️ ${res.message}` : res.message);
-    }
-    setIsBatchConfirmOpen(false);
-  };
-
-  const handleBatchStatus = async (status: 'AVAILABLE' | 'SOLD') => {
-    if (selectedKeyIds.length === 0) return;
-    const res = await batchUpdateKeyStatusInBackend(selectedKeyIds, status);
-    if (res.success) {
-      showToast(lang === 'vi' ? `🎉 ${res.message}` : res.message);
-      setSelectedKeyIds([]);
-      await loadKeys();
-    } else {
-      showToast(lang === 'vi' ? `⚠️ ${res.message}` : res.message);
-    }
-  };
-
-  // Memoized Filtered Keys Calculation
+  // Memoized computations
   const filteredKeys = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    return keys.filter((k) => {
+    return keys.filter(k => {
       if (filterAppId !== 'ALL' && k.appId !== filterAppId) return false;
       if (filterStatus !== 'ALL' && k.status !== filterStatus) return false;
       if (filterDuration !== 'ALL' && String(k.durationDays) !== filterDuration) return false;
@@ -419,267 +190,61 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     });
   }, [keys, filterAppId, filterStatus, filterDuration, searchQuery, getAppName]);
 
-  // Memoized Inventory Statistics & Total Value
-  const availableKeys = useMemo(() => keys.filter((k) => k.status === 'AVAILABLE'), [keys]);
+  const availableKeys = useMemo(() => keys.filter(k => k.status === 'AVAILABLE'), [keys]);
   const countTotalAvailable = availableKeys.length;
-
-  const totalInventoryValue = useMemo(() => {
-    return availableKeys.reduce((sum, k) => sum + (k.price || 50000), 0);
-  }, [availableKeys]);
-
-  const uniqueDurations = useMemo(() => {
-    return Array.from(new Set(keys.map((k) => k.durationDays || 30))).sort((a, b) => a - b);
-  }, [keys]);
-
-  const packageStatsMap = useMemo(() => {
-    return uniqueDurations.map((days) => {
-      const count = keys.filter((k) => k.status === 'AVAILABLE' && k.durationDays === days).length;
-      const total = keys.filter((k) => k.durationDays === days).length;
-      return { days, count, total };
-    });
-  }, [uniqueDurations, keys]);
+  const totalInventoryValue = useMemo(() => availableKeys.reduce((sum, k) => sum + (k.price || 50000), 0), [availableKeys]);
+  const uniqueDurations = useMemo(() => Array.from(new Set(keys.map(k => k.durationDays || 30))).sort((a, b) => a - b), [keys]);
+  const packageStatsMap = useMemo(() => uniqueDurations.map(days => ({
+    days,
+    count: keys.filter(k => k.status === 'AVAILABLE' && k.durationDays === days).length,
+    total: keys.filter(k => k.durationDays === days).length
+  })), [uniqueDurations, keys]);
 
   const renderPackageBadge = (days: number) => {
-    if (days === 1) {
-      return <span className="package-badge day1">⚡ Gói 1 Ngày</span>;
-    } else if (days === 7) {
-      return <span className="package-badge day7">📅 Gói 7 Ngày</span>;
-    } else if (days === 30) {
-      return <span className="package-badge day30">🌟 Gói 30 Ngày</span>;
-    } else if (days >= 365) {
-      return <span className="package-badge lifetime">👑 Gói Vĩnh Viễn</span>;
-    }
+    if (days === 1) return <span className="package-badge day1">⚡ Gói 1 Ngày</span>;
+    if (days === 7) return <span className="package-badge day7">📅 Gói 7 Ngày</span>;
+    if (days === 30) return <span className="package-badge day30">🌟 Gói 30 Ngày</span>;
+    if (days >= 365) return <span className="package-badge lifetime">👑 Gói Vĩnh Viễn</span>;
     return <span className="package-badge day30">⏱️ Gói {days} Ngày</span>;
   };
 
   const totalPages = useMemo(() => Math.ceil(filteredKeys.length / pageSize) || 1, [filteredKeys.length, pageSize]);
-  const paginatedKeys = useMemo(() => {
-    return filteredKeys.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  }, [filteredKeys, currentPage, pageSize]);
+  const paginatedKeys = useMemo(() => filteredKeys.slice((currentPage - 1) * pageSize, currentPage * pageSize), [filteredKeys, currentPage, pageSize]);
 
   return (
     <div className="bg-[#0f172a]/60 border border-[#1e293b] rounded-[24px] p-7 flex flex-col gap-6">
+      {/* Header */}
       <div className="flex justify-between items-center flex-wrap gap-4">
         <h2>🔑 {lang === 'vi' ? 'Quản Lý Kho Key Theo Gói' : 'Keys Inventory Manager'}</h2>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <button
-            className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]"
-            style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: 'none' }}
-            onClick={() => setIsPresetsManagerOpen(true)}
-          >
+          <button className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: 'none' }} onClick={() => setIsPresetsManagerOpen(true)}>
             ⚙️ {lang === 'vi' ? 'Cấu Hình Bảng Giá Mẫu' : 'Price Presets'}
           </button>
-          <button
-            className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]"
-            style={{ background: 'linear-gradient(135deg, #0284c7, #2563eb)', border: 'none' }}
-            onClick={exportKeysToCSV}
-          >
+          <button className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" style={{ background: 'linear-gradient(135deg, #0284c7, #2563eb)', border: 'none' }} onClick={exportKeysToCSV}>
             📥 {lang === 'vi' ? 'Xuất CSV Kho Key' : 'Export CSV'}
           </button>
-          <button className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={openNewKeyModal}>
+          <button className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={() => { setEditingKey(null); setIsModalOpen(true); }}>
             + {lang === 'vi' ? 'Nạp Key Mới Về Kho' : 'Import New Keys'}
           </button>
         </div>
       </div>
 
-      {/* DYNAMIC PACKAGE SUMMARY STATISTICS CARDS WITH STOCK HEALTH & TỔNG GIÁ TRỊ */}
-      <div className="key-stats-grid">
-        <div className="key-stat-card">
-          <span>📦 TỔNG KEY CÒN HÀNG</span>
-          <strong>{countTotalAvailable} Key</strong>
-          {totalInventoryValue > 0 && (
-            <small style={{ fontSize: '11px', color: '#10b981', fontWeight: 'bold', display: 'block', marginTop: '2px' }}>
-              💰 Tổng trị giá: {totalInventoryValue.toLocaleString()} đ
-            </small>
-          )}
-        </div>
+      {/* Stats Grid */}
+      <KeyStatsGrid keys={keys} presets={presets} filterDuration={filterDuration} setFilterDuration={setFilterDuration} countTotalAvailable={countTotalAvailable} totalInventoryValue={totalInventoryValue} packageStatsMap={packageStatsMap} lang={lang} />
 
-        {packageStatsMap.map(({ days, count }) => {
-          let icon = '⏱️';
-          let title = `GÓI ${days} NGÀY`;
-          let color = '#38bdf8';
+      {/* Batch Action Bar */}
+      <KeyBatchActionBar lang={lang} selectedCount={selectedKeyIds.length} onMarkAvailable={() => handleBatchStatus('AVAILABLE')} onMarkSold={() => handleBatchStatus('SOLD')} onDeleteBatch={() => setIsBatchConfirmOpen(true)} onClearSelection={() => setSelectedKeyIds([])} />
 
-          if (days === 1) {
-            icon = '⚡';
-            color = '#fb923c';
-          } else if (days === 7) {
-            icon = '📅';
-            color = '#c084fc';
-          } else if (days === 30) {
-            icon = '🌟';
-            color = '#38bdf8';
-          } else if (days >= 365) {
-            icon = '👑';
-            title = 'GÓI VĨNH VIỄN';
-            color = '#facc15';
-          }
+      {/* Filter Bar */}
+      <KeyFilterBar lang={lang} searchQuery={searchQuery} setSearchQuery={setSearchQuery} filterDuration={filterDuration} setFilterDuration={setFilterDuration} filterAppId={filterAppId} setFilterAppId={setFilterAppId} filterStatus={filterStatus} setFilterStatus={setFilterStatus} apps={apps} keys={keys} uniqueDurations={uniqueDurations} countTotalAvailable={countTotalAvailable} setCurrentPage={setCurrentPage} />
 
-          // Preset is the authoritative price source — always reflects the latest admin edit
-          const matchingPreset = presets.find((p) => p.durationDays === days);
-          const matchingWithPrice = keys.find((k) => k.durationDays === days && (k.price || k.price === 0));
-          const currentPkgPrice = matchingPreset?.price ?? matchingWithPrice?.price;
-          const isActiveFilter = filterDuration === String(days);
-
-          let healthLabel = '🟢 Còn hàng';
-          let healthColor = '#10b981';
-          if (count === 0) {
-            healthLabel = '🔴 Hết hàng';
-            healthColor = '#ef4444';
-          } else if (count < 5) {
-            healthLabel = '🟡 Sắp hết';
-            healthColor = '#f59e0b';
-          }
-
-          return (
-            <div
-              className={`key-stat-card ${isActiveFilter ? 'active-filter-card' : ''}`}
-              key={days}
-              onClick={() => setFilterDuration(isActiveFilter ? 'ALL' : String(days))}
-              style={{
-                cursor: 'pointer',
-                border: isActiveFilter ? '1px solid #38bdf8' : undefined,
-                boxShadow: isActiveFilter ? '0 0 16px rgba(56, 189, 248, 0.4)' : undefined
-              }}
-              title="Bấm để lọc nhanh gói này"
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>{icon} {title}</span>
-                <span style={{ fontSize: '10px', color: healthColor, fontWeight: 'bold' }}>{healthLabel}</span>
-              </div>
-              <strong style={{ color }}>{count} Key</strong>
-              <div style={{ marginTop: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '12px', color: '#10b981', fontWeight: 'bold' }}>
-                  Giá: {currentPkgPrice !== undefined && currentPkgPrice !== null ? `${currentPkgPrice.toLocaleString()} đ` : 'Chưa đặt giá'}
-                </span>
-                <small style={{ fontSize: '10px', color: '#94a3b8' }}>{isActiveFilter ? '✓ Đang lọc' : 'Lọc nhanh'}</small>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* MULTI-SELECT FLOATING ACTION BAR */}
-      {selectedKeyIds.length > 0 && (
-        <div className="batch-action-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))', border: '1px solid rgba(56, 189, 248, 0.4)', borderRadius: '16px', padding: '12px 20px', marginBottom: '16px', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(16px)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontWeight: 'bold', color: '#38bdf8', fontSize: '13px' }}>☑ Đã chọn {selectedKeyIds.length} Key</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <button
-              className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]"
-              style={{ padding: '6px 12px', fontSize: '12px', background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#34d399' }}
-              onClick={() => handleBatchStatus('AVAILABLE')}
-            >
-              ● Đánh Dấu CÒN HÀNG
-            </button>
-            <button
-              className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]"
-              style={{ padding: '6px 12px', fontSize: '12px', background: 'rgba(99, 102, 241, 0.2)', border: '1px solid rgba(99, 102, 241, 0.4)', color: '#818cf8' }}
-              onClick={() => handleBatchStatus('SOLD')}
-            >
-              ✓ Đánh Dấu ĐÃ BÁN
-            </button>
-            <button
-              className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
-              style={{ padding: '6px 12px', fontSize: '12px' }}
-              onClick={() => setIsBatchConfirmOpen(true)}
-            >
-              🗑 Xóa {selectedKeyIds.length} Key
-            </button>
-            <button
-              className="px-5 py-3 rounded-xl border border-[#334155] bg-[#1e293b] text-[#e2e8f0] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]"
-              style={{ padding: '6px 12px', fontSize: '12px' }}
-              onClick={() => setSelectedKeyIds([])}
-            >
-              ✕ Bỏ Chọn
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* FILTER & SEARCH BAR */}
-      <div className="admin-filter-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', background: '#0b101d', padding: '14px 18px', borderRadius: '16px', border: '1px solid #1e293b', marginBottom: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '1 1 220px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#94a3b8' }}>🔍 {lang === 'vi' ? 'Tìm Kiếm:' : 'Search:'}</span>
-          <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-            type="text"
-            value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-            placeholder={lang === 'vi' ? 'Nhập mã key hoặc tên app...' : 'Filter key code or app name...'}
-            style={{ flex: 1, minWidth: '160px', padding: '8px 12px', borderRadius: '10px', background: '#080c14', border: '1px solid #1e293b', color: '#fff', fontSize: '13px', outline: 'none' }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#94a3b8' }}>📦 {lang === 'vi' ? 'Gói Thời Hạn:' : 'Package:'}</span>
-          <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-            value={filterDuration}
-            onChange={(e) => setFilterDuration(e.target.value)}
-            style={{ padding: '8px 12px', borderRadius: '10px', background: '#080c14', border: '1px solid #1e293b', color: '#fff', fontSize: '13px' }}
-          >
-            <option value="ALL">Tất Cả Các Gói ({keys.length} Key)</option>
-            {uniqueDurations.map((days) => {
-              const label = days >= 365 ? '👑 Gói Vĩnh Viễn' : (days === 1 ? '⚡ Gói 1 Ngày' : (days === 7 ? '🔥 Gói 7 Ngày' : (days === 30 ? '💎 Gói 30 Ngày' : `⏱️ Gói ${days} Ngày`)));
-              const count = keys.filter((k) => k.durationDays === days).length;
-              return (
-                <option key={days} value={String(days)}>
-                  {label} ({count} Key)
-                </option>
-              );
-            })}
-          </select>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#94a3b8' }}>📱 App Catalog:</span>
-          <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-            value={filterAppId}
-            onChange={(e) => setFilterAppId(e.target.value)}
-            style={{ padding: '8px 12px', borderRadius: '10px', background: '#080c14', border: '1px solid #1e293b', color: '#fff', fontSize: '13px' }}
-          >
-            <option value="ALL">Tất Cả Các App ({keys.length} Key)</option>
-            {apps.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name} ({keys.filter((k) => k.appId === a.id).length} Key)
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#94a3b8' }}>📊 Trạng Thái:</span>
-          <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as any)}
-            style={{ padding: '8px 12px', borderRadius: '10px', background: '#080c14', border: '1px solid #1e293b', color: '#fff', fontSize: '13px' }}
-          >
-            <option value="ALL">Tất Cả Trạng Thái</option>
-            <option value="AVAILABLE">● Còn Hàng ({countTotalAvailable} Key)</option>
-            <option value="SOLD">✓ Đã Bán ({keys.length - countTotalAvailable} Key)</option>
-          </select>
-        </div>
-
-        {(filterDuration !== 'ALL' || filterAppId !== 'ALL' || filterStatus !== 'ALL' || searchQuery) && (
-          <button
-            onClick={() => { setFilterDuration('ALL'); setFilterAppId('ALL'); setFilterStatus('ALL'); setSearchQuery(''); setCurrentPage(1); }}
-            style={{ padding: '8px 14px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.35)', color: '#f87171', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-          >
-            ✕ {lang === 'vi' ? 'Xóa Bộ Lọc' : 'Clear Filters'}
-          </button>
-        )}
-      </div>
-
+      {/* Keys Table */}
       <div className="w-full overflow-x-auto rounded-2xl border border-[#1e293b] bg-[#0f172a]/50 backdrop-blur-[10px]">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
             <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
               <th style={{ width: '40px', textAlign: 'center' }}>
-                <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                  type="checkbox"
-                  checked={selectedKeyIds.length === paginatedKeys.length && paginatedKeys.length > 0}
-                  onChange={handleSelectAll}
-                  style={{ cursor: 'pointer', width: '16px', height: '16px' }}
-                />
+                <input type="checkbox" checked={selectedKeyIds.length === paginatedKeys.length && paginatedKeys.length > 0} onChange={handleSelectAll} style={{ cursor: 'pointer', width: '16px', height: '16px' }} />
               </th>
               <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">App</th>
               <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Key Code</th>
@@ -708,26 +273,25 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                 </td>
               </tr>
             ) : (
-              paginatedKeys.map((k) => (
+              paginatedKeys.map(k => (
                 <tr key={k.id} className={selectedKeyIds.includes(k.id) ? 'selected-row' : ''}>
                   <td style={{ textAlign: 'center' }}>
-                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                      type="checkbox"
-                      checked={selectedKeyIds.includes(k.id)}
-                      onChange={() => toggleSelectKey(k.id)}
-                      style={{ cursor: 'pointer', width: '16px', height: '16px' }}
-                    />
+                    <input type="checkbox" checked={selectedKeyIds.includes(k.id)} onChange={() => toggleSelectKey(k.id)} style={{ cursor: 'pointer', width: '16px', height: '16px' }} />
                   </td>
                   <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
-                    <strong>{getAppName(k.appId)}</strong>
+                    {k.groupAppIds && k.groupAppIds.trim() ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(99,102,241,0.2))', border: '1px solid rgba(168,85,247,0.5)', borderRadius: '8px', padding: '2px 8px', fontSize: '11px', fontWeight: 'bold', color: '#c084fc' }}>🔗 NHÓM APP</span>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginTop: '2px' }}>
+                          {getGroupAppNames(k.groupAppIds).map((name, i) => (
+                            <span key={i} style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)', borderRadius: '6px', padding: '1px 6px', fontSize: '10.5px', color: '#7dd3fc' }}>{name}</span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : <strong>{getAppName(k.appId)}</strong>}
                   </td>
                   <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
-                    <code
-                      className="bg-[#1e293b] text-[#38bdf8] px-2.5 py-1 rounded-md font-mono text-[13px]"
-                      onClick={() => handleCopyKey(k.keyCode)}
-                      style={{ cursor: 'pointer' }}
-                      title="Nhấp để sao chép nhanh mã Key"
-                    >
+                    <code className="bg-[#1e293b] text-[#38bdf8] px-2.5 py-1 rounded-md font-mono text-[13px]" onClick={() => handleCopyKey(k.keyCode)} style={{ cursor: 'pointer' }} title="Nhấp để sao chép nhanh mã Key">
                       {k.keyCode} 📋
                     </code>
                   </td>
@@ -735,29 +299,20 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                   <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">{k.durationDays} {lang === 'vi' ? 'ngày' : 'days'}</td>
                   <td style={{ fontWeight: 'bold', color: '#10b981' }}>
                     {(() => {
-                      // Show preset price for this duration if available (authoritative source)
-                      const preset = presets.find((p) => p.durationDays === k.durationDays);
+                      const preset = presets.find(p => p.durationDays === k.durationDays);
                       const displayPrice = preset?.price ?? k.price;
                       return displayPrice ? displayPrice.toLocaleString() : '50,000';
                     })()} đ
                   </td>
                   <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
-                    <span className={`status-badge ${k.status === 'AVAILABLE' ? 'available' : 'sold'}`}>
-                      {k.status === 'AVAILABLE' ? '● CÒN HÀNG' : '✓ ĐÃ BÁN'}
-                    </span>
+                    <span className={`status-badge ${k.status === 'AVAILABLE' ? 'available' : 'sold'}`}>{k.status === 'AVAILABLE' ? '● CÒN HÀNG' : '✓ ĐÃ BÁN'}</span>
                   </td>
                   <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
                     <div className="flex items-center gap-2">
-                      <button
-                        className="bg-[#38bdf8]/12 text-[#38bdf8] border border-[#38bdf8]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#38bdf8] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]"
-                        onClick={() => openEditKeyModal(k)}
-                      >
+                      <button className="bg-[#38bdf8]/12 text-[#38bdf8] border border-[#38bdf8]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#38bdf8] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]" onClick={() => { setEditingKey(k); setIsModalOpen(true); }}>
                         ✎ {lang === 'vi' ? 'Sửa' : 'Edit'}
                       </button>
-                      <button
-                        className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
-                        onClick={() => setDeletingKeyId(k.id)}
-                      >
+                      <button className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]" onClick={() => setDeletingKeyId(k.id)}>
                         🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
                       </button>
                     </div>
@@ -769,309 +324,15 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
         </table>
       </div>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalItems={filteredKeys.length}
-        pageSize={pageSize}
-        onPageChange={setCurrentPage}
-        onPageSizeChange={(sz) => { setPageSize(sz); setCurrentPage(1); }}
-        lang={lang}
-      />
+      <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={filteredKeys.length} pageSize={pageSize} onPageChange={setCurrentPage} onPageSizeChange={(sz) => { setPageSize(sz); setCurrentPage(1); }} lang={lang} />
 
-      <ConfirmModal
-        isOpen={Boolean(deletingKeyId)}
-        title={lang === 'vi' ? 'Xác Nhận Xóa Key?' : 'Confirm Delete Key?'}
-        message={lang === 'vi' ? 'Bạn có chắc muốn xóa Key này không?' : 'Delete key?'}
-        lang={lang}
-        onConfirm={confirmDeleteKey}
-        onCancel={() => setDeletingKeyId(null)}
-      />
+      <ConfirmModal isOpen={Boolean(deletingKeyId)} title={lang === 'vi' ? 'Xác Nhận Xóa Key?' : 'Confirm Delete Key?'} message={lang === 'vi' ? 'Bạn có chắc muốn xóa Key này không?' : 'Delete key?'} lang={lang} onConfirm={confirmDeleteKey} onCancel={() => setDeletingKeyId(null)} />
 
-      <ConfirmModal
-        isOpen={isBatchConfirmOpen}
-        title={lang === 'vi' ? `Xác Nhận Xóa Hàng Loạt (${selectedKeyIds.length} Key)?` : `Confirm Batch Delete (${selectedKeyIds.length} Keys)?`}
-        message={lang === 'vi' ? `Bạn có chắc chắn muốn xóa vĩnh viễn ${selectedKeyIds.length} Key đã chọn không? Hành động này không thể hoàn tác!` : `Delete selected ${selectedKeyIds.length} keys permanently?`}
-        lang={lang}
-        onConfirm={handleBatchDelete}
-        onCancel={() => setIsBatchConfirmOpen(false)}
-      />
+      <ConfirmModal isOpen={isBatchConfirmOpen} title={lang === 'vi' ? `Xác Nhận Xóa Hàng Loạt (${selectedKeyIds.length} Key)?` : `Confirm Batch Delete (${selectedKeyIds.length} Keys)?`} message={lang === 'vi' ? `Bạn có chắc chắn muốn xóa vĩnh viễn ${selectedKeyIds.length} Key đã chọn không? Hành động này không thể hoàn tác!` : `Delete selected ${selectedKeyIds.length} keys permanently?`} lang={lang} onConfirm={handleBatchDelete} onCancel={() => setIsBatchConfirmOpen(false)} />
 
-      {isModalOpen && (
-        <ModalPortal>
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-[14px] flex justify-center items-start z-[999999] p-[20px_16px] overflow-y-auto animate-[fadeIn_0.25s_ease-out]" onClick={() => setIsModalOpen(false)}>
-            <div className="w-[min(640px,94vw)] h-auto max-h-[calc(100vh-40px)] m-auto flex flex-col bg-[#0f172a] border border-[#38bdf8]/30 rounded-[28px] p-7 shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
-              <h4>
-                🔑 {editingKey ? (lang === 'vi' ? 'Chỉnh Sửa Thông Tin Key' : 'Edit License Key') : (lang === 'vi' ? 'Nạp Key Mới Phân Loại Theo Gói' : 'Import New Keys By Package')}
-              </h4>
-              <form onSubmit={handleSaveKey} className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-170px)] pr-1">
-                <div className="flex flex-col gap-2">
-                  <label>{lang === 'vi' ? 'Chọn App Catalog (*):' : 'Select App (*):'}</label>
-                  <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                    ref={appIdSelectRef}
-                    value={selectedAppId}
-                    onChange={(e) => setSelectedAppId(e.target.value)}
-                  >
-                    {apps.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.name} ({a.sub})
-                      </option>
-                    ))}
-                  </select>
-                </div>
+      <KeyImportModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} editingKey={editingKey} apps={apps} presets={presets} lang={lang} onSave={handleSaveKey} />
 
-                <div className="flex flex-col gap-2" style={{ background: 'rgba(99, 102, 241, 0.12)', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.4)', marginBottom: '14px' }}>
-                  <label style={{ color: '#a5b4fc', fontWeight: 'bold', fontSize: '13px', display: 'block', marginBottom: '6px' }}>
-                    💎 {lang === 'vi' ? 'Chọn Gói Giá Có Sẵn (*):' : 'Select Pre-set Package (*):'}
-                  </label>
-                  <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                    value={selectedPresetId}
-                    onChange={(e) => handleSelectPreset(e.target.value)}
-                    style={{ fontWeight: 800, color: '#38bdf8', background: '#0f172a', border: '1px solid #38bdf8', padding: '9px 12px', borderRadius: '8px', width: '100%', fontSize: '13.5px' }}
-                  >
-                    {presets.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} — {p.durationDays} Ngày — {p.price.toLocaleString()} VNĐ
-                      </option>
-                    ))}
-                    <option value="custom">✏️ {lang === 'vi' ? 'Tự nhập ngày & giá thủ công...' : 'Enter custom days & price...'}</option>
-                  </select>
-
-                  {selectedPresetId !== 'custom' && (
-                    <div style={{ display: 'flex', gap: '14px', marginTop: '10px', padding: '8px 12px', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.2)', fontSize: '12.5px' }}>
-                      <span style={{ color: '#38bdf8', fontWeight: 'bold' }}>⏱️ {lang === 'vi' ? 'Hạn dùng:' : 'Duration:'} {durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</span>
-                      <span style={{ color: '#4ade80', fontWeight: 'bold' }}>💰 {lang === 'vi' ? 'Giá bán:' : 'Price:'} {price.toLocaleString()} đ</span>
-                    </div>
-                  )}
-                </div>
-
-                {selectedPresetId === 'custom' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-2">
-                      <label>{lang === 'vi' ? 'Số Ngày Thời Hạn (Ngày):' : 'Duration (Days):'}</label>
-                      <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                        type="number"
-                        min="1"
-                        value={durationDays || ''}
-                        onChange={(e) => setDurationDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label>{lang === 'vi' ? 'Giá Bán Gói (VNĐ - Tối thiểu 2,000đ):' : 'Price (VND - Min 2,000):'}</label>
-                      <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                        type="number"
-                        min="2000"
-                        step="1000"
-                        value={price || ''}
-                        onChange={(e) => setPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {editingKey && (
-                  <div className="flex flex-col gap-2">
-                    <label>{lang === 'vi' ? 'Trạng Thái Key:' : 'Key Status:'}</label>
-                    <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                      value={editingStatus}
-                      onChange={(e) => setEditingStatus(e.target.value as 'AVAILABLE' | 'SOLD')}
-                    >
-                      <option value="AVAILABLE">● CÒN HÀNG (AVAILABLE)</option>
-                      <option value="SOLD">✓ ĐÃ BÁN (SOLD)</option>
-                    </select>
-                  </div>
-                )}
-
-                <div className="flex flex-col gap-2">
-                  <label>
-                    {editingKey
-                      ? (lang === 'vi' ? 'Mã Key Code:' : 'Key Code:')
-                      : (lang === 'vi' ? 'Danh sách Mã Key (Mỗi mã 1 dòng để nạp hàng loạt):' : 'Key Codes (One per line for bulk import):')}
-                  </label>
-                  {editingKey ? (
-                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                      type="text"
-                      ref={keyCodeInputRef}
-                      value={keyCodeStr}
-                      onChange={(e) => setKeyCodeStr(e.target.value)}
-                    />
-                  ) : (
-                    <textarea className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                      rows={5}
-                      ref={keyCodeTextareaRef}
-                      value={keyCodeStr}
-                      onChange={(e) => setKeyCodeStr(e.target.value)}
-                    />
-                  )}
-                </div>
-
-                <div className="flex justify-end gap-3 mt-3.5 pt-3.5 border-t border-white/10 shrink-0">
-                  <button
-                    type="button"
-                    className="px-5 py-3 rounded-xl border border-[#334155] bg-[#1e293b] text-[#e2e8f0] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]"
-                    onClick={() => setIsModalOpen(false)}
-                  >
-                    {lang === 'vi' ? 'Hủy' : 'Cancel'}
-                  </button>
-                  <button type="submit" className="px-6 py-3 rounded-xl border-0 bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)]">
-                    {editingKey ? (lang === 'vi' ? '💾 Lưu Thay Đổi' : '💾 Save Changes') : (lang === 'vi' ? '💾 Nạp Vào Kho' : '💾 Import Keys')}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </ModalPortal>
-      )}
-
-      {isPresetsManagerOpen && (
-        <ModalPortal>
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-[14px] flex justify-center items-start z-[999999] p-[20px_16px] overflow-y-auto animate-[fadeIn_0.25s_ease-out]" onClick={() => setIsPresetsManagerOpen(false)}>
-            <div className="w-[min(640px,94vw)] h-auto max-h-[calc(100vh-40px)] m-auto flex flex-col bg-[#0f172a] border border-[#38bdf8]/30 rounded-[28px] p-7 shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '580px' }}>
-              <button className="absolute top-5 right-[22px] bg-transparent border-none text-[#94a3b8] text-2xl cursor-pointer z-10 transition-colors duration-200 hover:text-[#f87171]" onClick={() => setIsPresetsManagerOpen(false)}>×</button>
-              <h4 style={{ color: '#a855f7', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                ⚙️ {lang === 'vi' ? 'Cấu Hình Bảng Giá Key Mẫu' : 'Configure Key Price Presets'}
-              </h4>
-              <p style={{ color: '#94a3b8', fontSize: '12.5px', marginBottom: '16px' }}>
-                {lang === 'vi'
-                  ? 'Tạo các gói giá & ngày cố định để khi nạp key mới chỉ cần chọn từ danh sách mà không cần nhập lại nhiều lần.'
-                  : 'Manage pricing presets for faster key importation.'}
-              </p>
-
-              {/* Form Add / Edit Preset */}
-              <form
-                onSubmit={editingPreset ? handleUpdatePreset : handleAddPreset}
-                style={{
-                  background: editingPreset ? 'rgba(56,189,248,0.07)' : 'rgba(30, 41, 59, 0.8)',
-                  padding: '16px',
-                  borderRadius: '16px',
-                  border: editingPreset ? '1px solid rgba(56,189,248,0.4)' : '1px solid rgba(168, 85, 247, 0.3)',
-                  marginBottom: '20px',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                <strong style={{ color: editingPreset ? '#38bdf8' : '#e9d5ff', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
-                  {editingPreset
-                    ? (lang === 'vi' ? '✏️ Đang Sửa Gói:' : '✏️ Editing Preset:')
-                    : ('+ ' + (lang === 'vi' ? 'Thêm Gói Mẫu Mới:' : 'Add New Preset:'))}
-                  {editingPreset && <span style={{ color: '#fbbf24' }}>{editingPreset.name}</span>}
-                </strong>
-                <div className="grid grid-cols-1 sm:grid-cols-[1.5fr_1fr_1.2fr_auto] gap-3 items-end">
-                  <div className="flex flex-col gap-1.5">
-                    <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Tên Gói:' : 'Name:'}</label>
-                    <input
-                      ref={newPresetNameInputRef}
-                      className="w-full px-3 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20"
-                      type="text"
-                      placeholder="VD: Gói 7 Ngày"
-                      value={newPresetName}
-                      onChange={(e) => setNewPresetName(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Số Ngày:' : 'Days:'}</label>
-                    <input className="w-full px-3 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20"
-                      type="number"
-                      min="1"
-                      value={newPresetDays || ''}
-                      onChange={(e) => setNewPresetDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Giá (VNĐ):' : 'Price:'}</label>
-                    <input className="w-full px-3 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20"
-                      type="number"
-                      min="2000"
-                      step="1000"
-                      value={newPresetPrice || ''}
-                      onChange={(e) => setNewPresetPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <button
-                      type="submit"
-                      className="h-[42px] px-4 rounded-lg font-bold text-[13px] text-white cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
-                      style={{
-                        background: editingPreset ? 'linear-gradient(135deg, #38bdf8, #0ea5e9)' : 'linear-gradient(135deg, #a855f7, #7e22ce)',
-                        border: 'none',
-                        boxShadow: editingPreset ? '0 4px 12px rgba(56,189,248,0.4)' : '0 4px 12px rgba(168,85,247,0.4)',
-                      }}
-                    >
-                      {editingPreset ? (lang === 'vi' ? '💾 Cập Nhật' : '💾 Update') : ('+ ' + (lang === 'vi' ? 'Lưu' : 'Add'))}
-                    </button>
-                    {editingPreset && (
-                      <button
-                        type="button"
-                        onClick={handleCancelEditPreset}
-                        className="h-[42px] px-3 rounded-lg font-bold text-[12px] cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
-                        style={{ background: 'rgba(100,116,139,0.2)', border: '1px solid #475569', color: '#94a3b8' }}
-                      >
-                        {lang === 'vi' ? 'Hủy' : 'Cancel'}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </form>
-
-              {/* List Existing Presets */}
-              <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
-                <table className="w-full border-collapse text-left text-sm" style={{ width: '100%', fontSize: '12.5px' }}>
-                  <thead>
-                    <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
-                      <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Tên Gói' : 'Name'}</th>
-                      <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Thời Hạn' : 'Duration'}</th>
-                      <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Giá Bán (VNĐ)' : 'Price'}</th>
-                      <th style={{ textAlign: 'center', minWidth: '120px' }}>{lang === 'vi' ? 'Thao tác' : 'Action'}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {presets.map((p) => (
-                      <tr key={p.id}>
-                        <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]"><strong>{p.name}</strong></td>
-                        <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">{p.durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</td>
-                        <td style={{ color: '#10b981', fontWeight: 'bold' }}>{p.price.toLocaleString()} đ</td>
-                        <td style={{ textAlign: 'center' }}>
-                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                            <button
-                              className="cursor-pointer transition-all duration-200 inline-flex items-center gap-[4px] whitespace-nowrap hover:-translate-y-0.5"
-                              style={{
-                                padding: '3px 8px',
-                                fontSize: '11px',
-                                fontWeight: 'bold',
-                                borderRadius: '8px',
-                                background: editingPreset?.id === p.id ? 'rgba(56,189,248,0.2)' : 'rgba(56,189,248,0.1)',
-                                color: '#38bdf8',
-                                border: '1px solid rgba(56,189,248,0.3)',
-                              }}
-                              onClick={() => editingPreset?.id === p.id ? handleCancelEditPreset() : handleEditPresetClick(p)}
-                            >
-                              ✏️ {editingPreset?.id === p.id ? (lang === 'vi' ? 'Hủy' : 'Cancel') : (lang === 'vi' ? 'Sửa' : 'Edit')}
-                            </button>
-                            <button
-                              className="cursor-pointer transition-all duration-200 inline-flex items-center gap-[4px] whitespace-nowrap hover:-translate-y-0.5"
-                              style={{
-                                padding: '3px 8px',
-                                fontSize: '11px',
-                                fontWeight: 'bold',
-                                borderRadius: '8px',
-                                background: 'rgba(239,68,68,0.1)',
-                                color: '#f87171',
-                                border: '1px solid rgba(239,68,68,0.3)',
-                              }}
-                              onClick={() => handleDeletePreset(p.id)}
-                            >
-                              🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </ModalPortal>
-      )}
+      <PricePresetsModal isOpen={isPresetsManagerOpen} onClose={() => setIsPresetsManagerOpen(false)} presets={presets} setPresets={setPresets} lang={lang} showToast={showToast} onPresetsChanged={loadKeys} />
     </div>
   );
 }

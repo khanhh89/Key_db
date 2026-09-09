@@ -13,10 +13,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @RestController
 @RequestMapping("/api/apps")
@@ -165,5 +169,58 @@ public class AppController {
             error.put("message", "Không thể xóa app vì còn dữ liệu liên quan trong hệ thống.");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
         }
+    }
+
+    // DTO cho batch-free-key
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BatchFreeKeyRequest {
+        private List<String> appIds;
+        private String freeKey;
+    }
+
+    /**
+     * Gán cùng 1 mã Key Free cho nhiều App cùng lúc.
+     * Body: { appIds: ["app-001", "app-002", ...], freeKey: "FREE-KEY-CODE" }
+     */
+    @PostMapping("/batch-free-key")
+    @CacheEvict(value = "apps", allEntries = true)
+    public ResponseEntity<?> batchSetFreeKey(
+            @RequestHeader(value = "X-Admin-Auth", required = false) String adminAuth,
+            @RequestBody BatchFreeKeyRequest req) {
+        if (!AdminSecurityUtil.isValidAdmin(adminAuth)) {
+            return ResponseEntity.status(403).body("Security Error: Only authenticated Admin can edit apps.");
+        }
+        if (req.getAppIds() == null || req.getAppIds().isEmpty()) {
+            return ResponseEntity.badRequest().body("No app IDs provided.");
+        }
+
+        String today = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                .format(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")));
+
+        List<String> updated = new ArrayList<>();
+        List<String> notFound = new ArrayList<>();
+        for (String appId : req.getAppIds()) {
+            appRepository.findById(appId).ifPresentOrElse(
+                app -> {
+                    app.setFreeKey(req.getFreeKey() != null ? req.getFreeKey().trim() : "");
+                    app.setUpdatedAt(today);
+                    appRepository.save(app);
+                    updated.add(appId);
+                },
+                () -> notFound.add(appId)
+            );
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("updatedCount", updated.size());
+        response.put("updatedApps", updated);
+        if (!notFound.isEmpty()) {
+            response.put("notFound", notFound);
+        }
+        response.put("message", "Đã cập nhật Key Free cho " + updated.size() + " app thành công!");
+        return ResponseEntity.ok(response);
     }
 }

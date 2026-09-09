@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,13 +44,22 @@ public class KeyController {
     public List<LicenseKeyEntity> getAvailableKeysForApp(
             @PathVariable String appId,
             @RequestHeader(value = "X-Admin-Auth", required = false) String adminAuth) {
-        List<LicenseKeyEntity> keys = licenseKeyRepository.findByAppIdAndStatus(appId, "AVAILABLE");
+        // Lấy key đơn (1 app) + key nhóm (multi-app) có chứa appId này
+        List<LicenseKeyEntity> singleKeys = licenseKeyRepository.findByAppIdAndStatus(appId, "AVAILABLE");
+        List<LicenseKeyEntity> groupKeys = licenseKeyRepository.findByGroupContainingAppIdAndStatus(appId, "AVAILABLE");
 
-        if (AdminSecurityUtil.isValidAdmin(adminAuth)) {
-            return keys;
+        List<LicenseKeyEntity> combined = new ArrayList<>(singleKeys);
+        for (LicenseKeyEntity gk : groupKeys) {
+            if (combined.stream().noneMatch(k -> k.getId().equals(gk.getId()))) {
+                combined.add(gk);
+            }
         }
 
-        return keys.stream().map(this::maskKeyEntity).collect(Collectors.toList());
+        if (AdminSecurityUtil.isValidAdmin(adminAuth)) {
+            return combined;
+        }
+
+        return combined.stream().map(this::maskKeyEntity).collect(Collectors.toList());
     }
 
     @PostMapping
@@ -65,6 +75,13 @@ public class KeyController {
         }
         if (key.getStatus() == null) {
             key.setStatus("AVAILABLE");
+        }
+        // Nếu là key nhóm (groupAppIds có giá trị), appId sẽ là app đầu tiên trong nhóm
+        if (key.getGroupAppIds() != null && !key.getGroupAppIds().trim().isEmpty()) {
+            String firstAppId = key.getGroupAppIds().split(",")[0].trim();
+            if (key.getAppId() == null || key.getAppId().trim().isEmpty()) {
+                key.setAppId(firstAppId);
+            }
         }
         return ResponseEntity.ok(licenseKeyRepository.save(key));
     }
@@ -84,6 +101,15 @@ public class KeyController {
             if (keyReq.getDurationDays() != null) existingKey.setDurationDays(keyReq.getDurationDays());
             if (keyReq.getPrice() != null) existingKey.setPrice(keyReq.getPrice());
             if (keyReq.getStatus() != null) existingKey.setStatus(keyReq.getStatus());
+            // Cập nhật groupAppIds (truyền chuỗi rỗng để xóa nhóm, null để không thay đổi)
+            if (keyReq.getGroupAppIds() != null) {
+                existingKey.setGroupAppIds(keyReq.getGroupAppIds().trim().isEmpty() ? null : keyReq.getGroupAppIds().trim());
+                // Đồng bộ appId với app đầu tiên trong nhóm nếu là key nhóm
+                if (existingKey.getGroupAppIds() != null) {
+                    String firstAppId = existingKey.getGroupAppIds().split(",")[0].trim();
+                    existingKey.setAppId(firstAppId);
+                }
+            }
             return ResponseEntity.ok(licenseKeyRepository.save(existingKey));
         }).orElse(ResponseEntity.notFound().build());
     }
@@ -170,6 +196,7 @@ public class KeyController {
                 .status(original.getStatus())
                 .createdAt(original.getCreatedAt())
                 .soldAt(original.getSoldAt())
+                .groupAppIds(original.getGroupAppIds()) // Expose groupAppIds for frontend display
                 .build();
     }
 }

@@ -50,4 +50,12 @@ public class LicenseKeyEntity {
 
     @Column(name = "sold_at")
     private LocalDateTime soldAt;
+
+    /**
+     * Danh sách appId phân tách bằng dấu phẩy cho key nhóm (multi-app group key).
+     * Ví dụ: "app1,app2,app3"
+     * Khi field này không rỗng, key này áp dụng cho tất cả các app trong danh sách.
+     */
+    @Column(name = "group_app_ids", columnDefinition = "TEXT")
+    private String groupAppIds;
 }

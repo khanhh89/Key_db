@@ -26,7 +26,6 @@ public interface LicenseKeyRepository extends JpaRepository<LicenseKeyEntity, St
 
     List<LicenseKeyEntity> findByAppId(String appId);
     long countByAppId(String appId);
-    long countByAppIdAndStatus(String appId, String status);
 
     /**
      * Bulk update price for ALL keys (AVAILABLE + SOLD) with a given durationDays.
@@ -36,4 +35,29 @@ public interface LicenseKeyRepository extends JpaRepository<LicenseKeyEntity, St
     @Transactional
     @Query("UPDATE LicenseKeyEntity k SET k.price = :newPrice WHERE k.durationDays = :durationDays")
     int updatePriceByDurationDays(@Param("durationDays") Integer durationDays, @Param("newPrice") Double newPrice);
+
+    /**
+     * Tìm key nhóm đầu tiên mà groupAppIds chứa appId và status = AVAILABLE.
+     * Dùng LIKE để tìm appId trong chuỗi phân tách bằng dấu phẩy.
+     */
+    @Query("SELECT k FROM LicenseKeyEntity k WHERE k.status = :status AND k.groupAppIds IS NOT NULL AND k.groupAppIds <> '' AND (" +
+           "k.groupAppIds = :appId OR " +
+           "k.groupAppIds LIKE CONCAT(:appId, ',%') OR " +
+           "k.groupAppIds LIKE CONCAT('%,', :appId, ',%') OR " +
+           "k.groupAppIds LIKE CONCAT('%,', :appId))")
+    List<LicenseKeyEntity> findByGroupContainingAppIdAndStatus(@Param("appId") String appId, @Param("status") String status);
+
+    /**
+     * Tìm key nhóm đầu tiên mà groupAppIds chứa appId, đúng durationDays và status = AVAILABLE.
+     */
+    @Query("SELECT k FROM LicenseKeyEntity k WHERE k.status = :status AND k.durationDays = :durationDays AND k.groupAppIds IS NOT NULL AND k.groupAppIds <> '' AND (" +
+           "k.groupAppIds = :appId OR " +
+           "k.groupAppIds LIKE CONCAT(:appId, ',%') OR " +
+           "k.groupAppIds LIKE CONCAT('%,', :appId, ',%') OR " +
+           "k.groupAppIds LIKE CONCAT('%,', :appId))")
+    List<LicenseKeyEntity> findByGroupContainingAppIdAndDurationDaysAndStatus(
+            @Param("appId") String appId,
+            @Param("durationDays") Integer durationDays,
+            @Param("status") String status);
 }
+

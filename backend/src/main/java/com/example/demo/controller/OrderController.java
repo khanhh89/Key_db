@@ -289,6 +289,24 @@ public class OrderController {
             }
         }
 
+        // 4. Fallback: Tìm key NHÓM (groupAppIds chứa appId) theo duration — Multi-App Group Key
+        if (durationDays != null) {
+            List<LicenseKeyEntity> groupByDuration = licenseKeyRepository
+                    .findByGroupContainingAppIdAndDurationDaysAndStatus(appId, durationDays, "AVAILABLE");
+            if (!groupByDuration.isEmpty()) {
+                System.out.println(">>> [GroupKey] Found group key for appId=" + appId + " durationDays=" + durationDays + " → key=" + groupByDuration.get(0).getId());
+                return Optional.of(groupByDuration.get(0));
+            }
+        }
+
+        // 5. Fallback: Tìm key NHÓM bất kỳ có chứa appId (không phân biệt duration)
+        List<LicenseKeyEntity> groupAny = licenseKeyRepository
+                .findByGroupContainingAppIdAndStatus(appId, "AVAILABLE");
+        if (!groupAny.isEmpty()) {
+            System.out.println(">>> [GroupKey] Found group key (any duration) for appId=" + appId + " → key=" + groupAny.get(0).getId());
+            return Optional.of(groupAny.get(0));
+        }
+
         // Strict rule: DO NOT pick a random key of a wrong package/duration/price!
         return Optional.empty();
     }

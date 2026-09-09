@@ -90,6 +90,8 @@ export interface LicenseKeyItem {
   status: 'AVAILABLE' | 'SOLD';
   createdAt?: string;
   soldAt?: string;
+  /** Danh sách app IDs cho key nhóm (multi-app group key), phân tách bằng dấu phẩy */
+  groupAppIds?: string;
 }
 
 export interface KeyPricePreset {

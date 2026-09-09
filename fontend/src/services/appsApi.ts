@@ -150,3 +150,28 @@ export async function deleteAppFromBackend(id: string): Promise<{ success: boole
   }
 }
 
+
+/**
+ * Gán cùng 1 mã Key Free cho nhiều App cùng lúc.
+ * @param appIds - Danh sách app IDs muốn cập nhật
+ * @param freeKey - Mã Key Free (để trống = xóa key free)
+ */
+export async function batchSetFreeKey(appIds: string[], freeKey: string): Promise<{ success: boolean; updatedCount?: number; message?: string }> {
+  try {
+    const token = await refreshAdminRollingToken();
+    const res = await fetch(`${API_BASE_URL}/apps/batch-free-key`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Auth': token
+      },
+      body: JSON.stringify({ appIds, freeKey })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) return { success: true, updatedCount: data.updatedCount, message: data.message };
+    return { success: false, message: data.message ?? 'Lỗi cập nhật batch free key.' };
+  } catch (err) {
+    console.warn('batchSetFreeKey failed', err);
+    return { success: false, message: 'Lỗi kết nối server.' };
+  }
+}
