@@ -12,6 +12,7 @@ import {
 import { ConfirmModal } from '../../components/common/ConfirmModal';
 import { Pagination } from '../../components/common/Pagination';
 import { copyTextToClipboard } from '../../utils/clipboard';
+import { isKeyBelongToApp } from '../../utils/keyUtils';
 import { KeyStatsGrid } from '../../components/admin/keys/KeyStatsGrid';
 import { KeyFilterBar } from '../../components/admin/keys/KeyFilterBar';
 import { KeyBatchActionBar } from '../../components/admin/keys/KeyBatchActionBar';
@@ -178,7 +179,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
   const filteredKeys = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return keys.filter(k => {
-      if (filterAppId !== 'ALL' && k.appId !== filterAppId) return false;
+      if (filterAppId !== 'ALL' && !isKeyBelongToApp(k, filterAppId)) return false;
       if (filterStatus !== 'ALL' && k.status !== filterStatus) return false;
       if (filterDuration !== 'ALL' && String(k.durationDays) !== filterDuration) return false;
       if (query) {

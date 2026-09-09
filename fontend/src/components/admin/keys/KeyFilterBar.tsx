@@ -1,4 +1,5 @@
 import type { AppItem, LicenseKeyItem, Language } from '../../../types';
+import { isKeyBelongToApp } from '../../../utils/keyUtils';
 
 interface KeyFilterBarProps {
   lang: Language;
@@ -63,7 +64,7 @@ export function KeyFilterBar({
           <option value="ALL">Tất Cả Các App ({keys.length} Key)</option>
           {apps.map((a) => (
             <option key={a.id} value={a.id}>
-              {a.name} ({keys.filter((k) => k.appId === a.id).length} Key)
+              {a.name} ({keys.filter((k) => isKeyBelongToApp(k, a.id)).length} Key)
             </option>
           ))}
         </select>

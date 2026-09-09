@@ -16,6 +16,7 @@ import {
   type CouponApplyResult
 } from '../../services/api';
 import { copyTextToClipboard } from '../../utils/clipboard';
+import { isKeyBelongToApp } from '../../utils/keyUtils';
 import { verifyCustomerPaymentInBackend } from '../../services/ordersApi';
 
 const COMMON_BANKS = [
@@ -181,7 +182,7 @@ export function BuyKeyModal({
     });
     fetchKeysFromBackend().then((allKeys) => {
       console.log('🔑 [BuyKeyModal] Total keys in DB:', allKeys.length);
-      const appKeys = allKeys.filter((k) => k.appId === app.id);
+      const appKeys = allKeys.filter((k) => isKeyBelongToApp(k, app.id));
       console.log(`🔑 [BuyKeyModal] Keys matching app [${app.name}] (ID: ${app.id}):`, appKeys);
       setAvailableKeys(appKeys);
     });

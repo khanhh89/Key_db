@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { AppItem, ServiceItem, SystemConfig, Language, OrderItem, LicenseKeyItem } from '../../types';
 import { fetchAllOrdersFromBackend, fetchKeysFromBackend, formatDateTime } from '../../services/api';
+import { isKeyBelongToApp } from '../../utils/keyUtils';
 import { DashboardMetricsGrid } from '../../components/admin/dashboard/DashboardMetricsGrid';
 import { DashboardStockWarning } from '../../components/admin/dashboard/DashboardStockWarning';
 import { DashboardRevenueChart } from '../../components/admin/dashboard/DashboardRevenueChart';
@@ -70,7 +71,7 @@ export function DashboardPage({
   // Low Key Stock Calculation per App
   const appStockStats = useMemo(() => {
     return apps.map((app) => {
-      const appKeys = keys.filter((k) => k.appId === app.id);
+      const appKeys = keys.filter((k) => isKeyBelongToApp(k, app.id));
       const availCount = appKeys.filter((k) => k.status === 'AVAILABLE').length;
       const totalCount = appKeys.length;
       const appPaidOrders = orders.filter((o) => o.status === 'PAID' && (o.appId === app.id || o.appName === app.name));

@@ -122,18 +122,28 @@ public class AppController {
 
         AppItemEntity app = appRepository.findById(id).get();
 
-        // Kiểm tra keys AVAILABLE còn trong kho của app này
+        // Kiểm tra keys AVAILABLE còn trong kho của app này (bao gồm cả key đơn và key nhóm)
         long availableKeyCount = licenseKeyRepository.countByAppIdAndStatus(id, "AVAILABLE");
-        if (availableKeyCount > 0) {
+        List<com.example.demo.model.LicenseKeyEntity> groupKeys = licenseKeyRepository.findByGroupContainingAppIdAndStatus(id, "AVAILABLE");
+        
+        // Tránh đếm trùng nếu key nhóm có appId gốc trùng với id đang xóa
+        long totalAvailable = availableKeyCount;
+        for (com.example.demo.model.LicenseKeyEntity gk : groupKeys) {
+            if (!id.equals(gk.getAppId())) {
+                totalAvailable++;
+            }
+        }
+
+        if (totalAvailable > 0) {
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
             error.put("blocked", true);
             error.put("reason", "HAS_AVAILABLE_KEYS");
-            error.put("availableKeyCount", availableKeyCount);
+            error.put("availableKeyCount", totalAvailable);
             error.put("message", String.format(
-                "Không thể xóa app \"%s\" vì còn %d key AVAILABLE trong kho. " +
+                "Không thể xóa app \"%s\" vì còn %d key AVAILABLE (bao gồm cả key nhóm) trong kho. " +
                 "Hãy xóa hoặc bán hết các key đó trước.",
-                app.getName(), availableKeyCount
+                app.getName(), totalAvailable
             ));
             return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
         }
