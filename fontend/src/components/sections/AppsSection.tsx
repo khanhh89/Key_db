@@ -34,12 +34,6 @@ export function AppsSection({
     }
   };
 
-  const popularKeywords = [
-    { label: '🔥 Hack Map Liên Quân', term: 'Liên Quân' },
-    { label: '🎮 Delta Roblox', term: 'Delta' },
-    { label: '🍎 Mod iOS IPA', term: 'iOS' },
-    { label: '🤖 Mod Android APK', term: 'Android' }
-  ];
 
   const filteredApps = apps
     .filter((app) => {
@@ -158,19 +152,7 @@ export function AppsSection({
             </div>
           </div>
 
-          {/* Quick Keyword Chips */}
-          <div className="quick-search-chips">
-            <span className="chips-label">{lang === 'vi' ? 'Từ khóa hot:' : 'Popular:'}</span>
-            {popularKeywords.map((kw) => (
-              <button
-                key={kw.term}
-                className={`keyword-chip ${searchTerm === kw.term ? 'active' : ''}`}
-                onClick={() => handleSearch(searchTerm === kw.term ? '' : kw.term)}
-              >
-                {kw.label}
-              </button>
-            ))}
-          </div>
+
         </div>
       </ScrollReveal>
 
