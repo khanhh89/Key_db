@@ -220,16 +220,6 @@ export function AppFormModal({ isOpen, onClose, editingApp, lang, config, showTo
                     <option value="ios">🍎 iOS only (Chỉ hiện nút IPA)</option>
                   </select>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label>{lang === 'vi' ? 'Link Vượt Lấy Key:' : 'Bypass Key Link:'}</label>
-                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15" type="text" value={appIpaUrl} placeholder={lang === 'vi' ? 'Bỏ trống = Tự động cấp Modal Key Free không cần vượt' : 'Leave empty for Direct Free Key Modal'} onChange={e => setAppIpaUrl(e.target.value)} />
-                  <small style={{ fontSize: '11.5px', color: '#00f2fe', display: 'block', marginTop: '4px' }}>💡 {lang === 'vi' ? 'Nếu CÓ điền URL: Nút "Lấy Key Free" sẽ mở link vượt. Nếu BỎ TRỐNG: Mở ngay Modal Key Free!' : 'If URL filled: opens bypass link. If EMPTY: opens direct Free Key Modal!'}</small>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label>{lang === 'vi' ? 'Mã Key Free (Cấu hình hệ thống):' : 'Free Key Code:'}</label>
-                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15" type="text" value={appFreeKey} placeholder={lang === 'vi' ? 'Nhập mã Key Free do Admin cài đặt...' : 'Enter Free Key code set by Admin...'} onChange={e => setAppFreeKey(e.target.value)} />
-                  <small style={{ fontSize: '11.5px', color: '#10b981', display: 'block', marginTop: '4px' }}>⚡ {lang === 'vi' ? 'Mã Key Free này được cài đặt trực tiếp để cấp cho người dùng khi bấm Lấy Key Free.' : 'This Free Key code is provided directly to users.'}</small>
-                </div>
               </div>
             </div>
 

@@ -180,6 +180,15 @@ public class AppController {
         private String freeKey;
     }
 
+    // DTO cho batch-bypass-link
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BatchBypassLinkRequest {
+        private List<String> appIds;
+        private String bypassLink; // Will be mapped to ipaUrl
+    }
+
     /**
      * Gán cùng 1 mã Key Free cho nhiều App cùng lúc.
      * Body: { appIds: ["app-001", "app-002", ...], freeKey: "FREE-KEY-CODE" }
@@ -221,6 +230,50 @@ public class AppController {
             response.put("notFound", notFound);
         }
         response.put("message", "Đã cập nhật Key Free cho " + updated.size() + " app thành công!");
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Gán cùng 1 Link Vượt (Bypass Link) cho nhiều App cùng lúc.
+     * Body: { appIds: ["app-001", "app-002", ...], bypassLink: "https://linkvertise.com/..." }
+     */
+    @PostMapping("/batch-bypass-link")
+    @CacheEvict(value = "apps", allEntries = true)
+    public ResponseEntity<?> batchSetBypassLink(
+            @RequestHeader(value = "X-Admin-Auth", required = false) String adminAuth,
+            @RequestBody BatchBypassLinkRequest req) {
+        if (!AdminSecurityUtil.isValidAdmin(adminAuth)) {
+            return ResponseEntity.status(403).body("Security Error: Only authenticated Admin can edit apps.");
+        }
+        if (req.getAppIds() == null || req.getAppIds().isEmpty()) {
+            return ResponseEntity.badRequest().body("No app IDs provided.");
+        }
+
+        String today = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                .format(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")));
+
+        List<String> updated = new ArrayList<>();
+        List<String> notFound = new ArrayList<>();
+        for (String appId : req.getAppIds()) {
+            appRepository.findById(appId).ifPresentOrElse(
+                app -> {
+                    app.setIpaUrl(req.getBypassLink() != null ? req.getBypassLink().trim() : "");
+                    app.setUpdatedAt(today);
+                    appRepository.save(app);
+                    updated.add(appId);
+                },
+                () -> notFound.add(appId)
+            );
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("updatedCount", updated.size());
+        response.put("updatedApps", updated);
+        if (!notFound.isEmpty()) {
+            response.put("notFound", notFound);
+        }
+        response.put("message", "Đã cập nhật Link Vượt (Bypass Link) cho " + updated.size() + " app thành công!");
         return ResponseEntity.ok(response);
     }
 }

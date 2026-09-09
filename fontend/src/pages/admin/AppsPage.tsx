@@ -5,6 +5,7 @@ import { ConfirmModal } from '../../components/common/ConfirmModal';
 import { LazyImage } from '../../components/common/LazyImage';
 import { AppFormModal } from '../../components/admin/apps/AppFormModal';
 import { BatchFreeKeyModal } from '../../components/admin/apps/BatchFreeKeyModal';
+import { BatchBypassLinkModal } from '../../components/admin/apps/BatchBypassLinkModal';
 
 interface AppsPageProps {
   lang: Language;
@@ -19,6 +20,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deletingApp, setDeletingApp] = useState<{ id: string; name: string } | null>(null);
   const [isBatchFreeKeyOpen, setIsBatchFreeKeyOpen] = useState(false);
+  const [isBatchBypassLinkOpen, setIsBatchBypassLinkOpen] = useState(false);
 
   const openNewAppModal = () => { setEditingApp(null); setIsModalOpen(true); };
   const openEditAppModal = (app: AppItem) => { setEditingApp(app); setIsModalOpen(true); };
@@ -65,6 +67,11 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
         <div className="flex justify-between items-center flex-wrap gap-4">
           <h2>📱 {lang === 'vi' ? 'Quản Lý Apps Catalog' : 'Apps Catalog Manager'}</h2>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', border: 'none', color: '#fff', padding: '10px 18px', borderRadius: '14px', fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '7px', transition: 'all 0.2s ease', boxShadow: '0 4px 14px rgba(14,165,233,0.35)' }}
+              onClick={() => setIsBatchBypassLinkOpen(true)}>
+              🔗 {lang === 'vi' ? 'Sync Link Vượt' : 'Sync Bypass Link'}
+            </button>
             <button
               style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', border: 'none', color: '#fff', padding: '10px 18px', borderRadius: '14px', fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '7px', transition: 'all 0.2s ease', boxShadow: '0 4px 14px rgba(16,185,129,0.35)' }}
               onClick={() => setIsBatchFreeKeyOpen(true)}>
@@ -154,6 +161,8 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
       <AppFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} editingApp={editingApp} lang={lang} config={config} showToast={showToast} onSave={handleSaveApp} />
 
       <BatchFreeKeyModal isOpen={isBatchFreeKeyOpen} onClose={() => setIsBatchFreeKeyOpen(false)} apps={apps} lang={lang} showToast={showToast} onSuccess={setApps} />
+
+      <BatchBypassLinkModal isOpen={isBatchBypassLinkOpen} onClose={() => setIsBatchBypassLinkOpen(false)} apps={apps} lang={lang} showToast={showToast} onSuccess={setApps} />
     </>
   );
 }

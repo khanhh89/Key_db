@@ -175,3 +175,28 @@ export async function batchSetFreeKey(appIds: string[], freeKey: string): Promis
     return { success: false, message: 'Lỗi kết nối server.' };
   }
 }
+
+/**
+ * Gán cùng 1 Link Vượt (Bypass Link) cho nhiều App cùng lúc.
+ * @param appIds - Danh sách app IDs muốn cập nhật
+ * @param bypassLink - URL Link Vượt (để trống = xóa link vượt)
+ */
+export async function batchSetBypassLink(appIds: string[], bypassLink: string): Promise<{ success: boolean; updatedCount?: number; message?: string }> {
+  try {
+    const token = await refreshAdminRollingToken();
+    const res = await fetch(`${API_BASE_URL}/apps/batch-bypass-link`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Auth': token
+      },
+      body: JSON.stringify({ appIds, bypassLink })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) return { success: true, updatedCount: data.updatedCount, message: data.message };
+    return { success: false, message: data.message ?? 'Lỗi cập nhật batch bypass link.' };
+  } catch (err) {
+    console.warn('batchSetBypassLink failed', err);
+    return { success: false, message: 'Lỗi kết nối server.' };
+  }
+}
