@@ -37,7 +37,7 @@ public class KeyController {
         }
 
         // For public requests (DevTools inspectors), mask the key codes completely!
-        return keys.stream().map(this::maskKeyEntity).collect(Collectors.toList());
+        return keys.stream().map(k -> maskKeyEntity(k, null)).collect(Collectors.toList());
     }
 
     @GetMapping("/available/{appId}")
@@ -56,10 +56,12 @@ public class KeyController {
         }
 
         if (AdminSecurityUtil.isValidAdmin(adminAuth)) {
+            // For admin, we should also probably override appId or keep it as is?
+            // Usually admin knows it's a group key. But let's return it as is for admin.
             return combined;
         }
 
-        return combined.stream().map(this::maskKeyEntity).collect(Collectors.toList());
+        return combined.stream().map(k -> maskKeyEntity(k, appId)).collect(Collectors.toList());
     }
 
     @PostMapping
@@ -186,10 +188,10 @@ public class KeyController {
         return ResponseEntity.notFound().build();
     }
 
-    private LicenseKeyEntity maskKeyEntity(LicenseKeyEntity original) {
+    private LicenseKeyEntity maskKeyEntity(LicenseKeyEntity original, String overrideAppId) {
         return LicenseKeyEntity.builder()
                 .id(original.getId())
-                .appId(original.getAppId())
+                .appId(overrideAppId != null ? overrideAppId : original.getAppId())
                 .keyCode(null) // Completely hide and omit keyCode from public responses
                 .durationDays(original.getDurationDays())
                 .price(original.getPrice())
