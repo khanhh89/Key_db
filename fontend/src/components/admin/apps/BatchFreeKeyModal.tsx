@@ -143,7 +143,7 @@ export function BatchFreeKeyModal({ isOpen, onClose, apps, lang, showToast, onSu
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleFreeKeyChange(a.freeKey);
+                          handleFreeKeyChange(a.freeKey || '');
                         }}
                         style={{ fontSize: '11px', color: '#10b981', fontFamily: 'monospace', background: 'rgba(16,185,129,0.1)', padding: '2px 6px', borderRadius: '4px', flexShrink: 0, cursor: 'copy' }}
                         title={lang === 'vi' ? 'Bấm để load mã này lên ô nhập' : 'Click to load this code'}

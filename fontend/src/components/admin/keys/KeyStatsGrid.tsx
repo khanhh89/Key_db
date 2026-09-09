@@ -1,4 +1,4 @@
-import type { LicenseKeyItem, KeyPricePreset, Language } from '../../../types';
+import type { LicenseKeyItem, KeyPricePreset } from '../../../types';
 
 interface PackageStat { days: number; count: number; total: number; }
 
@@ -10,12 +10,11 @@ interface KeyStatsGridProps {
   countTotalAvailable: number;
   totalInventoryValue: number;
   packageStatsMap: PackageStat[];
-  lang: Language;
 }
 
 export function KeyStatsGrid({
   keys, presets, filterDuration, setFilterDuration,
-  countTotalAvailable, totalInventoryValue, packageStatsMap, lang
+  countTotalAvailable, totalInventoryValue, packageStatsMap
 }: KeyStatsGridProps) {
   return (
     <div className="key-stats-grid">

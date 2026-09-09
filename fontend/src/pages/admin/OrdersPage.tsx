@@ -6,8 +6,7 @@ import {
   fetchAdminBankConfigFromBackend,
   saveBankConfigToBackend,
   deleteOrderFromBackend,
-  clearAllOrdersFromBackend,
-  API_BASE_URL
+  clearAllOrdersFromBackend
 } from '../../services/api';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
 import { OrderPayosConfig } from '../../components/admin/orders/OrderPayosConfig';

@@ -140,7 +140,7 @@ export function BatchBypassLinkModal({ isOpen, onClose, apps, lang, showToast, o
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleBypassLinkChange(a.ipaUrl);
+                          handleBypassLinkChange(a.ipaUrl || '');
                         }}
                         style={{ fontSize: '11px', color: '#38bdf8', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px', display: 'inline-block', verticalAlign: 'bottom', background: 'rgba(56,189,248,0.1)', padding: '2px 6px', borderRadius: '4px', flexShrink: 0, cursor: 'copy' }}
                         title={lang === 'vi' ? 'Bấm để load link này lên ô nhập' : 'Click to load this link'}

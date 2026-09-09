@@ -230,7 +230,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
       </div>
 
       {/* Stats Grid */}
-      <KeyStatsGrid keys={keys} presets={presets} filterDuration={filterDuration} setFilterDuration={setFilterDuration} countTotalAvailable={countTotalAvailable} totalInventoryValue={totalInventoryValue} packageStatsMap={packageStatsMap} lang={lang} />
+      <KeyStatsGrid keys={keys} presets={presets} filterDuration={filterDuration} setFilterDuration={setFilterDuration} countTotalAvailable={countTotalAvailable} totalInventoryValue={totalInventoryValue} packageStatsMap={packageStatsMap} />
 
       {/* Batch Action Bar */}
       <KeyBatchActionBar lang={lang} selectedCount={selectedKeyIds.length} onMarkAvailable={() => handleBatchStatus('AVAILABLE')} onMarkSold={() => handleBatchStatus('SOLD')} onDeleteBatch={() => setIsBatchConfirmOpen(true)} onClearSelection={() => setSelectedKeyIds([])} />

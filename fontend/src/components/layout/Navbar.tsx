@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { Language, SystemConfig } from '../../types';
 import { getTranslation } from '../../data/translations';
 import { trackClientEvent } from '../../services/api';
@@ -14,24 +13,20 @@ interface NavbarProps {
 }
 
 export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: NavbarProps) {
-  const navigate = useNavigate();
   const t = getTranslation(lang).nav;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Secret keyboard shortcut: Ctrl + Shift + A (Admin Portal), Ctrl + K (Order Lookup)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
-        e.preventDefault();
-        navigate('/admin');
-      } else if (e.ctrlKey && (e.key === 'k' || e.key === 'K')) {
+      if (e.ctrlKey && (e.key === 'k' || e.key === 'K')) {
         e.preventDefault();
         onOpenLookup();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [navigate, onOpenLookup]);
+  }, [onOpenLookup]);
 
   // Close mobile menu when screen resizes to desktop width
   useEffect(() => {
@@ -87,7 +82,7 @@ export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: N
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  navigate('/admin');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 style={{
                   width: '36px',
@@ -107,7 +102,7 @@ export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: N
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  navigate('/admin');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 style={{ cursor: 'pointer', paddingRight: '6px' }}
               >
