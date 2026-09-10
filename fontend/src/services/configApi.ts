@@ -33,6 +33,13 @@ export async function fetchConfigFromBackend(): Promise<SystemConfig> {
         messengerUrl: data.messengerUrl ?? pubConfig?.messengerUrl ?? adminConfig?.messengerUrl ?? '',
         zaloUrl: data.zaloUrl ?? pubConfig?.zaloUrl ?? adminConfig?.zaloUrl ?? '',
         telegramUrl: data.telegramUrl ?? pubConfig?.telegramUrl ?? adminConfig?.telegramUrl ?? '',
+        facebookLogoUrl: data.facebookLogoUrl ?? pubConfig?.facebookLogoUrl ?? adminConfig?.facebookLogoUrl ?? '',
+        messengerLogoUrl: data.messengerLogoUrl ?? pubConfig?.messengerLogoUrl ?? adminConfig?.messengerLogoUrl ?? '',
+        zaloLogoUrl: data.zaloLogoUrl ?? pubConfig?.zaloLogoUrl ?? adminConfig?.zaloLogoUrl ?? '',
+        telegramLogoUrl: data.telegramLogoUrl ?? pubConfig?.telegramLogoUrl ?? adminConfig?.telegramLogoUrl ?? '',
+        socialChannels: typeof data.socialChannels === 'string' && data.socialChannels.trim() !== ''
+          ? (() => { try { return JSON.parse(data.socialChannels); } catch(e) { return []; } })()
+          : (Array.isArray(data.socialChannels) ? data.socialChannels : (pubConfig?.socialChannels || adminConfig?.socialChannels || [])),
         specialties: typeof data.specialties === 'string'
           ? data.specialties.split(',').map((s: string) => s.trim()).filter(Boolean)
           : (Array.isArray(data.specialties) ? data.specialties : (pubConfig?.specialties || adminConfig?.specialties || [])),
@@ -77,6 +84,13 @@ export async function fetchAdminConfigFromBackend(): Promise<SystemConfig> {
         messengerUrl: data.messengerUrl ?? adminConfig?.messengerUrl ?? pubConfig?.messengerUrl ?? '',
         zaloUrl: data.zaloUrl ?? adminConfig?.zaloUrl ?? pubConfig?.zaloUrl ?? '',
         telegramUrl: data.telegramUrl ?? adminConfig?.telegramUrl ?? pubConfig?.telegramUrl ?? '',
+        facebookLogoUrl: data.facebookLogoUrl ?? adminConfig?.facebookLogoUrl ?? pubConfig?.facebookLogoUrl ?? '',
+        messengerLogoUrl: data.messengerLogoUrl ?? adminConfig?.messengerLogoUrl ?? pubConfig?.messengerLogoUrl ?? '',
+        zaloLogoUrl: data.zaloLogoUrl ?? adminConfig?.zaloLogoUrl ?? pubConfig?.zaloLogoUrl ?? '',
+        telegramLogoUrl: data.telegramLogoUrl ?? adminConfig?.telegramLogoUrl ?? pubConfig?.telegramLogoUrl ?? '',
+        socialChannels: typeof data.socialChannels === 'string' && data.socialChannels.trim() !== ''
+          ? (() => { try { return JSON.parse(data.socialChannels); } catch(e) { return []; } })()
+          : (Array.isArray(data.socialChannels) ? data.socialChannels : (adminConfig?.socialChannels || pubConfig?.socialChannels || [])),
         specialties: typeof data.specialties === 'string'
           ? data.specialties.split(',').map((s: string) => s.trim()).filter(Boolean)
           : (Array.isArray(data.specialties) ? data.specialties : (adminConfig?.specialties || pubConfig?.specialties || [])),
@@ -107,6 +121,11 @@ export async function saveConfigToBackend(config: SystemConfig): Promise<SystemC
     messengerUrl: config.messengerUrl ?? '',
     zaloUrl: config.zaloUrl ?? '',
     telegramUrl: config.telegramUrl ?? '',
+    facebookLogoUrl: config.facebookLogoUrl ?? '',
+    messengerLogoUrl: config.messengerLogoUrl ?? '',
+    zaloLogoUrl: config.zaloLogoUrl ?? '',
+    telegramLogoUrl: config.telegramLogoUrl ?? '',
+    socialChannels: Array.isArray(config.socialChannels) ? JSON.stringify(config.socialChannels) : '',
     specialties: Array.isArray(config.specialties) ? config.specialties.join(', ') : '',
     faviconUrl: config.faviconUrl ?? '',
     cloudinaryCloudName: config.cloudinaryCloudName ?? '',
@@ -133,6 +152,13 @@ export async function saveConfigToBackend(config: SystemConfig): Promise<SystemC
         messengerUrl: data.messengerUrl ?? config.messengerUrl ?? '',
         zaloUrl: data.zaloUrl ?? config.zaloUrl ?? '',
         telegramUrl: data.telegramUrl ?? config.telegramUrl ?? '',
+        facebookLogoUrl: data.facebookLogoUrl ?? config.facebookLogoUrl ?? '',
+        messengerLogoUrl: data.messengerLogoUrl ?? config.messengerLogoUrl ?? '',
+        zaloLogoUrl: data.zaloLogoUrl ?? config.zaloLogoUrl ?? '',
+        telegramLogoUrl: data.telegramLogoUrl ?? config.telegramLogoUrl ?? '',
+        socialChannels: typeof data.socialChannels === 'string' && data.socialChannels.trim() !== ''
+          ? (() => { try { return JSON.parse(data.socialChannels); } catch(e) { return []; } })()
+          : (Array.isArray(data.socialChannels) ? data.socialChannels : (config.socialChannels || [])),
         specialties: typeof data.specialties === 'string'
           ? data.specialties.split(',').map((s: string) => s.trim()).filter(Boolean)
           : (Array.isArray(data.specialties) ? data.specialties : (config.specialties || [])),
