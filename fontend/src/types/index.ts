@@ -49,6 +49,7 @@ export interface SystemConfig {
   socialChannels?: ContactChannel[];
   specialties: string[];
   faviconUrl?: string;
+  guideYoutubeUrl?: string;
   cloudinaryCloudName?: string;
   cloudinaryUploadPreset?: string;
   cloudinaryApiKey?: string;

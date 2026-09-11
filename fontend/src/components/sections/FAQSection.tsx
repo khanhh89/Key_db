@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import type { Language } from '../../types';
+import type { Language, SystemConfig } from '../../types';
 import { ScrollReveal } from '../common/ScrollReveal';
 
 interface FAQSectionProps {
   lang: Language;
+  config?: SystemConfig;
 }
 
 interface FAQItem {
@@ -45,8 +46,21 @@ const faqData: FAQItem[] = [
   }
 ];
 
-export function FAQSection({ lang }: FAQSectionProps) {
+function extractYoutubeId(urlOrId?: string): string | null {
+  if (!urlOrId) return null;
+  const trimmed = urlOrId.trim();
+  if (!trimmed) return null;
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
+  const match = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  return match ? match[1] : null;
+}
+
+export function FAQSection({ lang, config }: FAQSectionProps) {
   const [openId, setOpenId] = useState<string | null>('faq-1');
+  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+
+  const rawVideoUrl = config?.guideYoutubeUrl || '';
+  const youtubeId = extractYoutubeId(rawVideoUrl) || 'dQw4w9WgXcQ'; // Fallback demo video ID if not set
 
   const toggleFAQ = (id: string) => {
     setOpenId(openId === id ? null : id);
@@ -57,12 +71,149 @@ export function FAQSection({ lang }: FAQSectionProps) {
       <ScrollReveal>
         <div className="section-head">
           <span className="section-badge-glow">{lang === 'vi' ? 'HỎI ĐÁP & HƯỚNG DẪN' : 'FAQ & GUIDES'}</span>
-          <h2>{lang === 'vi' ? 'Câu Hỏi Thường Gặp' : 'Frequently Asked Questions'}</h2>
+          <h2>{lang === 'vi' ? 'Câu Hỏi Thường Gặp & Video Hướng Dẫn' : 'Frequently Asked Questions & Video Guides'}</h2>
           <p className="section-sub">
             {lang === 'vi'
-              ? 'Giải đáp thắc mắc về quy trình mua Key, cài đặt game Mod và chính sách bảo hành'
-              : 'Common questions about VIP keys, installation, and support'}
+              ? 'Giải đáp thắc mắc và theo dõi video hướng dẫn chi tiết quy trình mua Key & cài đặt game MOD'
+              : 'Common questions and step-by-step video tutorials for key activation and installation'}
           </p>
+        </div>
+      </ScrollReveal>
+
+      {/* Embedded YouTube Video Tutorial Card */}
+      <ScrollReveal delay={100}>
+        <div style={{
+          maxWidth: '900px',
+          margin: '0 auto 36px auto',
+          background: 'rgba(15, 23, 42, 0.75)',
+          border: '1px solid rgba(99, 102, 241, 0.3)',
+          borderRadius: '20px',
+          padding: '16px',
+          backdropFilter: 'blur(16px)',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(99, 102, 241, 0.15)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '12px',
+            padding: '0 8px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{
+                background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                color: '#fff',
+                padding: '4px 10px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                ▶ YOUTUBE
+              </span>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#f8fafc', margin: 0 }}>
+                {lang === 'vi' ? '🎬 Video Hướng Dẫn Cài Đặt & Kích Hoạt Key VIP' : '🎬 Step-by-Step Installation & Activation Guide'}
+              </h3>
+            </div>
+            <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+              {lang === 'vi' ? 'HD 1080p • Tự động' : 'HD 1080p • Auto'}
+            </span>
+          </div>
+
+          <div style={{
+            position: 'relative',
+            width: '100%',
+            paddingTop: '56.25%', // 16:9 Aspect Ratio
+            borderRadius: '14px',
+            overflow: 'hidden',
+            backgroundColor: '#090d16',
+            border: '1px solid rgba(255, 255, 255, 0.08)'
+          }}>
+            {isPlayingVideo ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1`}
+                title="YouTube Video Guide"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  border: 'none'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => setIsPlayingVideo(true)}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  backgroundImage: `url(https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg)`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                {/* Dark overlay */}
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'radial-gradient(circle at center, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.85) 100%)'
+                }} />
+
+                {/* Glowing Play Button */}
+                <div style={{
+                  position: 'relative',
+                  zIndex: 2,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <div style={{
+                    width: '72px',
+                    height: '72px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 0 30px rgba(239, 68, 68, 0.6), 0 0 60px rgba(239, 68, 68, 0.3)',
+                    border: '2px solid rgba(255, 255, 255, 0.4)',
+                    transition: 'transform 0.2s ease'
+                  }}>
+                    <span style={{ fontSize: '28px', color: '#ffffff', marginLeft: '4px' }}>▶</span>
+                  </div>
+                  <span style={{
+                    color: '#ffffff',
+                    fontWeight: '700',
+                    fontSize: '15px',
+                    textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+                    background: 'rgba(15, 23, 42, 0.7)',
+                    padding: '6px 16px',
+                    borderRadius: '20px',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    backdropFilter: 'blur(8px)'
+                  }}>
+                    {lang === 'vi' ? '⚡ Bấm để xem Video Hướng Dẫn' : '⚡ Click to Watch Video Guide'}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </ScrollReveal>
 

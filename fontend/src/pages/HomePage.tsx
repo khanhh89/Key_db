@@ -224,7 +224,7 @@ export function HomePage({
           openFreeKeyModal={setFreeKeyApp}
           showToast={showToast}
         />
-        <FAQSection lang={lang} />
+        <FAQSection lang={lang} config={config} />
         <TestimonialsSection lang={lang} />
 
         {buyApp && (

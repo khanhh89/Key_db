@@ -43,7 +43,8 @@ export async function fetchConfigFromBackend(): Promise<SystemConfig> {
         specialties: typeof data.specialties === 'string'
           ? data.specialties.split(',').map((s: string) => s.trim()).filter(Boolean)
           : (Array.isArray(data.specialties) ? data.specialties : (pubConfig?.specialties || adminConfig?.specialties || [])),
-        faviconUrl
+        faviconUrl,
+        guideYoutubeUrl: data.guideYoutubeUrl ?? pubConfig?.guideYoutubeUrl ?? adminConfig?.guideYoutubeUrl ?? ''
       };
       delete formatted.cloudinaryCloudName;
       delete formatted.cloudinaryUploadPreset;
@@ -95,6 +96,7 @@ export async function fetchAdminConfigFromBackend(): Promise<SystemConfig> {
           ? data.specialties.split(',').map((s: string) => s.trim()).filter(Boolean)
           : (Array.isArray(data.specialties) ? data.specialties : (adminConfig?.specialties || pubConfig?.specialties || [])),
         faviconUrl,
+        guideYoutubeUrl: data.guideYoutubeUrl ?? adminConfig?.guideYoutubeUrl ?? pubConfig?.guideYoutubeUrl ?? '',
         cloudinaryCloudName: data.cloudinaryCloudName ?? adminConfig?.cloudinaryCloudName ?? '',
         cloudinaryUploadPreset: data.cloudinaryUploadPreset ?? adminConfig?.cloudinaryUploadPreset ?? '',
         cloudinaryApiKey: data.cloudinaryApiKey ?? adminConfig?.cloudinaryApiKey ?? '',
@@ -128,6 +130,7 @@ export async function saveConfigToBackend(config: SystemConfig): Promise<SystemC
     socialChannels: Array.isArray(config.socialChannels) ? JSON.stringify(config.socialChannels) : '',
     specialties: Array.isArray(config.specialties) ? config.specialties.join(', ') : '',
     faviconUrl: config.faviconUrl ?? '',
+    guideYoutubeUrl: config.guideYoutubeUrl ?? '',
     cloudinaryCloudName: config.cloudinaryCloudName ?? '',
     cloudinaryUploadPreset: config.cloudinaryUploadPreset ?? '',
     cloudinaryApiKey: config.cloudinaryApiKey ?? '',
@@ -163,6 +166,7 @@ export async function saveConfigToBackend(config: SystemConfig): Promise<SystemC
           ? data.specialties.split(',').map((s: string) => s.trim()).filter(Boolean)
           : (Array.isArray(data.specialties) ? data.specialties : (config.specialties || [])),
         faviconUrl: data.faviconUrl || config.faviconUrl || '',
+        guideYoutubeUrl: data.guideYoutubeUrl ?? config.guideYoutubeUrl ?? '',
         cloudinaryCloudName: data.cloudinaryCloudName ?? config.cloudinaryCloudName ?? '',
         cloudinaryUploadPreset: data.cloudinaryUploadPreset ?? config.cloudinaryUploadPreset ?? '',
         cloudinaryApiKey: data.cloudinaryApiKey ?? config.cloudinaryApiKey ?? '',

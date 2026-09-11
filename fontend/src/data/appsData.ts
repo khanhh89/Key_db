@@ -11,6 +11,7 @@ export const initialConfig: SystemConfig = {
   messengerUrl: '',
   zaloUrl: '',
   telegramUrl: '',
+  guideYoutubeUrl: '',
   specialties: []
 };
 

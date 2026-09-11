@@ -19,6 +19,7 @@ export function ConfigPage({
   const [cfgBrand, setCfgBrand] = useState(config.brandName || '');
   const [cfgDomain, setCfgDomain] = useState(config.domain || '');
   const [cfgFaviconUrl, setCfgFaviconUrl] = useState(config.faviconUrl || '');
+  const [cfgGuideYoutubeUrl, setCfgGuideYoutubeUrl] = useState(config.guideYoutubeUrl || '');
   const [cfgSpecialtiesStr, setCfgSpecialtiesStr] = useState(
     config.specialties ? config.specialties.join(', ') : ''
   );
@@ -57,6 +58,7 @@ export function ConfigPage({
         setCfgBrand(adminCfg.brandName || '');
         setCfgDomain(adminCfg.domain || '');
         setCfgFaviconUrl(adminCfg.faviconUrl || '');
+        setCfgGuideYoutubeUrl(adminCfg.guideYoutubeUrl || '');
         setCfgSpecialtiesStr(adminCfg.specialties ? adminCfg.specialties.join(', ') : '');
         setCfgCloudName(adminCfg.cloudinaryCloudName || '');
         setCfgUploadPreset(adminCfg.cloudinaryUploadPreset || '');
@@ -165,6 +167,7 @@ export function ConfigPage({
         socialChannels: channels,
         specialties: specs,
         faviconUrl: cfgFaviconUrl,
+        guideYoutubeUrl: cfgGuideYoutubeUrl,
         cloudinaryCloudName: cfgCloudName,
         cloudinaryUploadPreset: cfgUploadPreset,
         cloudinaryApiKey: cfgApiKey,
@@ -205,6 +208,21 @@ export function ConfigPage({
               value={cfgDomain}
               onChange={(e) => setCfgDomain(e.target.value)}
             />
+          </div>
+
+          <div className="flex flex-col gap-2" style={{ gridColumn: '1 / -1' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f8fafc', fontWeight: 600 }}>
+              <span>🎬 {lang === 'vi' ? 'Link Video YouTube Hướng Dẫn Kích Hoạt (Hiển thị ở FAQ & Hướng dẫn):' : 'YouTube Tutorial Video Link (Displayed in FAQ section):'}</span>
+            </label>
+            <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+              type="text"
+              value={cfgGuideYoutubeUrl}
+              onChange={(e) => setCfgGuideYoutubeUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ hoặc ID Video YouTube"
+            />
+            <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+              {lang === 'vi' ? 'Dán link YouTube (ví dụ https://www.youtube.com/watch?v=xxx) để hiển thị khung xem video trực tiếp cho khách hàng' : 'Paste YouTube URL or Video ID to embed live tutorial player for customers'}
+            </span>
           </div>
 
           {/* DYNAMIC CONTACT CHANNELS MANAGER PANEL */}
