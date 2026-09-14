@@ -13,6 +13,7 @@ export interface AppItem {
   platform?: 'android' | 'ios' | 'both';
   allowSellKey?: boolean;
   allowFreeKey?: boolean;
+  hidden?: boolean;
   freeKey?: string;
   updatedAt?: string;
   tags?: string[];

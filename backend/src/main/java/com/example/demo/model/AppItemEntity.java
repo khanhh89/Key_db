@@ -64,6 +64,10 @@ public class AppItemEntity {
     @Column(name = "tags", columnDefinition = "TEXT")
     private String tags;
 
+    @Column(name = "is_hidden")
+    @JsonProperty("hidden")
+    private Boolean hidden;
+
     @Column(name = "updated_at")
     private String updatedAt;
 }

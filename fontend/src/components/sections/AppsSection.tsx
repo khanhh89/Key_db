@@ -37,6 +37,8 @@ export function AppsSection({
 
   const filteredApps = apps
     .filter((app) => {
+      if (app.hidden) return false;
+
       const matchesSearch =
         app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         app.sub.toLowerCase().includes(searchTerm.toLowerCase());

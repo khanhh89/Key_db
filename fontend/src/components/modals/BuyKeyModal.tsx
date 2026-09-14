@@ -623,8 +623,9 @@ export function BuyKeyModal({
 
   return (
     <ModalPortal>
-      <div className="sub-modal-overlay" onClick={handleOverlayClick}>
-        <div className="buy-key-modal-card" onClick={(e) => e.stopPropagation()}>
+      <div className="sub-modal-overlay mobile-bottom-sheet-overlay" onClick={handleOverlayClick}>
+        <div className="buy-key-modal-card mobile-bottom-sheet-container" onClick={(e) => e.stopPropagation()}>
+          <div className="mobile-sheet-drag-handle" />
           <button className="close" onClick={handleCloseModal}>
             ×
           </button>
@@ -963,33 +964,6 @@ export function BuyKeyModal({
                   🚀 {lang === 'vi' ? 'Chuyển Khoản Nhanh (Mở App NH)' : 'Fast Transfer (Open Bank App)'}
                 </button>
 
-                {payosLink?.checkoutUrl && (
-                  <a
-                    href={payosLink.checkoutUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{
-                      marginTop: '8px',
-                      padding: '10px 16px',
-                      borderRadius: '12px',
-                      background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                      color: '#ffffff',
-                      textDecoration: 'none',
-                      fontWeight: 'bold',
-                      fontSize: '12.5px',
-                      textAlign: 'center',
-                      boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      width: '100%'
-                    }}
-                  >
-                    🌐 {lang === 'vi' ? 'Mở Cổng Thanh Toán PayOS' : 'Open PayOS Gateway'}
-                  </a>
-                )}
-
                 {showManualBankDetails && (
                   <div className="manual-bank-details-expand">
                     <div className="info-row">
@@ -1164,7 +1138,7 @@ export function BuyKeyModal({
               gap: '10px',
               width: '100%',
               maxWidth: '350px',
-              maxHeight: '300px',
+              maxHeight: '320px',
               overflowY: 'auto',
               padding: '4px'
             }}>
@@ -1204,33 +1178,6 @@ export function BuyKeyModal({
                   </button>
                 ))}
             </div>
-
-            {payosLink?.checkoutUrl && (
-              <a
-                href={payosLink.checkoutUrl}
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  marginTop: '12px',
-                  padding: '9px 16px',
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                  color: '#ffffff',
-                  textDecoration: 'none',
-                  fontWeight: 700,
-                  fontSize: '12px',
-                  textAlign: 'center',
-                  width: '100%',
-                  maxWidth: '350px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px'
-                }}
-              >
-                🌐 {lang === 'vi' ? 'Hoặc mở Cổng Thanh Toán PayOS Web' : 'Or open PayOS Web Checkout'}
-              </a>
-            )}
 
             <button
               onClick={() => setShowBankSelector(false)}

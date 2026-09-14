@@ -57,7 +57,7 @@ export function ServicesPage({
     setEditingService(null);
     setSrvTitle('');
     setSrvText('');
-    setSrvIcon('◈');
+    setSrvIcon('');
     setSrvCls('cyan');
     setSrvUrl('');
     setIsModalOpen(true);
@@ -86,7 +86,7 @@ export function ServicesPage({
       id: editingService ? editingService.id : '',
       title: srvTitle,
       text: srvText,
-      icon: srvIcon || '◈',
+      icon: srvIcon || '',
       cls: srvCls || 'cyan',
       url: srvUrl || '#'
     };
@@ -199,49 +199,97 @@ export function ServicesPage({
 
       {isModalOpen && (
         <ModalPortal>
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-[14px] flex justify-center items-start z-[999999] p-[20px_16px] overflow-y-auto animate-[fadeIn_0.25s_ease-out]" onClick={() => setIsModalOpen(false)}>
-            <div className="w-[min(640px,94vw)] h-auto max-h-[calc(100vh-40px)] m-auto flex flex-col bg-[#0f172a] border border-[#38bdf8]/30 rounded-[28px] p-7 shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
-              <h4>
-                {editingService
-                  ? lang === 'vi' ? 'Sửa Dịch Vụ' : 'Edit Service'
-                  : lang === 'vi' ? 'Thêm Dịch Vụ Mới' : 'Add New Service'}
-              </h4>
-              <form onSubmit={handleSaveService} className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-170px)] pr-1">
-                <div className="flex flex-col gap-2">
-                  <label>{lang === 'vi' ? 'Tên Dịch Vụ / Kênh (*):' : 'Service Title (*):'}</label>
-                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-[16px] flex justify-center items-center z-[999999] p-4 overflow-y-auto animate-[fadeIn_0.2s_ease-out]"
+            onClick={() => setIsModalOpen(false)}
+          >
+            <div
+              className="w-[min(620px,95vw)] max-h-[92vh] flex flex-col bg-[#0b1120] border border-[#38bdf8]/35 rounded-[26px] p-6 sm:p-7 shadow-[0_25px_70px_rgba(0,0,0,0.85),0_0_40px_rgba(56,189,248,0.18)] relative overflow-hidden text-slate-100"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Top ambient glow gradient decorative bar */}
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00f2fe] via-[#38bdf8] to-[#6366f1]" />
+
+              {/* Close X Button */}
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-800/80 border border-slate-700/80 text-slate-400 hover:text-white hover:bg-slate-700 hover:border-slate-500 transition-all flex items-center justify-center text-lg font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+
+              {/* Modal Header Title */}
+              <div className="mb-5 pr-8">
+                <h3 className="m-0 font-heading text-xl sm:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-[#38bdf8] to-[#00f2fe] flex items-center gap-2.5">
+                  {editingService ? '✏️ ' + (lang === 'vi' ? 'Chỉnh Sửa Dịch Vụ' : 'Edit Service') : '✨ ' + (lang === 'vi' ? 'Thêm Dịch Vụ Mới' : 'Add New Service')}
+                </h3>
+                <p className="m-0 mt-1 text-xs text-slate-400 font-medium">
+                  {lang === 'vi' ? 'Nhập thông tin dịch vụ / kênh truyền thông hiển thị trên trang chủ' : 'Configure service item details and branding color'}
+                </p>
+              </div>
+
+              {/* Form Content */}
+              <form onSubmit={handleSaveService} className="flex flex-col gap-4 overflow-y-auto max-h-[calc(88vh-130px)] pr-1 custom-scrollbar">
+                {/* Service Title Input */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[12px] font-extrabold text-[#38bdf8] uppercase tracking-wider flex items-center gap-1">
+                    <span>{lang === 'vi' ? 'Tên Dịch Vụ / Kênh (*):' : 'Service Title (*):'}</span>
+                  </label>
+                  <input
                     type="text"
                     ref={srvTitleInputRef}
                     value={srvTitle}
                     onChange={(e) => setSrvTitle(e.target.value)}
+                    placeholder={lang === 'vi' ? 'Ví dụ: Kênh Telegram VIP, Support Zalo...' : 'e.g. Telegram Channel, VIP Support...'}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-[#060a12] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/20 placeholder:text-slate-600"
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label>{lang === 'vi' ? 'Mô tả chi tiết:' : 'Description:'}</label>
-                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                {/* Description Input */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[12px] font-extrabold text-[#38bdf8] uppercase tracking-wider">
+                    {lang === 'vi' ? 'Mô tả chi tiết:' : 'Description:'}
+                  </label>
+                  <input
                     type="text"
                     value={srvText}
                     onChange={(e) => setSrvText(e.target.value)}
+                    placeholder={lang === 'vi' ? 'Ví dụ: Hỗ trợ kích hoạt bản quyền 24/7...' : 'e.g. 24/7 Instant VIP Key fulfillment...'}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-[#060a12] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/20 placeholder:text-slate-600"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-2" style={{ gridColumn: '1 / -1' }}>
-                    <label>{lang === 'vi' ? '🖼️ Logo Ảnh Dịch Vụ (Tải từ máy tính):' : 'Service Logo Image (Upload from computer):'}</label>
-                    <div style={{ marginTop: '6px' }}>
-                      {srvIcon ? (
-                        <div className="flex items-center gap-3.5 bg-[#0f172a]/60 p-[10px_14px] rounded-xl border border-[#38bdf8]/30">
-                          <img src={srvIcon} alt="Preview" className="w-12 h-12 object-contain rounded-lg border border-[#00f2fe]" />
-                          <div className="flex-1 text-[13px] text-[#4ade80] font-semibold">
-                            ✓ Đã chọn logo ảnh thành công
+                {/* Logo Image Upload Box */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[12px] font-extrabold text-[#38bdf8] uppercase tracking-wider flex items-center gap-1.5">
+                    <span>🖼️ {lang === 'vi' ? 'Logo Ảnh Dịch Vụ (Tải từ máy tính):' : 'Service Logo Image (Upload file):'}</span>
+                  </label>
+                  <div className="mt-0.5">
+                    {srvIcon && srvIcon.trim() !== '' && srvIcon !== '◈' ? (
+                      <div className="flex items-center gap-3.5 bg-[#070e1d]/90 p-3 rounded-2xl border border-[#00f2fe]/40 shadow-[0_4px_20px_rgba(0,242,254,0.1)]">
+                        <div className="relative group">
+                          <img
+                            src={srvIcon}
+                            alt="Preview"
+                            className="w-13 h-13 min-w-[52px] min-h-[52px] object-contain rounded-xl border-2 border-[#00f2fe] bg-[#020617] p-1 shadow-[0_0_12px_rgba(0,242,254,0.3)]"
+                          />
+                        </div>
+                        <div className="flex-1 flex flex-col gap-0.5">
+                          <div className="text-[13px] text-[#4ade80] font-extrabold flex items-center gap-1">
+                            ✓ {lang === 'vi' ? 'Đã chọn logo ảnh thành công' : 'Logo image selected'}
                           </div>
-                          <label className="upload-btn-cloud" style={{ margin: 0, padding: '8px 14px', cursor: 'pointer', fontSize: '12px' }}>
-                            {isUploadingIcon ? '⏳ Đang tải...' : '🔄 Đổi ảnh khác'}
-                            <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                          <div className="text-[11px] text-slate-400 truncate max-w-[220px]">
+                            {srvIcon.length > 40 ? srvIcon.substring(0, 40) + '...' : srvIcon}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <label className="px-3.5 py-2 rounded-xl bg-[#38bdf8]/15 border border-[#38bdf8]/40 text-[#38bdf8] hover:bg-[#38bdf8] hover:text-[#080c14] font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1">
+                            {isUploadingIcon ? '⏳' : '🔄'} {isUploadingIcon ? (lang === 'vi' ? 'Đang tải...' : 'Uploading...') : (lang === 'vi' ? 'Đổi ảnh khác' : 'Change')}
+                            <input
                               type="file"
                               accept="image/*"
-                              style={{ display: 'none' }}
+                              className="hidden"
                               disabled={isUploadingIcon}
                               onChange={handleIconFileUpload}
                             />
@@ -249,59 +297,65 @@ export function ServicesPage({
                           <button
                             type="button"
                             onClick={() => setSrvIcon('')}
-                            style={{ background: 'rgba(239, 68, 68, 0.18)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.35)', padding: '8px 12px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}
+                            className="px-3 py-2 rounded-xl bg-red-500/15 border border-red-500/40 text-red-400 hover:bg-red-500 hover:text-white font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1"
                           >
-                            🗑 Xóa
+                            🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
                           </button>
                         </div>
-                      ) : (
-                        <label className="upload-btn-cloud" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderRadius: '12px', border: '2px dashed rgba(56, 189, 248, 0.4)', background: 'rgba(15, 23, 42, 0.4)', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: '#38bdf8' }}>
-                          {isUploadingIcon ? '⏳ Đang tải ảnh lên...' : '📁 Tải Ảnh Logo Từ Máy Tính'}
-                          <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-                            type="file"
-                            accept="image/*"
-                            style={{ display: 'none' }}
-                            disabled={isUploadingIcon}
-                            onChange={handleIconFileUpload}
-                          />
-                        </label>
-                      )}
-                    </div>
-                  </div>
-
-
-                  <div className="flex flex-col gap-2">
-                    <label>{lang === 'vi' ? 'Phối màu Icon:' : 'Icon Color:'}</label>
-                    <select value={srvCls} onChange={(e) => setSrvCls(e.target.value)}>
-                      <option value="cyan">Cyan</option>
-                      <option value="orange">Orange</option>
-                      <option value="blue">Blue</option>
-                      <option value="pink">Pink</option>
-                      <option value="red">Red</option>
-                    </select>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center gap-2 p-5 rounded-2xl border-2 border-dashed border-[#38bdf8]/40 bg-[#070d19]/80 hover:bg-[#0c162b] hover:border-[#00f2fe] transition-all cursor-pointer group text-center">
+                        <div className="w-10 h-10 rounded-full bg-[#38bdf8]/10 border border-[#38bdf8]/30 flex items-center justify-center text-lg text-[#38bdf8] group-hover:scale-110 transition-transform">
+                          📁
+                        </div>
+                        <div className="text-sm font-extrabold text-[#38bdf8]">
+                          {isUploadingIcon ? (lang === 'vi' ? '⏳ Đang tải ảnh từ máy lên Cloudinary...' : '⏳ Uploading image...') : (lang === 'vi' ? 'Tải Ảnh Logo Từ Máy Tính' : 'Upload Logo Image from Computer')}
+                        </div>
+                        <div className="text-[11.5px] text-slate-400 font-medium">
+                          {lang === 'vi' ? 'Hỗ trợ định dạng PNG, JPG, WEBP, SVG' : 'Supports PNG, JPG, WEBP, SVG'}
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={isUploadingIcon}
+                          onChange={handleIconFileUpload}
+                        />
+                      </label>
+                    )}
                   </div>
                 </div>
 
 
-                <div className="flex flex-col gap-2">
-                  <label>URL Link:</label>
-                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+
+                {/* URL Link Input */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[12px] font-extrabold text-[#38bdf8] uppercase tracking-wider">
+                    URL Link:
+                  </label>
+                  <input
                     type="text"
                     value={srvUrl}
                     onChange={(e) => setSrvUrl(e.target.value)}
+                    placeholder="https://t.me/..."
+                    className="w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-[#060a12] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/20 placeholder:text-slate-600"
                   />
                 </div>
 
-                <div className="flex justify-end gap-3 mt-3.5 pt-3.5 border-t border-white/10 shrink-0">
+                {/* Modal Footer Actions */}
+                <div className="flex justify-end items-center gap-3 mt-4 pt-4 border-t border-slate-800/80 shrink-0">
                   <button
                     type="button"
-                    className="px-5 py-3 rounded-xl border border-[#334155] bg-[#1e293b] text-[#e2e8f0] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]"
+                    className="px-5 py-3 rounded-xl border border-slate-700 bg-slate-800/80 text-slate-200 font-bold text-sm cursor-pointer transition-all duration-200 hover:bg-slate-700 hover:text-white"
                     onClick={() => setIsModalOpen(false)}
                   >
                     {lang === 'vi' ? 'Hủy' : 'Cancel'}
                   </button>
-                  <button type="submit" className="px-6 py-3 rounded-xl border-0 bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)]">
-                    {lang === 'vi' ? 'Lưu Thay Đổi' : 'Save Changes'}
+                  <button
+                    type="submit"
+                    className="px-7 py-3 rounded-xl border-0 bg-gradient-to-r from-[#00f2fe] via-[#38bdf8] to-[#6366f1] text-[#050b14] font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_20px_rgba(0,242,254,0.4)] hover:shadow-[0_8px_30px_rgba(0,242,254,0.6)] hover:-translate-y-0.5"
+                  >
+                    ✨ {lang === 'vi' ? 'Lưu Thay Đổi' : 'Save Changes'}
                   </button>
                 </div>
               </form>

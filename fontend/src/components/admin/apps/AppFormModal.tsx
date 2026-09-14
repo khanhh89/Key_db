@@ -27,6 +27,7 @@ export function AppFormModal({ isOpen, onClose, editingApp, lang, config, showTo
   const [appFreeKey, setAppFreeKey] = useState('');
   const [appAllowSellKey, setAppAllowSellKey] = useState(true);
   const [appAllowFreeKey, setAppAllowFreeKey] = useState(true);
+  const [appHidden, setAppHidden] = useState(false);
   const [appTagsStr, setAppTagsStr] = useState('');
   const [isUploadingIcon, setIsUploadingIcon] = useState(false);
   const [isUploadingShots, setIsUploadingShots] = useState(false);
@@ -50,10 +51,11 @@ export function AppFormModal({ isOpen, onClose, editingApp, lang, config, showTo
         setAppTagsStr(editingApp.tags ? editingApp.tags.join(', ') : '');
         setAppAllowSellKey(editingApp.allowSellKey !== false);
         setAppAllowFreeKey(editingApp.allowFreeKey !== false);
+        setAppHidden(Boolean(editingApp.hidden));
       } else {
         setAppName(''); setAppSub(''); setAppIcon(''); setAppCls(''); setAppNote('');
         setAppShotsStr(''); setAppDownloadUrl(''); setAppIpaUrl(''); setAppPlatform('both');
-        setAppFreeKey(''); setAppTagsStr(''); setAppAllowSellKey(true); setAppAllowFreeKey(true);
+        setAppFreeKey(''); setAppTagsStr(''); setAppAllowSellKey(true); setAppAllowFreeKey(true); setAppHidden(false);
       }
     }
   }
@@ -110,7 +112,7 @@ export function AppFormModal({ isOpen, onClose, editingApp, lang, config, showTo
       id: editingApp ? editingApp.id : '', name: appName, sub: appSub,
       icon: appIcon || appName.slice(0, 2).toUpperCase(), cls: appCls, note: appNote,
       shots: shotsArray, downloadUrl: appDownloadUrl, ipaUrl: appIpaUrl, platform: appPlatform,
-      freeKey: appFreeKey, tags: tagsArray, allowSellKey: appAllowSellKey, allowFreeKey: appAllowFreeKey,
+      freeKey: appFreeKey, tags: tagsArray, allowSellKey: appAllowSellKey, allowFreeKey: appAllowFreeKey, hidden: appHidden,
       updatedAt: new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
     };
     await onSave(payload);
@@ -155,6 +157,12 @@ export function AppFormModal({ isOpen, onClose, editingApp, lang, config, showTo
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
                   <input type="checkbox" checked={appAllowFreeKey} onChange={e => setAppAllowFreeKey(e.target.checked)} style={{ width: '18px', height: '18px', accentColor: '#22c55e', cursor: 'pointer' }} />
                   <span style={{ fontWeight: 'bold', color: appAllowFreeKey ? '#22c55e' : '#ef4444' }}>🔑 {lang === 'vi' ? 'Cho Phép Cấp Key Free (Hiển thị nút Lấy Key Free trên trang chủ)' : 'Enable Free Key'}</span>
+                </label>
+              </div>
+              <div className="flex flex-col gap-2" style={{ marginTop: '10px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
+                  <input type="checkbox" checked={appHidden} onChange={e => setAppHidden(e.target.checked)} style={{ width: '18px', height: '18px', accentColor: '#f97316', cursor: 'pointer' }} />
+                  <span style={{ fontWeight: 'bold', color: appHidden ? '#f97316' : '#94a3b8' }}>🙈 {lang === 'vi' ? 'Ẩn App này khỏi Trang chủ (Khách hàng sẽ KHÔNG thấy App trên Trang chủ)' : 'Hide App from Homepage'}</span>
                 </label>
               </div>
             </div>

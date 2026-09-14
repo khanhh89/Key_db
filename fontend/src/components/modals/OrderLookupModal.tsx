@@ -117,11 +117,12 @@ export function OrderLookupModal({ lang, onClose, showToast }: OrderLookupModalP
 
   return (
     <ModalPortal>
-      <div className="sub-modal-overlay" onClick={onClose}>
-      <div className="buy-key-modal-card lookup-modal-card" onClick={(e) => e.stopPropagation()}>
-        <button className="close" onClick={onClose} aria-label="Close modal">
-          ×
-        </button>
+      <div className="sub-modal-overlay mobile-bottom-sheet-overlay" onClick={onClose}>
+        <div className="buy-key-modal-card lookup-modal-card mobile-bottom-sheet-container" onClick={(e) => e.stopPropagation()}>
+          <div className="mobile-sheet-drag-handle" />
+          <button className="close" onClick={onClose} aria-label="Close modal">
+            ×
+          </button>
 
         <div className="buy-key-header">
           <h3>🔍 {lang === 'vi' ? 'Tra Cứu & Lịch Sử Đơn Hàng Key VIP' : 'Check Order & Saved VIP Keys'}</h3>

@@ -17,6 +17,7 @@ import { FeedbackModal } from '../components/modals/FeedbackModal';
 import { FeedbackHistoryModal } from '../components/modals/FeedbackHistoryModal';
 import { syncDeviceWithBackend } from '../services/feedbackApi';
 import { Footer } from '../components/layout/Footer';
+import { MobileBottomNav } from '../components/layout/MobileBottomNav';
 
 interface HomePageProps {
   dark: boolean;
@@ -288,6 +289,13 @@ export function HomePage({
       />
 
       <Footer lang={lang} config={config} />
+
+      {/* Floating Mobile Bottom Navigation Dock */}
+      <MobileBottomNav
+        lang={lang}
+        onOpenOrderLookup={() => setIsLookupOpen(true)}
+        onOpenFeedback={() => setIsFeedbackOpen(true)}
+      />
     </div>
   );
 }
