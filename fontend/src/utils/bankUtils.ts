@@ -74,93 +74,96 @@ export function parseVietQrEmvCo(qr: string): ParsedEmvQr {
 }
 
 /**
- * Standard Bank ID / BIN Mapping Dictionary
+ * Standard Napas 6-Digit BIN Mapping Dictionary
+ * Using 6-digit Napas BINs is critical because every banking app in Vietnam
+ * (VCB, TCB, MB, BIDV, CTG...) uses 6-digit Napas BINs for interbank routing.
  */
-const BANK_MAP: Record<string, string> = {
+const NAPAS_BIN_MAP: Record<string, string> = {
   // MB Bank
-  'MB': 'mb',
-  'MBBANK': 'mb',
+  'MB': '970422',
+  'MBBANK': '970422',
   '970422': '970422',
 
   // Vietcombank
-  'VCB': 'vcb',
-  'VIETCOMBANK': 'vcb',
+  'VCB': '970436',
+  'VIETCOMBANK': '970436',
   '970436': '970436',
 
   // BIDV
-  'BIDV': 'bidv',
+  'BIDV': '970418',
   '970418': '970418',
 
   // VietinBank
-  'ICB': 'icb',
-  'VIETINBANK': 'icb',
+  'ICB': '970415',
+  'CTG': '970415',
+  'VIETINBANK': '970415',
   '970415': '970415',
 
   // Techcombank
-  'TCB': 'tcb',
-  'TECHCOMBANK': 'tcb',
+  'TCB': '970407',
+  'TECHCOMBANK': '970407',
   '970407': '970407',
 
   // ACB
-  'ACB': 'acb',
+  'ACB': '970416',
   '970416': '970416',
 
   // VPBank
-  'VPB': 'vpb',
-  'VPBANK': 'vpb',
+  'VPB': '970432',
+  'VPBANK': '970432',
   '970432': '970432',
 
   // TPBank
-  'TPB': 'tpb',
-  'TPBANK': 'tpb',
+  'TPB': '970423',
+  'TPBANK': '970423',
   '970423': '970423',
 
   // Agribank
-  'VBA': 'vba',
-  'AGRIBANK': 'vba',
+  'VBA': '970405',
+  'AGRIBANK': '970405',
   '970405': '970405',
 
   // Sacombank
-  'STB': 'stb',
-  'SACOMBANK': 'stb',
+  'STB': '970403',
+  'SACOMBANK': '970403',
   '970403': '970403',
 
   // MSB
-  'MSB': 'msb',
-  'MSBBANK': 'msb',
+  'MSB': '970426',
+  'MSBBANK': '970426',
   '970426': '970426',
 
   // OCB
-  'OCB': 'ocb',
-  'OCBBANK': 'ocb',
+  'OCB': '970448',
+  'OCBBANK': '970448',
   '970448': '970448',
 
   // SHB
-  'SHB': 'shb',
+  'SHB': '970443',
   '970443': '970443',
 
   // HDBank
-  'HDB': 'hdb',
-  'HDBANK': 'hdb',
+  'HDB': '970437',
+  'HDBANK': '970437',
   '970437': '970437',
 
   // LPBank
-  'LPB': 'lpb',
-  'LIENVIETPOSTBANK': 'lpb',
+  'LPB': '970449',
+  'LIENVIETPOSTBANK': '970449',
   '970449': '970449',
 
   // VIB
-  'VIB': 'vib',
+  'VIB': '970441',
   '970441': '970441',
 
   // SeABank
-  'SEAB': 'seabank',
-  'SEABANK': 'seabank',
+  'SEAB': '970440',
+  'SEABANK': '970440',
   '970440': '970440',
 
   // Eximbank
-  'EIB': 'eximbank',
-  'EXIMBANK': 'eximbank',
+  'EIB': '970431',
+  'EXIMBANK': '970431',
   '970431': '970431',
 
   // E-wallets
@@ -170,15 +173,15 @@ const BANK_MAP: Record<string, string> = {
 };
 
 /**
- * Normalizes any Bank ID or BIN string to standard VietQR identifier
+ * Returns the exact 6-digit Napas BIN for interbank transfer routing
  */
-export function normalizeBankId(rawBankId?: string): string {
-  if (!rawBankId) return 'mb';
+export function getNapasBin(rawBankId?: string): string {
+  if (!rawBankId) return '970422';
   const clean = rawBankId.trim().toUpperCase();
-  if (BANK_MAP[clean]) {
-    return BANK_MAP[clean];
+  if (NAPAS_BIN_MAP[clean]) {
+    return NAPAS_BIN_MAP[clean];
   }
-  return rawBankId.trim().toLowerCase();
+  return rawBankId.trim();
 }
 
 export interface VietQrDeeplinkOptions {
@@ -187,24 +190,27 @@ export interface VietQrDeeplinkOptions {
   amount: number;
   paymentCode: string;
   accountName?: string;
+  useAlternativeDomain?: boolean;
 }
 
 /**
- * Builds a universal VietQR redirect deep link (dl.vietqr.io/pay)
- * with 100% pre-filled query parameters (ba, am, tn, bn)
+ * Builds a universal VietQR redirect deep link (vietqr.co / dl.vietqr.io)
+ * with 100% pre-filled query parameters (ba, am, tn, bn) using 6-digit Napas BIN.
  */
 export function buildVietQrDeeplink(targetAppId: string, options: VietQrDeeplinkOptions): string {
   const cleanApp = targetAppId.trim().toLowerCase();
   const cleanAccountNo = options.accountNo.replace(/\s+/g, '');
-  const cleanBankId = normalizeBankId(options.bankIdOrBin);
+  const cleanBin = getNapasBin(options.bankIdOrBin);
   const cleanAmount = Math.round(options.amount);
   const cleanCode = options.paymentCode ? options.paymentCode.trim() : '';
   const cleanName = options.accountName ? options.accountName.trim() : '';
 
-  // ba format: <AccountNo>@<BankIdOrBin>
-  const ba = `${cleanAccountNo}@${cleanBankId}`;
+  // ba format: <AccountNo>@<6-Digit-Napas-BIN>
+  // E.g., 0358888888888@970422
+  const ba = `${cleanAccountNo}@${cleanBin}`;
 
-  let url = `https://dl.vietqr.io/pay?app=${cleanApp}&ba=${encodeURIComponent(ba)}&am=${cleanAmount}&tn=${encodeURIComponent(cleanCode)}`;
+  const baseUrl = options.useAlternativeDomain ? 'https://vietqr.co/pay' : 'https://dl.vietqr.io/pay';
+  let url = `${baseUrl}?app=${cleanApp}&ba=${encodeURIComponent(ba)}&am=${cleanAmount}&tn=${encodeURIComponent(cleanCode)}`;
 
   if (cleanName) {
     url += `&bn=${encodeURIComponent(cleanName)}`;
