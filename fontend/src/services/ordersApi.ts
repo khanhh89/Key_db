@@ -85,6 +85,9 @@ export interface PayosLinkData {
   qrCode?: string;
   rawQrCode?: string;
   checkoutUrl?: string;
+  accountNumber?: string;
+  accountName?: string;
+  bin?: string;
   status: string;
 }
 

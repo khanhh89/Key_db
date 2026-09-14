@@ -120,6 +120,9 @@ public class PayosController {
                 if (payosData.containsKey("checkoutUrl")) response.put("checkoutUrl", payosData.get("checkoutUrl"));
                 if (payosData.containsKey("qrCode")) response.put("qrCode", payosData.get("qrCode"));
                 if (payosData.containsKey("rawQrCode")) response.put("rawQrCode", payosData.get("rawQrCode"));
+                if (payosData.containsKey("accountNumber")) response.put("accountNumber", payosData.get("accountNumber"));
+                if (payosData.containsKey("accountName")) response.put("accountName", payosData.get("accountName"));
+                if (payosData.containsKey("bin")) response.put("bin", payosData.get("bin"));
                 return ResponseEntity.ok(response);
             }
         }
@@ -191,6 +194,15 @@ public class PayosController {
                             result.put("orderCode", currentOrderCode);
                             if (dataMap.containsKey("checkoutUrl") && dataMap.get("checkoutUrl") != null) {
                                 result.put("checkoutUrl", dataMap.get("checkoutUrl"));
+                            }
+                            if (dataMap.containsKey("accountNumber") && dataMap.get("accountNumber") != null) {
+                                result.put("accountNumber", dataMap.get("accountNumber"));
+                            }
+                            if (dataMap.containsKey("accountName") && dataMap.get("accountName") != null) {
+                                result.put("accountName", dataMap.get("accountName"));
+                            }
+                            if (dataMap.containsKey("bin") && dataMap.get("bin") != null) {
+                                result.put("bin", dataMap.get("bin"));
                             }
                             if (dataMap.containsKey("qrCode") && dataMap.get("qrCode") != null) {
                                 String rawQr = String.valueOf(dataMap.get("qrCode"));

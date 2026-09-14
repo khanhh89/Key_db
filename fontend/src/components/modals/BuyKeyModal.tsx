@@ -18,20 +18,28 @@ import {
 import { copyTextToClipboard } from '../../utils/clipboard';
 import { isKeyBelongToApp } from '../../utils/keyUtils';
 import { verifyCustomerPaymentInBackend } from '../../services/ordersApi';
+import { parseVietQrEmvCo, buildVietQrDeeplink } from '../../utils/bankUtils';
 
 const COMMON_BANKS = [
-  { id: 'mb', name: 'MB Bank', color: '#1B1464' },
-  { id: 'vcb', name: 'Vietcombank', color: '#74B14C' },
-  { id: 'bidv', name: 'BIDV', color: '#00558F' },
-  { id: 'icb', name: 'VietinBank', color: '#0067B1' },
-  { id: 'tcb', name: 'Techcombank', color: '#E12017' },
-  { id: 'acb', name: 'ACB', color: '#005DAB' },
-  { id: 'vpb', name: 'VPBank', color: '#00904C' },
-  { id: 'tpb', name: 'TPBank', color: '#7E2B7D' },
-  { id: 'vba', name: 'Agribank', color: '#C8102E' },
-  { id: 'momo', name: 'MoMo', color: '#A50064' },
-  { id: 'zalopay', name: 'ZaloPay', color: '#008FE5' },
-  { id: 'viettelmoney', name: 'Viettel Money', color: '#EE0033' },
+  { id: 'mb', name: 'MB Bank', shortName: 'MB', color: '#1B1464' },
+  { id: 'vcb', name: 'Vietcombank', shortName: 'VCB', color: '#74B14C' },
+  { id: 'bidv', name: 'BIDV', shortName: 'BIDV', color: '#00558F' },
+  { id: 'icb', name: 'VietinBank', shortName: 'CTG', color: '#0067B1' },
+  { id: 'tcb', name: 'Techcombank', shortName: 'TCB', color: '#E12017' },
+  { id: 'acb', name: 'ACB', shortName: 'ACB', color: '#005DAB' },
+  { id: 'vpb', name: 'VPBank', shortName: 'VPB', color: '#00904C' },
+  { id: 'tpb', name: 'TPBank', shortName: 'TPB', color: '#7E2B7D' },
+  { id: 'vba', name: 'Agribank', shortName: 'VBA', color: '#C8102E' },
+  { id: 'stb', name: 'Sacombank', shortName: 'STB', color: '#004A99' },
+  { id: 'msb', name: 'MSB Bank', shortName: 'MSB', color: '#EB6909' },
+  { id: 'ocb', name: 'OCB Bank', shortName: 'OCB', color: '#008738' },
+  { id: 'shb', name: 'SHB Bank', shortName: 'SHB', color: '#F26522' },
+  { id: 'hdb', name: 'HDBank', shortName: 'HDB', color: '#DA251C' },
+  { id: 'lpb', name: 'LPBank', shortName: 'LPB', color: '#F58220' },
+  { id: 'vib', name: 'VIB Bank', shortName: 'VIB', color: '#00529C' },
+  { id: 'momo', name: 'MoMo', shortName: 'MoMo', color: '#A50064', isWallet: true },
+  { id: 'zalopay', name: 'ZaloPay', shortName: 'ZaloPay', color: '#008FE5', isWallet: true },
+  { id: 'viettelmoney', name: 'Viettel Money', shortName: 'Viettel', color: '#EE0033', isWallet: true },
 ];
 
 interface BuyKeyModalProps {
@@ -91,6 +99,7 @@ export function BuyKeyModal({
   const [isVerifyingManual, setIsVerifyingManual] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(900); // 15 minutes
   const [showBankSelector, setShowBankSelector] = useState<boolean>(false);
+  const [bankSearchQuery, setBankSearchQuery] = useState<string>('');
 
   // Coupon Promo Code States & Refs for Auto-Release Cleanup
   const [couponCodeInput, setCouponCodeInput] = useState<string>('');
@@ -558,28 +567,44 @@ export function BuyKeyModal({
   };
 
   const handleFastTransfer = () => {
+    setBankSearchQuery('');
     setShowBankSelector(true);
   };
 
-  const executeFastTransfer = (appId: string) => {
-    const activeBankId = bank.bankId || 'MB';
-    const cleanAccountNo = bank.accountNo || '';
-    const activeCode = order ? order.paymentCode : 'MK888';
-    
-    let url = '';
-    
-    // Check if we have the raw NAPAS 247 QR string (from PayOS)
-    // Passing the raw 'vqr' is the most reliable way to prefill all transfer details across all banking apps
+  const executeFastTransfer = (targetAppId: string) => {
+    // 1. Primary source: PayOS API response data
+    let accountNo = payosLink?.accountNumber || '';
+    let bankIdOrBin = payosLink?.bin || bank.bankId || 'MB';
+    let accountName = payosLink?.accountName || bank.accountName || '';
+    let amount = payosLink?.amount || order?.amount || currentAmount;
+    let paymentCode = order ? order.paymentCode : 'MK888';
+
+    // 2. Parse EMVCo raw QR code payload if present
     const rawQr = payosLink?.rawQrCode || (payosLink?.qrCode && !payosLink.qrCode.startsWith('http') ? payosLink.qrCode : null);
-    
     if (rawQr) {
-      url = `https://dl.vietqr.io/pay?app=${appId}&vqr=${encodeURIComponent(rawQr)}`;
-    } else {
-      // Fallback to explicit params. 
-      // CRITICAL: Many banks require 'bn' (Beneficiary Name) to be present, otherwise they drop the intent.
-      url = `https://dl.vietqr.io/pay?app=${appId}&ba=${cleanAccountNo}@${activeBankId.toLowerCase()}&am=${currentAmount}&tn=${encodeURIComponent(activeCode)}&bn=${encodeURIComponent(bank.accountName || '')}`;
+      const parsed = parseVietQrEmvCo(rawQr);
+      if (parsed.accountNumber) accountNo = parsed.accountNumber;
+      if (parsed.bin) bankIdOrBin = parsed.bin;
+      if (parsed.accountName) accountName = parsed.accountName;
+      if (parsed.amount) amount = parsed.amount;
+      if (parsed.paymentCode) paymentCode = parsed.paymentCode;
     }
-    
+
+    // 3. Fallback to store bank config if account number is still missing
+    if (!accountNo) {
+      accountNo = bank.accountNo || '';
+    }
+
+    // 4. Build standard VietQR redirect URL with 100% pre-filled parameters (ba, am, tn, bn)
+    const url = buildVietQrDeeplink(targetAppId, {
+      accountNo,
+      bankIdOrBin,
+      amount,
+      paymentCode,
+      accountName
+    });
+
+    console.log(`🚀 [BuyKeyModal] Opening VietQR deep link for [${targetAppId}]:`, url);
     window.open(url, '_blank');
     setShowBankSelector(false);
   };
@@ -1051,80 +1076,110 @@ export function BuyKeyModal({
           </div>
         )}
 
-        {/* Bank Selector Popup for Fast Transfer */}
+        {/* Bank Selector Popup for Fast Transfer with Search & Pre-filled Autofill indicator */}
         {showBankSelector && (
           <div style={{
             position: 'absolute',
             top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(15, 23, 42, 0.95)',
-            backdropFilter: 'blur(8px)',
+            background: 'rgba(15, 23, 42, 0.96)',
+            backdropFilter: 'blur(12px)',
             zIndex: 100,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '24px',
+            padding: '20px',
             borderRadius: '24px',
             animation: 'fadeIn 0.2s ease'
           }}>
-            <h3 style={{ color: '#fff', margin: '0 0 8px 0', fontSize: '18px', textAlign: 'center' }}>
-              {lang === 'vi' ? 'Chọn Ứng Dụng Ngân Hàng' : 'Select Banking App'}
-            </h3>
-            <p style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '20px', textAlign: 'center' }}>
-              {lang === 'vi' ? 'Vui lòng chọn ngân hàng bạn đang sử dụng để tự động điền thông tin chuyển khoản:' : 'Please select your bank to autofill payment details:'}
-            </p>
-            
+            <div style={{ textAlign: 'center', marginBottom: '14px' }}>
+              <h3 style={{ color: '#fff', margin: '0 0 6px 0', fontSize: '18px', fontWeight: 800 }}>
+                {lang === 'vi' ? '🚀 Chọn Ứng Dụng Ngân Hàng' : '🚀 Select Banking App'}
+              </h3>
+              <p style={{ color: '#94a3b8', fontSize: '12px', margin: 0 }}>
+                {lang === 'vi' ? 'Hệ thống sẽ tự động điền Số tiền, STK và Nội dung trên App:' : 'All payment details will be auto-filled in your banking app:'}
+              </p>
+            </div>
+
+            {/* Quick search input */}
+            <input
+              type="text"
+              placeholder={lang === 'vi' ? '🔍 Tìm nhanh ngân hàng (MB, VCB, TCB...)...' : '🔍 Search bank...'}
+              value={bankSearchQuery}
+              onChange={(e) => setBankSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                maxWidth: '340px',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                background: 'rgba(0, 0, 0, 0.4)',
+                color: '#fff',
+                fontSize: '13px',
+                marginBottom: '14px',
+                outline: 'none'
+              }}
+            />
+
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '12px',
+              gap: '10px',
               width: '100%',
-              maxWidth: '320px',
-              maxHeight: '350px',
+              maxWidth: '350px',
+              maxHeight: '320px',
               overflowY: 'auto',
               padding: '4px'
             }}>
-              {COMMON_BANKS.map((b) => (
-                <button
-                  key={b.id}
-                  onClick={() => executeFastTransfer(b.id)}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: `1px solid ${b.color}40`,
-                    padding: '12px 8px',
-                    borderRadius: '12px',
-                    color: '#fff',
-                    fontWeight: 600,
-                    fontSize: '12px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.background = `${b.color}20`; e.currentTarget.style.borderColor = b.color; }}
-                  onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.borderColor = `${b.color}40`; }}
-                >
-                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#fff', fontWeight: 'bold' }}>
-                    {b.id.substring(0, 2).toUpperCase()}
-                  </div>
-                  {b.name}
-                </button>
-              ))}
+              {COMMON_BANKS
+                .filter((b) =>
+                  !bankSearchQuery ||
+                  b.name.toLowerCase().includes(bankSearchQuery.toLowerCase()) ||
+                  b.shortName.toLowerCase().includes(bankSearchQuery.toLowerCase()) ||
+                  b.id.toLowerCase().includes(bankSearchQuery.toLowerCase())
+                )
+                .map((b) => (
+                  <button
+                    key={b.id}
+                    onClick={() => executeFastTransfer(b.id)}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: `1px solid ${b.color}45`,
+                      padding: '10px 6px',
+                      borderRadius: '12px',
+                      color: '#fff',
+                      fontWeight: 600,
+                      fontSize: '11.5px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '5px'
+                    }}
+                    onMouseOver={(e) => { e.currentTarget.style.background = `${b.color}25`; e.currentTarget.style.borderColor = b.color; }}
+                    onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.borderColor = `${b.color}45`; }}
+                  >
+                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10.5px', color: '#fff', fontWeight: 800, boxShadow: `0 2px 8px ${b.color}60` }}>
+                      {b.shortName.substring(0, 3)}
+                    </div>
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>{b.name}</span>
+                  </button>
+                ))}
             </div>
-            
+
             <button
               onClick={() => setShowBankSelector(false)}
               style={{
-                marginTop: '24px',
+                marginTop: '16px',
                 background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: '#fff',
-                padding: '10px 24px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                color: '#94a3b8',
+                padding: '8px 22px',
                 borderRadius: '10px',
                 cursor: 'pointer',
-                fontSize: '13px'
+                fontSize: '12.5px',
+                fontWeight: 600
               }}
             >
               {lang === 'vi' ? '✕ Đóng' : '✕ Close'}
