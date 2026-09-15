@@ -16,6 +16,8 @@ const CouponsPage = lazy(() => import('../pages/admin/CouponsPage').then((m) => 
 const ConfigPage = lazy(() => import('../pages/admin/ConfigPage').then((m) => ({ default: m.ConfigPage })));
 const LogsPage = lazy(() => import('../pages/admin/LogsPage').then((m) => ({ default: m.LogsPage })));
 const AdminFeedbackPage = lazy(() => import('../pages/admin/AdminFeedbackPage').then((m) => ({ default: m.AdminFeedbackPage })));
+const FreeNotesPage = lazy(() => import('../pages/admin/FreeNotesPage').then((m) => ({ default: m.FreeNotesPage })));
+const FreeKeyNotePage = lazy(() => import('../pages/FreeKeyNotePage').then((m) => ({ default: m.FreeKeyNotePage })));
 
 export function PageLoader() {
   return (
@@ -116,6 +118,20 @@ export function AppRoutes({
           }
         />
 
+        {/* PUBLIC FREE KEY NOTE ROUTE */}
+        <Route
+          path="/note/:slug"
+          element={
+            <FreeKeyNotePage
+              config={config}
+              lang={lang}
+              dark={dark}
+              setDark={setDark}
+              showToast={showToast}
+            />
+          }
+        />
+
         {/* ADMIN LOGIN ROUTE */}
         <Route
           path="/admin/login"
@@ -174,6 +190,16 @@ export function AppRoutes({
               path="keys"
               element={
                 <KeysPage
+                  lang={lang}
+                  apps={apps}
+                  showToast={showToast}
+                />
+              }
+            />
+            <Route
+              path="notes"
+              element={
+                <FreeNotesPage
                   lang={lang}
                   apps={apps}
                   showToast={showToast}

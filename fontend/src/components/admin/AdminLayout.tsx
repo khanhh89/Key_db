@@ -91,6 +91,8 @@ export function AdminLayout({ lang, config, onLogout, showToast }: AdminLayoutPr
         return lang === 'vi' ? 'Quản Lý Dịch Vụ & Truyền Thông' : 'Services & Media Manager';
       case '/admin/keys':
         return lang === 'vi' ? 'Quản Lý Kho Key Bản Quyền' : 'Keys Inventory Manager';
+      case '/admin/notes':
+        return lang === 'vi' ? 'Quản Lý Trang Note Key Free' : 'Free Key Notes Manager';
       case '/admin/orders':
         return lang === 'vi' ? 'Quản Lý Đơn Hàng & VietQR Auto Payment' : 'Orders & VietQR Payment Manager';
       case '/admin/config':
@@ -179,6 +181,16 @@ export function AdminLayout({ lang, config, onLogout, showToast }: AdminLayoutPr
             }
           >
             🔑 {lang === 'vi' ? 'Kho Key Bản Quyền' : 'Keys Inventory'}
+          </NavLink>
+
+          <NavLink
+            to="/admin/notes"
+            onClick={() => setIsSidebarOpen(false)}
+            className={({ isActive }) =>
+              `sidebar-nav-item ${isActive ? 'active' : ''}`
+            }
+          >
+            📝 {lang === 'vi' ? 'Note Key Free' : 'Free Key Notes'}
           </NavLink>
 
           <NavLink

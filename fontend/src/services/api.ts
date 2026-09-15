@@ -9,3 +9,4 @@ export * from './keysApi';
 export * from './bankApi';
 export * from './couponsApi';
 export * from './feedbackApi';
+export * from './freeNotesApi';

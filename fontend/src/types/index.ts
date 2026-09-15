@@ -156,3 +156,28 @@ export interface FeedbackCreatePayload {
   contactInfo?: string;
   attachmentUrls?: string[];
 }
+
+export interface FreeKeyNoteItem {
+  id: string;
+  slug: string;
+  title: string;
+  description?: string;
+  appId?: string;
+  appName?: string;
+  appIcon?: string;
+  downloadUrl?: string;
+  ipaUrl?: string;
+  keysContent?: string;
+  keysList?: string[];
+  keyCount: number;
+  hasPassword?: boolean;
+  password?: string;
+  maxViews?: number;
+  viewCount: number;
+  active: boolean;
+  expiresAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  status?: 'ACTIVE' | 'EXPIRED' | 'LIMIT_REACHED' | 'LOCKED' | 'INACTIVE' | 'NOT_FOUND';
+  message?: string;
+}
