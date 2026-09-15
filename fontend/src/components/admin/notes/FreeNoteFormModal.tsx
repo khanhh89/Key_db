@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import type { FreeKeyNoteItem, AppItem, Language } from '../../../types';
+import type { FreeKeyNoteItem, AppItem, Language, SystemConfig } from '../../../types';
 import { ModalPortal } from '../../common/ModalPortal';
 import { saveAdminNoteToBackend } from '../../../services/api';
 
@@ -9,6 +9,7 @@ interface FreeNoteFormModalProps {
   editingNote: FreeKeyNoteItem | null;
   apps: AppItem[];
   lang: Language;
+  config?: SystemConfig;
   showToast: (msg: string) => void;
   onSaved: (savedNote?: FreeKeyNoteItem) => Promise<void>;
 }
@@ -19,9 +20,21 @@ export function FreeNoteFormModal({
   editingNote,
   apps,
   lang,
+  config,
   showToast,
   onSaved
 }: FreeNoteFormModalProps) {
+  const getBaseUrl = () => {
+    if (config?.domain && config.domain.trim()) {
+      let d = config.domain.trim();
+      if (!d.startsWith('http://') && !d.startsWith('https://')) {
+        d = `https://${d}`;
+      }
+      return d.replace(/\/+$/, '');
+    }
+    return window.location.origin;
+  };
+
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [appId, setAppId] = useState<string>('');
