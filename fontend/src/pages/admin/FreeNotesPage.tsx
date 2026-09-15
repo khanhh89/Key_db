@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { FreeKeyNoteItem, AppItem, Language } from '../../types';
+import type { FreeKeyNoteItem, AppItem, Language, SystemConfig } from '../../types';
 import {
   fetchAdminNotesFromBackend,
   deleteAdminNoteFromBackend,
@@ -12,10 +12,22 @@ import { FreeNoteFormModal } from '../../components/admin/notes/FreeNoteFormModa
 interface FreeNotesPageProps {
   lang: Language;
   apps: AppItem[];
+  config?: SystemConfig;
   showToast: (msg: string) => void;
 }
 
-export function FreeNotesPage({ lang, apps, showToast }: FreeNotesPageProps) {
+export function FreeNotesPage({ lang, apps, config, showToast }: FreeNotesPageProps) {
+  const getBaseUrl = () => {
+    if (config?.domain && config.domain.trim()) {
+      let d = config.domain.trim();
+      if (!d.startsWith('http://') && !d.startsWith('https://')) {
+        d = `https://${d}`;
+      }
+      return d.replace(/\/+$/, '');
+    }
+    return window.location.origin;
+  };
+
   const [notes, setNotes] = useState<FreeKeyNoteItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -84,7 +96,7 @@ export function FreeNotesPage({ lang, apps, showToast }: FreeNotesPageProps) {
   };
 
   const copyNoteUrl = (slug: string) => {
-    const fullUrl = `${window.location.origin}/note/${slug}`;
+    const fullUrl = `${getBaseUrl()}/note/${slug}`;
     navigator.clipboard.writeText(fullUrl);
     showToast(
       lang === 'vi'
@@ -563,6 +575,7 @@ export function FreeNotesPage({ lang, apps, showToast }: FreeNotesPageProps) {
         editingNote={editingNote}
         apps={apps}
         lang={lang}
+        config={config}
         showToast={showToast}
         onSaved={async () => {
           await loadNotes();

@@ -202,6 +202,7 @@ export function AppRoutes({
                 <FreeNotesPage
                   lang={lang}
                   apps={apps}
+                  config={config}
                   showToast={showToast}
                 />
               }
