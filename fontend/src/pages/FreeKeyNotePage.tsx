@@ -479,7 +479,6 @@ export function FreeKeyNotePage({
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px', color: 'var(--text-muted-dark)' }}>
-                  <span>👁️ {note.viewCount} {lang === 'vi' ? 'lượt xem' : 'views'}</span>
                   {timeLeftStr && (
                     <span
                       style={{
@@ -501,8 +500,143 @@ export function FreeKeyNotePage({
                 {note.title}
               </h1>
 
-              {/* LINKED APP CARD (IF ANY) */}
-              {note.appName && (
+              {/* LINKED APPS LIST (SUPPORTS MULTIPLE APPS) */}
+              {note.linkedApps && note.linkedApps.length > 0 ? (
+                <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted-dark)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>
+                    📱 {lang === 'vi' ? `ỨNG DỤNG ÁP DỤNG (${note.linkedApps.length}):` : `APPLIED APPS (${note.linkedApps.length}):`}
+                  </div>
+                  {note.linkedApps.map((appItem) => {
+                    const isIos = appItem.platform === 'ios' || (!appItem.downloadUrl && Boolean(appItem.ipaUrl));
+                    const isAndroid = appItem.platform === 'android' || (!appItem.ipaUrl && Boolean(appItem.downloadUrl));
+
+                    return (
+                      <div
+                        key={appItem.id}
+                        style={{
+                          padding: '12px 16px',
+                          borderRadius: '12px',
+                          background: dark ? 'rgba(15, 23, 42, 0.5)' : 'rgba(241, 245, 249, 0.8)',
+                          border: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          flexWrap: 'wrap',
+                          gap: '12px'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          {appItem.icon && (
+                            <img
+                              src={appItem.icon}
+                              alt=""
+                              style={{ width: '38px', height: '38px', borderRadius: '10px', objectFit: 'cover' }}
+                            />
+                          )}
+                          <div>
+                            <div style={{ fontSize: '14px', fontWeight: 700 }}>
+                              {appItem.name}
+                            </div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted-dark)' }}>
+                              {appItem.platform === 'ios' ? '🍎 Bản Mod iOS' : appItem.platform === 'android' ? '🤖 Bản Mod Android' : '⚡ Hỗ trợ Đa nền tảng'}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* DOWNLOAD BUTTON FOR THIS APP */}
+                        {isIos && appItem.ipaUrl && (
+                          <a
+                            href={appItem.ipaUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              padding: '7px 14px',
+                              borderRadius: '9px',
+                              background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(147, 51, 234, 0.3) 100%)',
+                              color: '#c084fc',
+                              border: '1px solid rgba(168, 85, 247, 0.4)',
+                              fontSize: '12.5px',
+                              fontWeight: 700,
+                              textDecoration: 'none',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '5px'
+                            }}
+                          >
+                            🍏 {lang === 'vi' ? 'Tải iOS (IPA)' : 'Download iOS'}
+                          </a>
+                        )}
+
+                        {isAndroid && appItem.downloadUrl && (
+                          <a
+                            href={appItem.downloadUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              padding: '7px 14px',
+                              borderRadius: '9px',
+                              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(2, 132, 199, 0.3) 100%)',
+                              color: '#38bdf8',
+                              border: '1px solid rgba(56, 189, 248, 0.4)',
+                              fontSize: '12.5px',
+                              fontWeight: 700,
+                              textDecoration: 'none',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '5px'
+                            }}
+                          >
+                            📥 {lang === 'vi' ? 'Tải Android (APK)' : 'Download APK'}
+                          </a>
+                        )}
+
+                        {!isIos && !isAndroid && (appItem.downloadUrl || appItem.ipaUrl) && (
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            {appItem.downloadUrl && (
+                              <a
+                                href={appItem.downloadUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                style={{
+                                  padding: '6px 12px',
+                                  borderRadius: '8px',
+                                  background: 'rgba(56, 189, 248, 0.15)',
+                                  color: '#38bdf8',
+                                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                                  fontSize: '12px',
+                                  fontWeight: 600,
+                                  textDecoration: 'none'
+                                }}
+                              >
+                                📥 Tải APK
+                              </a>
+                            )}
+                            {appItem.ipaUrl && (
+                              <a
+                                href={appItem.ipaUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                style={{
+                                  padding: '6px 12px',
+                                  borderRadius: '8px',
+                                  background: 'rgba(168, 85, 247, 0.15)',
+                                  color: '#c084fc',
+                                  border: '1px solid rgba(168, 85, 247, 0.3)',
+                                  fontSize: '12px',
+                                  fontWeight: 600,
+                                  textDecoration: 'none'
+                                }}
+                              >
+                                🍏 Tải IPA
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : note.appName ? (
                 <div
                   style={{
                     marginTop: '16px',
@@ -535,56 +669,67 @@ export function FreeKeyNotePage({
                     </div>
                   </div>
 
-                  {(note.downloadUrl || note.ipaUrl) && (
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      {note.downloadUrl && (
-                        <a
-                          href={note.downloadUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            padding: '6px 12px',
-                            borderRadius: '8px',
-                            background: 'rgba(56, 189, 248, 0.15)',
-                            color: '#38bdf8',
-                            border: '1px solid rgba(56, 189, 248, 0.3)',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            textDecoration: 'none',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          📥 {lang === 'vi' ? 'Tải APK / Android' : 'Download APK'}
-                        </a>
-                      )}
-                      {note.ipaUrl && (
+                  {/* DEDICATED APP DOWNLOAD BUTTON */}
+                  {(() => {
+                    const isIos = note.platform === 'ios' || (!note.downloadUrl && Boolean(note.ipaUrl));
+                    const isAndroid = note.platform === 'android' || (!note.ipaUrl && Boolean(note.downloadUrl));
+
+                    if (isIos && note.ipaUrl) {
+                      return (
                         <a
                           href={note.ipaUrl}
                           target="_blank"
                           rel="noreferrer"
                           style={{
-                            padding: '6px 12px',
-                            borderRadius: '8px',
-                            background: 'rgba(168, 85, 247, 0.15)',
+                            padding: '8px 14px',
+                            borderRadius: '10px',
+                            background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(147, 51, 234, 0.3) 100%)',
                             color: '#c084fc',
-                            border: '1px solid rgba(168, 85, 247, 0.3)',
-                            fontSize: '12px',
-                            fontWeight: 600,
+                            border: '1px solid rgba(168, 85, 247, 0.4)',
+                            fontSize: '13px',
+                            fontWeight: 700,
                             textDecoration: 'none',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '4px'
+                            gap: '6px',
+                            boxShadow: '0 2px 10px rgba(168, 85, 247, 0.2)'
                           }}
                         >
-                          🍏 {lang === 'vi' ? 'Tải IPA / iOS' : 'Download IPA'}
+                          🍏 {lang === 'vi' ? 'Tải Ứng Dụng (iOS IPA)' : 'Download for iOS'}
                         </a>
-                      )}
-                    </div>
-                  )}
+                      );
+                    }
+
+                    if (isAndroid && note.downloadUrl) {
+                      return (
+                        <a
+                          href={note.downloadUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            padding: '8px 14px',
+                            borderRadius: '10px',
+                            background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(2, 132, 199, 0.3) 100%)',
+                            color: '#38bdf8',
+                            border: '1px solid rgba(56, 189, 248, 0.4)',
+                            fontSize: '13px',
+                            fontWeight: 700,
+                            textDecoration: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            boxShadow: '0 2px 10px rgba(56, 189, 248, 0.2)'
+                          }}
+                        >
+                          📥 {lang === 'vi' ? 'Tải Ứng Dụng (Android APK)' : 'Download for Android'}
+                        </a>
+                      );
+                    }
+
+                    return null;
+                  })()}
                 </div>
-              )}
+              ) : null}
             </div>
 
             {/* FREE KEYS BOX */}

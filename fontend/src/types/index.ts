@@ -167,6 +167,9 @@ export interface FreeKeyNoteItem {
   appIcon?: string;
   downloadUrl?: string;
   ipaUrl?: string;
+  platform?: 'android' | 'ios' | 'both';
+  linkedApps?: LinkedAppItem[];
+  appIds?: string[];
   keysContent?: string;
   keysList?: string[];
   keyCount: number;
@@ -180,4 +183,13 @@ export interface FreeKeyNoteItem {
   updatedAt?: string;
   status?: 'ACTIVE' | 'EXPIRED' | 'LIMIT_REACHED' | 'LOCKED' | 'INACTIVE' | 'NOT_FOUND';
   message?: string;
+}
+
+export interface LinkedAppItem {
+  id: string;
+  name: string;
+  icon?: string;
+  downloadUrl?: string;
+  ipaUrl?: string;
+  platform?: 'android' | 'ios' | 'both';
 }

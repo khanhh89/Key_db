@@ -50,10 +50,40 @@ public class FreeKeyNoteService {
         FreeKeyNoteEntity note = optNote.get();
         LocalDateTime now = LocalDateTime.now(VN_ZONE);
 
-        // Fetch App info if associated
-        AppItemEntity app = null;
+        // Fetch Linked Apps info (supports multiple comma-separated app IDs)
+        List<FreeKeyNotePublicDTO.LinkedAppDTO> linkedApps = new ArrayList<>();
         if (note.getAppId() != null && !note.getAppId().trim().isEmpty()) {
-            app = appRepository.findById(note.getAppId()).orElse(null);
+            List<String> appIds = Arrays.stream(note.getAppId().split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+
+            if (!appIds.isEmpty()) {
+                List<AppItemEntity> appList = appRepository.findAllById(appIds);
+                for (AppItemEntity a : appList) {
+                    String dUrl = null;
+                    String iUrl = null;
+                    String pForm = a.getPlatform();
+
+                    if ("ios".equalsIgnoreCase(pForm)) {
+                        iUrl = a.getIpaUrl();
+                    } else if ("android".equalsIgnoreCase(pForm)) {
+                        dUrl = a.getDownloadUrl();
+                    } else {
+                        dUrl = a.getDownloadUrl();
+                        iUrl = a.getIpaUrl();
+                    }
+
+                    linkedApps.add(FreeKeyNotePublicDTO.LinkedAppDTO.builder()
+                            .id(a.getId())
+                            .name(a.getName())
+                            .icon(a.getIcon())
+                            .downloadUrl(dUrl)
+                            .ipaUrl(iUrl)
+                            .platform(pForm)
+                            .build());
+                }
+            }
         }
 
         // Base DTO builder
@@ -62,16 +92,22 @@ public class FreeKeyNoteService {
                 .slug(note.getSlug())
                 .title(note.getTitle())
                 .appId(note.getAppId())
-                .appName(app != null ? app.getName() : null)
-                .appIcon(app != null ? app.getIcon() : null)
-                .downloadUrl(app != null ? app.getDownloadUrl() : null)
-                .ipaUrl(app != null ? app.getIpaUrl() : null)
+                .linkedApps(linkedApps)
                 .keyCount(note.getKeyCount())
                 .hasPassword(note.getPassword() != null && !note.getPassword().trim().isEmpty())
                 .maxViews(note.getMaxViews())
                 .viewCount(note.getViewCount())
                 .expiresAt(note.getExpiresAt())
                 .createdAt(note.getCreatedAt());
+
+        if (!linkedApps.isEmpty()) {
+            FreeKeyNotePublicDTO.LinkedAppDTO first = linkedApps.get(0);
+            dtoBuilder.appName(first.getName())
+                    .appIcon(first.getIcon())
+                    .downloadUrl(first.getDownloadUrl())
+                    .ipaUrl(first.getIpaUrl())
+                    .platform(first.getPlatform());
+        }
 
         // 1. Check Active
         if (Boolean.FALSE.equals(note.getActive())) {
@@ -177,10 +213,19 @@ public class FreeKeyNoteService {
             map.put("createdAt", n.getCreatedAt());
             map.put("updatedAt", n.getUpdatedAt());
 
-            if (n.getAppId() != null && appMap.containsKey(n.getAppId())) {
-                AppItemEntity a = appMap.get(n.getAppId());
-                map.put("appName", a.getName());
-                map.put("appIcon", a.getIcon());
+            if (n.getAppId() != null && !n.getAppId().trim().isEmpty()) {
+                List<String> appIds = Arrays.stream(n.getAppId().split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+                List<String> names = appIds.stream()
+                        .map(id -> appMap.containsKey(id) ? appMap.get(id).getName() : id)
+                        .collect(Collectors.toList());
+                map.put("appName", String.join(", ", names));
+                map.put("appIds", appIds);
+                if (!appIds.isEmpty() && appMap.containsKey(appIds.get(0))) {
+                    map.put("appIcon", appMap.get(appIds.get(0)).getIcon());
+                }
             }
 
             return map;

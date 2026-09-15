@@ -45,7 +45,7 @@ export function FreeNoteFormModal({
 
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
-  const [appId, setAppId] = useState<string>('');
+  const [selectedAppIds, setSelectedAppIds] = useState<string[]>([]);
   const [keysContent, setKeysContent] = useState('');
   const [description, setDescription] = useState('');
   const [password, setPassword] = useState('');
@@ -69,7 +69,10 @@ export function FreeNoteFormModal({
       if (editingNote) {
         setTitle(editingNote.title || '');
         setSlug(editingNote.slug || '');
-        setAppId(editingNote.appId || '');
+        const ids = editingNote.appId
+          ? editingNote.appId.split(',').map((s) => s.trim()).filter(Boolean)
+          : [];
+        setSelectedAppIds(ids);
         setKeysContent(editingNote.keysContent || '');
         setDescription(editingNote.description || '');
         setPassword(editingNote.password || '');
@@ -88,7 +91,7 @@ export function FreeNoteFormModal({
       } else {
         setTitle('');
         setSlug(generateRandomSlug());
-        setAppId('');
+        setSelectedAppIds([]);
         setKeysContent('');
         setDescription(
           `💡 Hướng dẫn kích hoạt Key:\n1. Mở ứng dụng và chọn mục Đăng nhập/Kích hoạt Bản quyền.\n2. Dán mã Key được cấp ở trên vào ô tương ứng.\n3. Nhấn Xác nhận để bắt đầu sử dụng.\n\n⚠️ Lưu ý: Mỗi mã Key chỉ kích hoạt trên 1 thiết bị.`
@@ -113,6 +116,20 @@ export function FreeNoteFormModal({
 
   const handleRandomSlug = () => {
     setSlug(generateRandomSlug());
+  };
+
+  const toggleAppSelection = (id: string) => {
+    setSelectedAppIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAllApps = () => {
+    setSelectedAppIds(apps.map((a) => a.id));
+  };
+
+  const handleDeselectAllApps = () => {
+    setSelectedAppIds([]);
   };
 
   // Count lines of keys
@@ -201,7 +218,7 @@ export function FreeNoteFormModal({
         id: editingNote?.id,
         title: title.trim(),
         slug: slug.trim().toLowerCase(),
-        appId: appId || undefined,
+        appId: selectedAppIds.length > 0 ? selectedAppIds.join(',') : undefined,
         keysContent: keysContent.trim(),
         description: description.trim(),
         password: password.trim() || undefined,
@@ -244,9 +261,6 @@ export function FreeNoteFormModal({
   };
 
   if (!isOpen) return null;
-
-  // Selected App Info for preview
-  const selectedApp = apps.find((a) => a.id === appId);
 
   // VIEW AFTER CREATED (SUCCESS POPUP)
   if (createdNoteInfo) {
@@ -706,45 +720,131 @@ export function FreeNoteFormModal({
                 </div>
               </div>
 
-              {/* CHỌN APP LIÊN KẾT */}
+              {/* CHỌN NHIỀU APP LIÊN KẾT */}
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#cbd5e1', marginBottom: '6px' }}>
-                  📱 {lang === 'vi' ? 'Ứng Dụng Liên Kết (Tùy chọn)' : 'Linked App (Optional)'}
-                </label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  {selectedApp?.icon && (
-                    <img
-                      src={selectedApp.icon}
-                      alt=""
-                      style={{ width: '36px', height: '36px', borderRadius: '8px', objectFit: 'cover' }}
-                    />
-                  )}
-                  <select
-                    value={appId}
-                    onChange={(e) => setAppId(e.target.value)}
-                    style={{
-                      flex: 1,
-                      padding: '12px 14px',
-                      borderRadius: '12px',
-                      border: '1px solid #1e293b',
-                      background: '#080c14',
-                      color: '#fff',
-                      fontSize: '13.5px',
-                      outline: 'none'
-                    }}
-                  >
-                    <option value="">{lang === 'vi' ? '-- Dùng chung / Không gắn app cụ thể --' : '-- General / No specific app --'}</option>
-                    {apps.map((app) => (
-                      <option key={app.id} value={app.id}>
-                        {app.name} ({app.cls})
-                      </option>
-                    ))}
-                  </select>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: '#cbd5e1' }}>
+                    📱 {lang === 'vi' ? 'Ứng Dụng Áp Dụng (Chọn 1 hoặc nhiều app)' : 'Linked Apps (Multi-select)'}
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={handleSelectAllApps}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#38bdf8',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        fontWeight: 600
+                      }}
+                    >
+                      {lang === 'vi' ? 'Chọn tất cả' : 'Select all'}
+                    </button>
+                    <span style={{ color: '#475569', fontSize: '11px' }}>•</span>
+                    <button
+                      type="button"
+                      onClick={handleDeselectAllApps}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#94a3b8',
+                        fontSize: '11px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {lang === 'vi' ? 'Bỏ chọn' : 'Clear'}
+                    </button>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: '10px',
+                        background: selectedAppIds.length > 0 ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.06)',
+                        color: selectedAppIds.length > 0 ? '#38bdf8' : '#94a3b8',
+                        marginLeft: '4px'
+                      }}
+                    >
+                      {selectedAppIds.length > 0
+                        ? (lang === 'vi' ? `Đã chọn: ${selectedAppIds.length} app` : `Selected: ${selectedAppIds.length}`)
+                        : (lang === 'vi' ? 'Dùng chung (0)' : 'General (0)')}
+                    </span>
+                  </div>
                 </div>
-                <span style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px', display: 'block' }}>
+
+                {/* APPS MULTI-SELECT GRID */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                    gap: '8px',
+                    maxHeight: '180px',
+                    overflowY: 'auto',
+                    padding: '4px',
+                    background: '#080c14',
+                    border: '1px solid #1e293b',
+                    borderRadius: '12px'
+                  }}
+                >
+                  {apps.map((app) => {
+                    const isSelected = selectedAppIds.includes(app.id);
+                    return (
+                      <div
+                        key={app.id}
+                        onClick={() => toggleAppSelection(app.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '8px 10px',
+                          borderRadius: '10px',
+                          background: isSelected ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                          border: isSelected ? '1.5px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.06)',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                          userSelect: 'none'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {}}
+                          style={{ accentColor: '#38bdf8', width: '15px', height: '15px', cursor: 'pointer' }}
+                        />
+                        {app.icon && (
+                          <img
+                            src={app.icon}
+                            alt=""
+                            style={{ width: '24px', height: '24px', borderRadius: '6px', objectFit: 'cover' }}
+                          />
+                        )}
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div
+                            style={{
+                              fontSize: '12px',
+                              fontWeight: isSelected ? 700 : 500,
+                              color: isSelected ? '#38bdf8' : '#e2e8f0',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis'
+                            }}
+                          >
+                            {app.name}
+                          </div>
+                          <div style={{ fontSize: '10px', color: '#94a3b8' }}>
+                            {app.platform === 'ios' ? '🍏 iOS' : app.platform === 'android' ? '🤖 Android' : '⚡ Đa nền tảng'}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <span style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px', display: 'block' }}>
                   {lang === 'vi'
-                    ? 'Nếu chọn app, trang note sẽ tự động hiển thị logo, tên và nút tải ứng dụng đó.'
-                    : 'If selected, the note page displays the app logo and download link.'}
+                    ? '💡 Bạn có thể tick chọn nhiều ứng dụng cùng lúc. Người dùng sẽ thấy đầy đủ danh sách các app và link tải tương ứng.'
+                    : '💡 You can select multiple apps. The note page will display all selected apps and their download links.'}
                 </span>
               </div>
             </div>

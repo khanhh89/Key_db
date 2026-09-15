@@ -22,6 +22,7 @@ public class FreeKeyNotePublicDTO {
     private String appIcon;
     private String downloadUrl;
     private String ipaUrl;
+    private String platform;
     private String keysContent;
     private List<String> keysList;
     private Integer keyCount;
@@ -32,4 +33,18 @@ public class FreeKeyNotePublicDTO {
     private LocalDateTime createdAt;
     private String status; // ACTIVE, LOCKED, EXPIRED, LIMIT_REACHED, INACTIVE
     private String message;
+    private List<LinkedAppDTO> linkedApps;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class LinkedAppDTO {
+        private String id;
+        private String name;
+        private String icon;
+        private String downloadUrl;
+        private String ipaUrl;
+        private String platform;
+    }
 }
