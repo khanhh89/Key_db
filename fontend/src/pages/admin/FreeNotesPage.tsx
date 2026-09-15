@@ -18,7 +18,15 @@ interface FreeNotesPageProps {
 
 export function FreeNotesPage({ lang, apps, config, showToast }: FreeNotesPageProps) {
   const getBaseUrl = () => {
-    if (config?.domain && config.domain.trim()) {
+    // 1. Nếu đang chạy trên web thật (không phải localhost), luôn dùng chính xác domain thật đang chạy (vd: https://key-db.vercel.app)
+    if (typeof window !== 'undefined' && window.location.origin) {
+      const hostname = window.location.hostname;
+      if (hostname && !hostname.includes('localhost') && !hostname.includes('127.0.0.1')) {
+        return window.location.origin;
+      }
+    }
+    // 2. Nếu đang ở localhost nhưng admin có cấu hình domain hợp lệ có dấu chấm (vd: key-db.vercel.app)
+    if (config?.domain && config.domain.trim() && config.domain.includes('.')) {
       let d = config.domain.trim();
       if (!d.startsWith('http://') && !d.startsWith('https://')) {
         d = `https://${d}`;
