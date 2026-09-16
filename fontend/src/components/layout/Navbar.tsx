@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Language, SystemConfig } from '../../types';
 import { getTranslation } from '../../data/translations';
@@ -16,7 +16,6 @@ interface NavbarProps {
 export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: NavbarProps) {
   const navigate = useNavigate();
   const t = getTranslation(lang).nav;
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Secret keyboard shortcut: Ctrl + Shift + A (Admin Portal), Ctrl + K (Order Lookup)
   useEffect(() => {
@@ -33,17 +32,6 @@ export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: N
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [navigate, onOpenLookup]);
 
-  // Close mobile menu when screen resizes to desktop width
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 768) {
-        setMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   // Dynamically update browser tab favicon icon
   useEffect(() => {
     if (config?.faviconUrl) {
@@ -59,7 +47,6 @@ export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: N
 
   const handleOpenLookup = () => {
     trackClientEvent('CLIENT_OPEN_ORDER_LOOKUP', 'Khách hàng mở modal Tra Cứu Đơn Hàng từ thanh Menu Navbar');
-    setMobileMenuOpen(false);
     onOpenLookup();
   };
 
@@ -73,10 +60,8 @@ export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: N
     setDark(!dark);
   };
 
-  const closeMobileMenu = () => setMobileMenuOpen(false);
-
   return (
-    <header className={`navbar-wrap ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+    <header className="navbar-wrap">
       <nav className="navbar">
         <div className="nav-brand-container">
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -114,7 +99,7 @@ export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: N
                 ●
               </span>
             )}
-            <a className="nav-logo" href="#about" onClick={closeMobileMenu}>
+            <a className="nav-logo" href="#about">
               <span className="brand-title">{config.brandName || 'MOD VIP STORE'}</span>
             </a>
           </div>
@@ -170,74 +155,8 @@ export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: N
             🔍 <span className="btn-txt">{lang === 'vi' ? 'Tra Cứu Key' : 'Lookup Key'}</span>
             <kbd className="nav-kbd">Ctrl+K</kbd>
           </button>
-
-          {/* Hamburger button for mobile screens */}
-          <button
-            className="nav-hamburger-btn"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Navigation Menu"
-          >
-            {mobileMenuOpen ? '✕' : '☰'}
-          </button>
         </div>
       </nav>
-
-      {/* Mobile Menu Overlay Drawer */}
-      {mobileMenuOpen && (
-        <div className="mobile-menu-drawer">
-          <div className="mobile-menu-header">
-            <span className="mobile-menu-badge">⚡ MENU HỆ THỐNG</span>
-            <span className="mobile-menu-sub">{config.brandName || 'MOD VIP STORE'}</span>
-          </div>
-
-          <ul className="mobile-nav-links">
-            <li>
-              <a href="#about" onClick={closeMobileMenu}>
-                <span className="link-title">🏠 {t.home}</span>
-                <span className="link-arrow">›</span>
-              </a>
-            </li>
-            <li>
-              <a href="#links" onClick={closeMobileMenu}>
-                <span className="link-title">🌐 {t.services}</span>
-                <span className="link-arrow">›</span>
-              </a>
-            </li>
-            <li>
-              <a href="#apps" onClick={closeMobileMenu}>
-                <span className="link-title">📱 {t.apps}</span>
-                <span className="link-arrow">›</span>
-              </a>
-            </li>
-            <li>
-              <a href="#footer" onClick={closeMobileMenu}>
-                <span className="link-title">📜 {t.terms}</span>
-                <span className="link-arrow">›</span>
-              </a>
-            </li>
-          </ul>
-
-          <div className="mobile-menu-actions">
-            <div className="mobile-lang-box">
-              <span className="mobile-lang-label">🌐 {lang === 'vi' ? 'Ngôn ngữ' : 'Language'}</span>
-              <div className="mobile-lang-buttons">
-                <button
-                  className={lang === 'vi' ? 'active' : ''}
-                  onClick={() => handleSetLang('vi')}
-                >
-                  🇻🇳 Tiếng Việt
-                </button>
-                <button
-                  className={lang === 'en' ? 'active' : ''}
-                  onClick={() => handleSetLang('en')}
-                >
-                  🇺🇸 English
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 }
