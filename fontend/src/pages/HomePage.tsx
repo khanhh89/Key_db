@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { AppItem, ServiceItem, SystemConfig, LightboxItem, Language, OrderItem } from '../types';
-import { trackClientEvent, getLocalOrders, saveLocalOrder, API_BASE_URL } from '../services/api';
+import { trackClientEvent, getLocalOrders, saveLocalOrder, getLatestPaidOrder, API_BASE_URL } from '../services/api';
 import { CursorGlow } from '../components/common/CursorGlow';
 import { Navbar } from '../components/layout/Navbar';
 import { HeroSection } from '../components/sections/HeroSection';
@@ -59,6 +59,8 @@ export function HomePage({
 }: HomePageProps) {
   const [freeKeyApp, setFreeKeyApp] = useState<AppItem | null>(null);
   const [pendingDraftOrder, setPendingDraftOrder] = useState<OrderItem | null>(null);
+  const [recentPaidOrder, setRecentPaidOrder] = useState<OrderItem | null>(null);
+  const [lookupInitialCode, setLookupInitialCode] = useState<string>('');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isFeedbackHistoryOpen, setIsFeedbackHistoryOpen] = useState(false);
 
@@ -98,6 +100,12 @@ export function HomePage({
         .catch(() => {
           setPendingDraftOrder(activePending);
         });
+    }
+
+    // Check for recent paid order
+    const latestPaid = getLatestPaidOrder();
+    if (latestPaid) {
+      setRecentPaidOrder(latestPaid);
     }
   }, []);
 
@@ -193,6 +201,65 @@ export function HomePage({
         </div>
       )}
 
+      {/* Recent Paid Order Auto-Retrieve Notification Banner */}
+      {recentPaidOrder && !pendingDraftOrder && !buyApp && (
+        <div style={{
+          background: 'linear-gradient(90deg, #064e3b 0%, #065f46 50%, #022c22 100%)',
+          borderBottom: '1px solid #10b981',
+          padding: '10px 16px',
+          color: '#ffffff',
+          fontSize: '13px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+          zIndex: 1001,
+          position: 'relative',
+          boxShadow: '0 4px 15px rgba(16, 185, 129, 0.25)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+            <span style={{ fontSize: '18px' }}>🎉</span>
+            <span>
+              {lang === 'vi'
+                ? `Bạn có đơn hàng vừa mua: [${recentPaidOrder.appName}] (${recentPaidOrder.durationDays ? `${recentPaidOrder.durationDays} ngày` : 'VIP'}) • Key đã lưu an toàn trên máy!`
+                : `Recent order found: [${recentPaidOrder.appName}] • VIP Key is saved on device!`}
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button
+              onClick={() => {
+                setLookupInitialCode(recentPaidOrder.id || recentPaidOrder.paymentCode);
+                setIsLookupOpen(true);
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                color: '#ffffff',
+                border: 'none',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                fontWeight: 'bold',
+                fontSize: '12.5px',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              🔑 {lang === 'vi' ? 'Xem đơn hàng vừa mua' : 'View Recent Order'}
+            </button>
+            <button
+              onClick={() => setRecentPaidOrder(null)}
+              style={{ background: 'transparent', border: 'none', color: '#a7f3d0', cursor: 'pointer', fontSize: '15px' }}
+              title={lang === 'vi' ? 'Đóng' : 'Dismiss'}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 1. Cursor Spotlight Glow */}
       <CursorGlow />
 
@@ -235,6 +302,7 @@ export function HomePage({
             onClose={() => {
               setBuyApp(null);
               setInitialOrderForModal(null);
+              setRecentPaidOrder(getLatestPaidOrder());
             }}
             showToast={showToast}
           />
@@ -260,7 +328,12 @@ export function HomePage({
         {isLookupOpen && (
           <OrderLookupModal
             lang={lang}
-            onClose={() => setIsLookupOpen(false)}
+            initialCode={lookupInitialCode}
+            onClose={() => {
+              setIsLookupOpen(false);
+              setLookupInitialCode('');
+              setRecentPaidOrder(getLatestPaidOrder());
+            }}
             showToast={showToast}
           />
         )}

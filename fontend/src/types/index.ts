@@ -55,6 +55,9 @@ export interface SystemConfig {
   cloudinaryUploadPreset?: string;
   cloudinaryApiKey?: string;
   cloudinaryApiSecret?: string;
+  geminiApiKey?: string;
+  aiModel?: string;
+  aiCustomPrompt?: string;
 }
 
 

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Language, SystemConfig } from '../../types';
 import { getTranslation } from '../../data/translations';
-import { trackClientEvent } from '../../services/api';
+import { trackClientEvent, getLatestPaidOrder } from '../../services/api';
 
 interface NavbarProps {
   lang: Language;
@@ -151,8 +151,27 @@ export function Navbar({ lang, setLang, dark, setDark, config, onOpenLookup }: N
             {dark ? '☀' : '☾'}
           </button>
 
-          <button className="lookup-action-btn" onClick={handleOpenLookup}>
+          <button
+            className="lookup-action-btn"
+            onClick={handleOpenLookup}
+            title={lang === 'vi' ? 'Tra Cứu & Lấy Key VIP đã mua' : 'Lookup & View Purchased Keys'}
+            style={{ position: 'relative' }}
+          >
             🔍 <span className="btn-txt">{lang === 'vi' ? 'Tra Cứu Key' : 'Lookup Key'}</span>
+            {Boolean(getLatestPaidOrder()) && (
+              <span
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: '#10b981',
+                  boxShadow: '0 0 10px #10b981',
+                  display: 'inline-block',
+                  marginLeft: '4px'
+                }}
+                title={lang === 'vi' ? 'Có đơn hàng đã mua được lưu trên máy' : 'Saved order on this browser'}
+              />
+            )}
             <kbd className="nav-kbd">Ctrl+K</kbd>
           </button>
         </div>

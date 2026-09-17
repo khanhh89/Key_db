@@ -26,12 +26,28 @@ export function getLocalOrders(): OrderItem[] {
   }
 }
 
+export function getLatestPaidOrder(): OrderItem | null {
+  try {
+    const list = getLocalOrders();
+    const paid = list.find((o) => o.status === 'PAID');
+    if (paid) return paid;
+    const raw = localStorage.getItem('modlienquan_last_paid_order');
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 export function saveLocalOrder(order: OrderItem) {
   try {
     const current = getLocalOrders();
     const filtered = current.filter((o) => o.id !== order.id && o.paymentCode !== order.paymentCode);
     const updated = [order, ...filtered];
     localStorage.setItem('modlienquan_orders', JSON.stringify(updated));
+
+    if (order.status === 'PAID') {
+      localStorage.setItem('modlienquan_last_paid_order', JSON.stringify(order));
+    }
   } catch (e) {
     console.error('Failed to save order to localStorage', e);
   }

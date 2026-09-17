@@ -14,10 +14,11 @@ interface OrderLookupModalProps {
   lang: Language;
   onClose: () => void;
   showToast: (msg: string) => void;
+  initialCode?: string;
 }
 
-export function OrderLookupModal({ lang, onClose, showToast }: OrderLookupModalProps) {
-  const [searchCode, setSearchCode] = useState<string>('');
+export function OrderLookupModal({ lang, onClose, showToast, initialCode }: OrderLookupModalProps) {
+  const [searchCode, setSearchCode] = useState<string>(initialCode || '');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [orderResult, setOrderResult] = useState<OrderItem | null>(null);
   const [hasSearched, setHasSearched] = useState<boolean>(false);
@@ -41,7 +42,10 @@ export function OrderLookupModal({ lang, onClose, showToast }: OrderLookupModalP
 
   useEffect(() => {
     refreshDeviceOrders();
-  }, []);
+    if (initialCode) {
+      handleLookup(initialCode);
+    }
+  }, [initialCode]);
 
   const toggleShowSecret = (orderId: string) => {
     setShowSecrets((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
@@ -156,6 +160,78 @@ export function OrderLookupModal({ lang, onClose, showToast }: OrderLookupModalP
             {isLoading ? (lang === 'vi' ? '⏳ Đang tìm...' : '⏳ Searching...') : (lang === 'vi' ? '🔎 Tra Cứu' : '🔎 Search')}
           </button>
         </div>
+
+        {/* ⭐ Top 1-Click Quick Access Card for Latest Saved Order on this Device */}
+        {!hasSearched && localDeviceOrders.length > 0 && (
+          <div style={{
+            marginTop: '14px',
+            padding: '12px 14px',
+            borderRadius: '14px',
+            background: localDeviceOrders[0].status === 'PAID'
+              ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 78, 59, 0.35) 100%)'
+              : 'linear-gradient(135deg, rgba(234, 179, 8, 0.12) 0%, rgba(30, 41, 59, 0.4) 100%)',
+            border: localDeviceOrders[0].status === 'PAID'
+              ? '1.5px solid rgba(16, 185, 129, 0.45)'
+              : '1.5px solid rgba(234, 179, 8, 0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            flexWrap: 'wrap',
+            boxShadow: localDeviceOrders[0].status === 'PAID' ? '0 4px 15px rgba(16, 185, 129, 0.15)' : 'none'
+          }}>
+            <div style={{ flex: 1, minWidth: '180px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+                <span style={{ fontSize: '15px' }}>{localDeviceOrders[0].status === 'PAID' ? '⭐' : '⏳'}</span>
+                <span style={{
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  letterSpacing: '0.5px',
+                  color: localDeviceOrders[0].status === 'PAID' ? '#34d399' : '#facc15',
+                  textTransform: 'uppercase'
+                }}>
+                  {lang === 'vi'
+                    ? (localDeviceOrders[0].status === 'PAID' ? 'ĐƠN HÀNG VỪA MUA GẦN NHẤT' : 'ĐƠN HÀNG ĐANG CHỜ THANH TOÁN')
+                    : (localDeviceOrders[0].status === 'PAID' ? 'LATEST PURCHASED ORDER' : 'PENDING ORDER')}
+                </span>
+              </div>
+              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#f8fafc' }}>
+                {localDeviceOrders[0].appName} {localDeviceOrders[0].durationDays ? `(${localDeviceOrders[0].durationDays} ngày)` : ''}
+              </div>
+              <div style={{ fontSize: '11.5px', color: '#94a3b8', marginTop: '2px' }}>
+                Mã đơn: <code style={{ color: '#38bdf8', fontWeight: 600 }}>{localDeviceOrders[0].id}</code> • {localDeviceOrders[0].status === 'PAID' ? '✓ ĐÃ CẤP KEY VIP' : '⏳ CHỜ THANH TOÁN'}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                const targetCode = localDeviceOrders[0].id || localDeviceOrders[0].paymentCode;
+                setSearchCode(targetCode);
+                handleLookup(targetCode);
+              }}
+              style={{
+                background: localDeviceOrders[0].status === 'PAID'
+                  ? 'linear-gradient(135deg, #10b981, #059669)'
+                  : 'linear-gradient(135deg, #f59e0b, #d97706)',
+                color: '#ffffff',
+                border: 'none',
+                padding: '9px 16px',
+                borderRadius: '10px',
+                fontWeight: 'bold',
+                fontSize: '12.5px',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              🔑 {lang === 'vi' ? 'Xem Chi Tiết & Lấy Key ➔' : 'View Key & Details ➔'}
+            </button>
+          </div>
+        )}
 
         {/* Recent Search Chips */}
         {recentCodes.length > 0 && !hasSearched && (

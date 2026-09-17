@@ -87,6 +87,16 @@ public class SystemConfigController {
         config.setCloudinaryApiKey(configDetails.getCloudinaryApiKey());
         config.setCloudinaryApiSecret(configDetails.getCloudinaryApiSecret());
 
+        if (configDetails.getGeminiApiKey() != null && !configDetails.getGeminiApiKey().trim().isEmpty() && !configDetails.getGeminiApiKey().contains("••••")) {
+            config.setGeminiApiKey(configDetails.getGeminiApiKey().trim());
+        }
+        if (configDetails.getAiModel() != null && !configDetails.getAiModel().trim().isEmpty()) {
+            config.setAiModel(configDetails.getAiModel().trim());
+        }
+        if (configDetails.getAiCustomPrompt() != null) {
+            config.setAiCustomPrompt(configDetails.getAiCustomPrompt().trim());
+        }
+
         if (configDetails.getAdminUsername() != null && !configDetails.getAdminUsername().isEmpty()) {
             config.setAdminUsername(configDetails.getAdminUsername());
         }

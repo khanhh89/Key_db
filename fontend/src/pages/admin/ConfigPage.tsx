@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { SystemConfig, ContactChannel, Language } from '../../types';
-import { saveConfigToBackend, fetchAdminConfigFromBackend } from '../../services/api';
+import { saveConfigToBackend, fetchAdminConfigFromBackend, testGeminiApiKey } from '../../services/api';
 import { uploadToCloudinary } from '../../services/cloudinary';
 
 interface ConfigPageProps {
@@ -27,6 +27,10 @@ export function ConfigPage({
   const [cfgUploadPreset, setCfgUploadPreset] = useState(config.cloudinaryUploadPreset || '');
   const [cfgApiKey, setCfgApiKey] = useState(config.cloudinaryApiKey || '');
   const [cfgApiSecret, setCfgApiSecret] = useState(config.cloudinaryApiSecret || '');
+  const [cfgGeminiApiKey, setCfgGeminiApiKey] = useState(config.geminiApiKey || localStorage.getItem('modlienquan_gemini_api_key') || '');
+  const [cfgAiModel, setCfgAiModel] = useState(config.aiModel || 'gemini-3.5-flash');
+  const [showAiKey, setShowAiKey] = useState(false);
+  const [isTestingAiKey, setIsTestingAiKey] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
 
@@ -64,6 +68,8 @@ export function ConfigPage({
         setCfgUploadPreset(adminCfg.cloudinaryUploadPreset || '');
         setCfgApiKey(adminCfg.cloudinaryApiKey || '');
         setCfgApiSecret(adminCfg.cloudinaryApiSecret || '');
+        setCfgGeminiApiKey(adminCfg.geminiApiKey || localStorage.getItem('modlienquan_gemini_api_key') || '');
+        setCfgAiModel(adminCfg.aiModel || 'gemini-3.5-flash');
 
         if (adminCfg.socialChannels && adminCfg.socialChannels.length > 0) {
           setChannels(adminCfg.socialChannels);
@@ -137,6 +143,28 @@ export function ConfigPage({
     }
   };
 
+  const handleTestAiKey = async () => {
+    const key = cfgGeminiApiKey.trim();
+    if (!key) {
+      showToast(lang === 'vi' ? '⚠️ Vui lòng nhập Gemini API Key trước khi kiểm tra!' : 'Please enter Gemini API Key before testing!');
+      return;
+    }
+    setIsTestingAiKey(true);
+    showToast(lang === 'vi' ? '⏳ Đang kiểm tra kết nối Google Gemini API...' : 'Testing Google Gemini connection...');
+    try {
+      const res = await testGeminiApiKey(key, cfgAiModel);
+      if (res.success) {
+        showToast(`✅ ${res.message}`);
+      } else {
+        showToast(`❌ ${res.message}`);
+      }
+    } catch (e: any) {
+      showToast(e.message || 'Lỗi kiểm tra API');
+    } finally {
+      setIsTestingAiKey(false);
+    }
+  };
+
   const handleSaveConfig = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -171,12 +199,14 @@ export function ConfigPage({
         cloudinaryCloudName: cfgCloudName,
         cloudinaryUploadPreset: cfgUploadPreset,
         cloudinaryApiKey: cfgApiKey,
-        cloudinaryApiSecret: cfgApiSecret
+        cloudinaryApiSecret: cfgApiSecret,
+        geminiApiKey: cfgGeminiApiKey.trim(),
+        aiModel: cfgAiModel
       };
 
       const savedConfig = await saveConfigToBackend(newConfigPayload);
       setConfig(savedConfig);
-      showToast(lang === 'vi' ? '🎉 THÀNH CÔNG: Đã lưu thông tin cấu hình hệ thống & Danh sách kênh liên lạc động!' : '🎉 System config & dynamic channels saved!');
+      showToast(lang === 'vi' ? '🎉 THÀNH CÔNG: Đã lưu thông tin cấu hình hệ thống & AI Flash 3.5!' : '🎉 System config & AI saved!');
     } catch (err) {
       showToast(lang === 'vi' ? '❌ Thất bại: Không thể lưu cấu hình hệ thống!' : '❌ Save failed!');
     } finally {
@@ -372,6 +402,85 @@ export function ConfigPage({
                   />
                 </label>
               )}
+            </div>
+          </div>
+
+          {/* GOOGLE GEMINI AI CONFIGURATION PANEL */}
+          <div style={{ gridColumn: '1 / -1', background: 'rgba(15, 23, 42, 0.5)', padding: '22px', borderRadius: '18px', border: '1px solid rgba(139, 92, 246, 0.3)', marginTop: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#c084fc', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>🤖</span> {lang === 'vi' ? 'Cấu Hình Google Gemini AI & Flash 3.5' : 'Google Gemini AI & Flash 3.5 Setup'}
+                </h3>
+                <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#94a3b8' }}>
+                  {lang === 'vi'
+                    ? 'Gắn Google Gemini API Key để phân tích hành vi khách hàng, điểm nghẽn thanh toán và đề xuất nâng cấp hệ thống.'
+                    : 'Connect Google Gemini API Key for user analytics and friction detection.'}
+                </p>
+              </div>
+              {cfgGeminiApiKey && (
+                <span style={{ fontSize: '12px', color: '#10b981', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '4px 10px', borderRadius: '8px', fontWeight: 600 }}>
+                  ● Đã lưu API Key trong hệ thống
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0' }}>
+                  Google Gemini API Key:
+                </label>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type={showAiKey ? 'text' : 'password'}
+                    value={cfgGeminiApiKey}
+                    onChange={(e) => setCfgGeminiApiKey(e.target.value)}
+                    placeholder="AIzaSy... (Dán API Key tại đây)"
+                    style={{ width: '100%', padding: '12px 42px 12px 14px', borderRadius: '12px', background: '#080c14', border: '1px solid #334155', color: '#fff', fontSize: '13px', fontFamily: 'monospace', outline: 'none' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowAiKey(!showAiKey)}
+                    style={{ position: 'absolute', right: '12px', background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '14px', padding: '4px' }}
+                    title={showAiKey ? 'Ẩn Key' : 'Hiện Key'}
+                  >
+                    {showAiKey ? '🙈' : '👁️'}
+                  </button>
+                </div>
+                <small style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                  💡 Lấy key miễn phí tại:{' '}
+                  <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: '#38bdf8', textDecoration: 'underline', fontWeight: 'bold' }}>
+                    Google AI Studio (Click vào đây)
+                  </a>
+                </small>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: '#e2e8f0' }}>
+                  Phiên Bản Model AI:
+                </label>
+                <select
+                  value={cfgAiModel}
+                  onChange={(e) => setCfgAiModel(e.target.value)}
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: '12px', background: '#080c14', border: '1px solid #334155', color: '#fff', fontSize: '13px', outline: 'none' }}
+                >
+                  <option value="gemini-3.5-flash">⚡ gemini-3.5-flash (Mới Nhất - Khuyên Dùng)</option>
+                  <option value="gemini-3.8-flash">🚀 gemini-3.8-flash (High Performance)</option>
+                  <option value="gemini-2.0-flash">⚡ gemini-2.0-flash (Tốc độ phản hồi cao)</option>
+                  <option value="gemini-1.5-flash">🛡️ gemini-1.5-flash (Bản ổn định tiêu chuẩn)</option>
+                  <option value="gemini-1.5-pro">🧠 gemini-1.5-pro (Chuyên sâu)</option>
+                </select>
+                <div style={{ marginTop: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={handleTestAiKey}
+                    disabled={isTestingAiKey}
+                    style={{ background: 'rgba(2, 132, 199, 0.2)', border: '1px solid rgba(2, 132, 199, 0.5)', color: '#38bdf8', padding: '8px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    {isTestingAiKey ? '⏳ Đang test...' : '🧪 Kiểm Tra Kết Nối Key'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

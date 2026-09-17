@@ -7,6 +7,7 @@ import {
   deleteAiReport,
   fetchAiConfig,
   updateAiConfig,
+  testGeminiApiKey,
   formatDateTime
 } from '../../services/api';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
@@ -33,8 +34,10 @@ export function AiAnalyticsPage({ lang, showToast }: AiAnalyticsPageProps) {
   const [isLoadingMetrics, setIsLoadingMetrics] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSavingConfig, setIsSavingConfig] = useState(false);
+  const [isTestingKey, setIsTestingKey] = useState(false);
   const [deleteReportId, setDeleteReportId] = useState<number | null>(null);
   const [isQuickConfigOpen, setIsQuickConfigOpen] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
 
   // Form State for AI Settings
   const [apiKeyInput, setApiKeyInput] = useState('');
@@ -42,6 +45,16 @@ export function AiAnalyticsPage({ lang, showToast }: AiAnalyticsPageProps) {
   const [customModelInput, setCustomModelInput] = useState('');
   const [customPromptInput, setCustomPromptInput] = useState('');
   const [customFocusInput, setCustomFocusInput] = useState('');
+
+  const openQuickConfigModal = () => {
+    if (aiConfig?.geminiApiKey && !aiConfig.geminiApiKey.includes('••••')) {
+      setApiKeyInput(aiConfig.geminiApiKey);
+    } else {
+      const raw = localStorage.getItem('modlienquan_gemini_api_key');
+      if (raw) setApiKeyInput(raw);
+    }
+    setIsQuickConfigOpen(true);
+  };
 
   // Initial Data Load
   useEffect(() => {
@@ -92,6 +105,12 @@ export function AiAnalyticsPage({ lang, showToast }: AiAnalyticsPageProps) {
     try {
       const cfg = await fetchAiConfig();
       setAiConfig(cfg);
+      if (cfg.geminiApiKey && !cfg.geminiApiKey.includes('••••')) {
+        setApiKeyInput(cfg.geminiApiKey);
+      } else {
+        const raw = localStorage.getItem('modlienquan_gemini_api_key');
+        if (raw) setApiKeyInput(raw);
+      }
       const m = cfg.aiModel || 'gemini-3.5-flash';
       const standardModels = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
       if (standardModels.includes(m)) {
@@ -133,8 +152,63 @@ export function AiAnalyticsPage({ lang, showToast }: AiAnalyticsPageProps) {
     }
   };
 
+  const handleTestKey = async () => {
+    const keyToTest = apiKeyInput.trim() || aiConfig?.geminiApiKey || localStorage.getItem('modlienquan_gemini_api_key') || '';
+    if (!keyToTest || keyToTest.includes('••••')) {
+      showToast(
+        lang === 'vi'
+          ? '⚠️ Vui lòng nhập đầy đủ Google Gemini API Key trước khi kiểm tra!'
+          : 'Please paste full Gemini API Key before testing!',
+        'warning'
+      );
+      return;
+    }
+
+    setIsTestingKey(true);
+    showToast(
+      lang === 'vi' ? '⏳ Đang kiểm tra kết nối Google Gemini API...' : 'Testing connection to Google Gemini API...',
+      'info'
+    );
+
+    try {
+      const finalModel = modelSelect === 'CUSTOM' ? (customModelInput.trim() || 'gemini-3.5-flash') : modelSelect;
+      const res = await testGeminiApiKey(keyToTest, finalModel);
+      if (res.success) {
+        showToast(`✅ ${res.message}`, 'success');
+      } else {
+        showToast(`❌ ${res.message}`, 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Kiểm tra thất bại', 'error');
+    } finally {
+      setIsTestingKey(false);
+    }
+  };
+
+  const handleClearKey = async () => {
+    if (!window.confirm(lang === 'vi' ? 'Bạn có chắc chắn muốn xóa API Key và quay về chế độ Smart Heuristic mặc định?' : 'Clear API Key and revert to Smart Heuristic?')) {
+      return;
+    }
+    setIsSavingConfig(true);
+    try {
+      const updated = await updateAiConfig({ geminiApiKey: '' });
+      setAiConfig(updated);
+      setApiKeyInput('');
+      showToast(lang === 'vi' ? '🗑️ Đã xóa API Key. Hệ thống đang dùng Smart Heuristic.' : 'API Key removed.', 'info');
+    } catch (e: any) {
+      showToast(e.message || 'Lỗi khi xóa key', 'error');
+    } finally {
+      setIsSavingConfig(false);
+    }
+  };
+
   const handleSaveConfig = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    const enteredKey = apiKeyInput.trim();
+    if (!enteredKey && !aiConfig?.hasApiKey) {
+      showToast(lang === 'vi' ? '⚠️ Vui lòng dán Google Gemini API Key trước khi lưu!' : 'Please paste Google Gemini API Key before saving!', 'warning');
+      return;
+    }
     setIsSavingConfig(true);
     try {
       const finalModel = modelSelect === 'CUSTOM' ? (customModelInput.trim() || 'gemini-3.5-flash') : modelSelect;
@@ -142,15 +216,19 @@ export function AiAnalyticsPage({ lang, showToast }: AiAnalyticsPageProps) {
         aiModel: finalModel,
         aiCustomPrompt: customPromptInput.trim()
       };
-      if (apiKeyInput.trim()) {
-        payload.geminiApiKey = apiKeyInput.trim();
+      if (enteredKey) {
+        payload.geminiApiKey = enteredKey;
+      } else if (aiConfig?.geminiApiKey && !aiConfig.geminiApiKey.includes('••••')) {
+        payload.geminiApiKey = aiConfig.geminiApiKey;
       }
       const updated = await updateAiConfig(payload);
       setAiConfig(updated);
-      setApiKeyInput('');
+      if (updated.geminiApiKey && !updated.geminiApiKey.includes('••••')) {
+        setApiKeyInput(updated.geminiApiKey);
+      }
       setIsQuickConfigOpen(false);
       showToast(
-        lang === 'vi' ? '✅ Đã lưu cấu hình AI & nâng cấp model thành công!' : '✅ AI configuration & model saved!',
+        lang === 'vi' ? '🎉 Đã lưu API Key & nâng cấp Gemini Flash 3.5 thành công!' : '✅ API Key & Gemini Flash 3.5 saved successfully!',
         'success'
       );
     } catch (err: any) {
@@ -262,7 +340,7 @@ ${activeReport.recommendations}
         {/* Action Buttons */}
         <div className="flex items-center gap-3 flex-wrap z-10">
           <button
-            onClick={() => setIsQuickConfigOpen(true)}
+            onClick={openQuickConfigModal}
             className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm cursor-pointer transition-all duration-300 flex items-center gap-2 hover:-translate-y-0.5 shadow-lg backdrop-blur-md"
             title="Gắn API Key và thay đổi phiên bản Gemini Model"
           >
@@ -834,27 +912,55 @@ ${activeReport.recommendations}
           <form onSubmit={handleSaveConfig} className="flex flex-col gap-5">
             {/* API Key Input */}
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-[#cbd5e1]">
-                {lang === 'vi' ? 'Google Gemini API Key' : 'Google Gemini API Key'}
-              </label>
-              <input
-                type="password"
-                value={apiKeyInput}
-                onChange={(e) => setApiKeyInput(e.target.value)}
-                placeholder={aiConfig?.hasApiKey ? 'Nhập key mới nếu muốn thay đổi...' : 'AIzaSy...'}
-                className="px-4 py-3 rounded-xl border border-[#334155] bg-[#080c14] text-white text-sm outline-none focus:border-[#8b5cf6] focus:ring-2 focus:ring-[#8b5cf6]/20 font-mono"
-              />
-              <small className="text-[11px] text-[#94a3b8]">
-                💡 {lang === 'vi' ? 'Lấy key miễn phí tại:' : 'Get free API key at:'}{' '}
-                <a
-                  href="https://aistudio.google.com/app/apikey"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#38bdf8] underline"
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-bold text-[#cbd5e1]">
+                  {lang === 'vi' ? 'Google Gemini API Key' : 'Google Gemini API Key'}
+                </label>
+                {aiConfig?.hasApiKey && (
+                  <span className="text-[#10b981] font-bold text-xs bg-[#10b981]/15 px-2.5 py-0.5 rounded-lg border border-[#10b981]/30 flex items-center gap-1">
+                    ✓ Đã lưu key trong hệ thống
+                  </span>
+                )}
+              </div>
+              <div className="relative flex items-center">
+                <input
+                  type={showApiKey ? 'text' : 'password'}
+                  value={apiKeyInput}
+                  onChange={(e) => setApiKeyInput(e.target.value)}
+                  placeholder="Dán mã API Key tại đây (bắt đầu bằng AIzaSy...)"
+                  className="w-full px-4 py-3 rounded-xl border border-[#334155] bg-[#080c14] text-white text-sm outline-none focus:border-[#8b5cf6] focus:ring-2 focus:ring-[#8b5cf6]/20 font-mono pr-12"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="absolute right-3 text-[#94a3b8] hover:text-white text-sm cursor-pointer p-1"
+                  title={showApiKey ? 'Ẩn Key' : 'Hiện Key'}
                 >
-                  https://aistudio.google.com/app/apikey
-                </a>
-              </small>
+                  {showApiKey ? '🙈' : '👁️'}
+                </button>
+              </div>
+              <div className="flex justify-between items-center flex-wrap gap-2">
+                <small className="text-[11px] text-[#94a3b8]">
+                  💡 {lang === 'vi' ? 'Lấy key miễn phí tại:' : 'Get free API key at:'}{' '}
+                  <a
+                    href="https://aistudio.google.com/app/apikey"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#38bdf8] underline font-bold"
+                  >
+                    https://aistudio.google.com/app/apikey
+                  </a>
+                </small>
+                {aiConfig?.hasApiKey && (
+                  <button
+                    type="button"
+                    onClick={handleClearKey}
+                    className="text-[11px] text-[#ef4444] hover:underline cursor-pointer bg-transparent border-0 p-0"
+                  >
+                    🗑️ Gỡ bỏ API Key này
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Model Version Selector */}
@@ -904,15 +1010,25 @@ ${activeReport.recommendations}
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={isSavingConfig}
-              className="mt-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#8b5cf6] to-[#6366f1] text-white font-bold text-sm cursor-pointer shadow-[0_4px_20px_rgba(139,92,246,0.3)] hover:opacity-95 transition-all self-start"
-            >
-              {isSavingConfig
-                ? (lang === 'vi' ? 'Đang lưu...' : 'Saving...')
-                : (lang === 'vi' ? '💾 Lưu Cấu Hình AI' : '💾 Save AI Configuration')}
-            </button>
+            <div className="flex items-center gap-3 mt-2 flex-wrap">
+              <button
+                type="submit"
+                disabled={isSavingConfig}
+                className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#8b5cf6] to-[#6366f1] text-white font-bold text-sm cursor-pointer shadow-[0_4px_20px_rgba(139,92,246,0.3)] hover:opacity-95 transition-all"
+              >
+                {isSavingConfig
+                  ? (lang === 'vi' ? 'Đang lưu...' : 'Saving...')
+                  : (lang === 'vi' ? '💾 Lưu Cấu Hình AI' : '💾 Save AI Configuration')}
+              </button>
+              <button
+                type="button"
+                onClick={handleTestKey}
+                disabled={isTestingKey}
+                className="px-5 py-3.5 rounded-2xl bg-[#0284c7]/20 border border-[#0284c7]/50 text-[#38bdf8] font-bold text-sm cursor-pointer hover:bg-[#0284c7]/30 transition-all flex items-center gap-2"
+              >
+                {isTestingKey ? '⏳ Đang test...' : '🧪 Kiểm Tra Kết Nối Key'}
+              </button>
+            </div>
           </form>
         </div>
       )}
@@ -947,30 +1063,53 @@ ${activeReport.recommendations}
               <div className="flex flex-col gap-4">
                 {/* API Key Input */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-[#cbd5e1] flex justify-between">
+                  <label className="text-xs font-bold text-[#cbd5e1] flex justify-between items-center">
                     <span>Google Gemini API Key:</span>
                     {aiConfig?.hasApiKey && (
-                      <span className="text-[#10b981] font-normal">● Đã có Key ({aiConfig.geminiApiKey})</span>
+                      <span className="text-[#10b981] font-normal text-[11px] bg-[#10b981]/15 px-2 py-0.5 rounded-md border border-[#10b981]/30">
+                        ● Đã lưu key trong hệ thống
+                      </span>
                     )}
                   </label>
-                  <input
-                    type="password"
-                    value={apiKeyInput}
-                    onChange={(e) => setApiKeyInput(e.target.value)}
-                    placeholder={aiConfig?.hasApiKey ? 'Nhập key mới nếu muốn đổi (để trống giữ nguyên)...' : 'Dán API Key tại đây (AIzaSy...)'}
-                    className="px-4 py-3 rounded-xl border border-[#334155] bg-[#080c14] text-white text-sm outline-none focus:border-[#8b5cf6] font-mono"
-                  />
-                  <small className="text-[11px] text-[#94a3b8]">
-                    💡 Chưa có key? Lấy miễn phí 100% tại:{' '}
-                    <a
-                      href="https://aistudio.google.com/app/apikey"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[#38bdf8] underline font-bold"
+                  <div className="relative flex items-center">
+                    <input
+                      type={showApiKey ? 'text' : 'password'}
+                      value={apiKeyInput}
+                      onChange={(e) => setApiKeyInput(e.target.value)}
+                      placeholder="Dán mã API Key tại đây (bắt đầu bằng AIzaSy...)"
+                      className="w-full px-4 py-3 rounded-xl border border-[#334155] bg-[#080c14] text-white text-sm outline-none focus:border-[#8b5cf6] font-mono pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className="absolute right-3 text-[#94a3b8] hover:text-white text-sm cursor-pointer p-1"
+                      title={showApiKey ? 'Ẩn Key' : 'Hiện Key'}
                     >
-                      Google AI Studio
-                    </a>
-                  </small>
+                      {showApiKey ? '🙈' : '👁️'}
+                    </button>
+                  </div>
+                  <div className="flex justify-between items-center flex-wrap gap-1">
+                    <small className="text-[11px] text-[#94a3b8]">
+                      💡 Chưa có key? Lấy miễn phí tại:{' '}
+                      <a
+                        href="https://aistudio.google.com/app/apikey"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[#38bdf8] underline font-bold"
+                      >
+                        Google AI Studio
+                      </a>
+                    </small>
+                    {aiConfig?.hasApiKey && (
+                      <button
+                        type="button"
+                        onClick={handleClearKey}
+                        className="text-[11px] text-[#ef4444] hover:underline cursor-pointer bg-transparent border-0 p-0"
+                      >
+                        🗑️ Xóa key
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Model Selector */}
@@ -1003,22 +1142,32 @@ ${activeReport.recommendations}
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-3 border-t border-white/10">
+              <div className="flex justify-between items-center gap-3 pt-3 border-t border-white/10 flex-wrap">
                 <button
                   type="button"
-                  onClick={() => setIsQuickConfigOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs cursor-pointer"
+                  onClick={handleTestKey}
+                  disabled={isTestingKey}
+                  className="px-4 py-2.5 rounded-xl bg-[#0284c7]/20 border border-[#0284c7]/40 text-[#38bdf8] font-bold text-xs cursor-pointer hover:bg-[#0284c7]/30 flex items-center gap-1.5"
                 >
-                  Hủy Bỏ
+                  {isTestingKey ? '⏳ Đang test...' : '🧪 Kiểm Tra Kết Nối'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleSaveConfig()}
-                  disabled={isSavingConfig}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#8b5cf6] to-[#6366f1] text-white font-bold text-xs cursor-pointer shadow-[0_4px_15px_rgba(139,92,246,0.4)] hover:opacity-95 flex items-center gap-2"
-                >
-                  {isSavingConfig ? 'Đang lưu...' : '💾 Lưu & Kích Hoạt Ngay'}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsQuickConfigOpen(false)}
+                    className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs cursor-pointer"
+                  >
+                    Hủy Bỏ
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSaveConfig()}
+                    disabled={isSavingConfig}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#8b5cf6] to-[#6366f1] text-white font-bold text-xs cursor-pointer shadow-[0_4px_15px_rgba(139,92,246,0.4)] hover:opacity-95 flex items-center gap-2"
+                  >
+                    {isSavingConfig ? 'Đang lưu...' : '💾 Lưu & Kích Hoạt Ngay'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

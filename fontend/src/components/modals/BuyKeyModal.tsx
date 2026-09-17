@@ -111,6 +111,7 @@ export function BuyKeyModal({
 
   const activeCouponCodeRef = useRef<string | null>(null);
   const isOrderPaidRef = useRef<boolean>(false);
+  const hasWarned2MinRef = useRef<boolean>(false);
 
   useEffect(() => {
     activeCouponCodeRef.current = appliedCoupon?.code || null;
@@ -118,7 +119,8 @@ export function BuyKeyModal({
 
   useEffect(() => {
     isOrderPaidRef.current = order?.status === 'PAID';
-  }, [order?.status]);
+    hasWarned2MinRef.current = false;
+  }, [order?.status, order?.id]);
 
   // Clean up coupon usage count if modal is unmounted without completing payment
   useEffect(() => {
@@ -389,6 +391,7 @@ export function BuyKeyModal({
     }
     setIsPayosLoading(false);
     setTimeLeft(900);
+    hasWarned2MinRef.current = false;
   };
 
   // Auto fetch PayOS payment link for existing/created order if missing
@@ -403,12 +406,58 @@ export function BuyKeyModal({
     }
   }, [order?.id, order?.amount, bank.payosEnabled]);
 
-  // 15-minute auto cancellation countdown timer
+  // 15-minute auto cancellation countdown timer with 2-minute push/toast notification
   useEffect(() => {
     if (!order || order.status === 'PAID') return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
+        // Trigger 2-Minute Urgent Warning Notification
+        if (prev <= 120 && prev > 1 && !hasWarned2MinRef.current) {
+          hasWarned2MinRef.current = true;
+
+          // 1. Toast Notification
+          showToast(
+            lang === 'vi'
+              ? '⚠️ SẮP HẾT HẠN: Chỉ còn 2 phút để hoàn tất chuyển khoản VietQR giữ đơn hàng!'
+              : '⚠️ PAYMENT EXPIRING: Only 2 minutes left to complete VietQR transfer!'
+          );
+
+          // 2. Audio Chime (Web Audio API synthetic notification chime)
+          try {
+            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+            if (AudioContextClass) {
+              const ctx = new AudioContextClass();
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.frequency.setValueAtTime(520, ctx.currentTime);
+              osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.2);
+              gain.gain.setValueAtTime(0.18, ctx.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+              osc.start(ctx.currentTime);
+              osc.stop(ctx.currentTime + 0.5);
+            }
+          } catch (ignored) {}
+
+          // 3. Browser Push / Desktop Notification (if permitted)
+          if (typeof window !== 'undefined' && 'Notification' in window) {
+            if (Notification.permission === 'granted') {
+              try {
+                new Notification('⚠️ Sắp hết hạn thanh toán VietQR!', {
+                  body: lang === 'vi'
+                    ? `Đơn hàng [${order?.appName || 'App VIP'}] chỉ còn 2 phút để thanh toán!`
+                    : `Your order has only 2 minutes left to complete payment!`,
+                  icon: '/favicon.ico'
+                });
+              } catch (ignored) {}
+            } else if (Notification.permission === 'default') {
+              Notification.requestPermission().catch(() => {});
+            }
+          }
+        }
+
         if (prev <= 1) {
           clearInterval(timer);
           trackClientEvent('CLIENT_PAYMENT_TIMEOUT', `Đơn hàng [${order.id}] mua app [${app.name}] tự hủy do quá hạn 15 phút chưa thanh toán.`);
@@ -422,6 +471,19 @@ export function BuyKeyModal({
               ? '⏰ Đơn hàng đã tự động hủy do quá thời hạn 15 phút chưa chuyển khoản!'
               : 'Order expired (15 mins timeout)!'
           );
+
+          // Browser Push Notification on expiration
+          if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+            try {
+              new Notification('⏰ Đơn hàng đã hết hạn!', {
+                body: lang === 'vi'
+                  ? `Đơn hàng [${app.name}] đã hết hạn và tự động hủy.`
+                  : `Order expired (15 mins timeout).`,
+                icon: '/favicon.ico'
+              });
+            } catch (ignored) {}
+          }
+
           return 0;
         }
         return prev - 1;
@@ -429,7 +491,7 @@ export function BuyKeyModal({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [order, lang, showToast]);
+  }, [order, lang, showToast, app.name]);
 
   const formatCountdown = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -1041,21 +1103,63 @@ export function BuyKeyModal({
               </div>
             )}
 
+            {/* 2-Minute Expiration Warning Strip */}
+            {timeLeft <= 120 && (
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.22)',
+                border: '1.5px solid #ef4444',
+                color: '#fca5a5',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                fontSize: '12.5px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '10px',
+                boxShadow: '0 0 16px rgba(239, 68, 68, 0.35)'
+              }}>
+                <span style={{ fontSize: '18px' }}>🚨</span>
+                <div style={{ flex: 1 }}>
+                  <span>
+                    {lang === 'vi'
+                      ? `SẮP HẾT THỜI GIAN GIỮ ĐƠN: Còn ${formatCountdown(timeLeft)} để quét VietQR!`
+                      : `PAYMENT EXPIRING: Only ${formatCountdown(timeLeft)} left to scan VietQR!`}
+                  </span>
+                  <small style={{ display: 'block', fontSize: '11px', color: '#fecaca', fontWeight: 500, marginTop: '2px' }}>
+                    {lang === 'vi'
+                      ? 'Vui lòng chuyển khoản ngay. Đơn hàng sẽ tự hủy khi đồng hồ về 00:00.'
+                      : 'Please complete transfer now. Order auto-cancels at 00:00.'}
+                  </small>
+                </div>
+              </div>
+            )}
+
             <div className="polling-status-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
               <div>
                 <span className="spin-dot">●</span>{' '}
                 {lang === 'vi' ? '⚡ Đang tự động kiểm tra giao dịch...' : t.awaitingBank}
               </div>
               <div style={{
-                background: 'rgba(239, 68, 68, 0.15)',
-                color: '#f87171',
-                border: '1px solid rgba(239, 68, 68, 0.35)',
-                padding: '4px 10px',
+                background: timeLeft <= 120 ? 'rgba(239, 68, 68, 0.35)' : 'rgba(239, 68, 68, 0.15)',
+                color: timeLeft <= 120 ? '#fca5a5' : '#f87171',
+                border: timeLeft <= 120 ? '1.5px solid #ef4444' : '1px solid rgba(239, 68, 68, 0.35)',
+                padding: '5px 12px',
                 borderRadius: '8px',
                 fontSize: '12px',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                boxShadow: timeLeft <= 120 ? '0 0 12px rgba(239, 68, 68, 0.6)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
               }}>
-                ⏰ {lang === 'vi' ? 'Hủy sau:' : 'Expires in:'} {formatCountdown(timeLeft)}
+                <span>⏰</span>
+                <span>
+                  {timeLeft <= 120
+                    ? (lang === 'vi' ? '🚨 GẤP: ' : '🚨 URGENT: ')
+                    : (lang === 'vi' ? 'Hủy sau: ' : 'Expires in: ')}
+                  {formatCountdown(timeLeft)}
+                </span>
               </div>
             </div>
 

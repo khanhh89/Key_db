@@ -100,8 +100,14 @@ export async function fetchAdminConfigFromBackend(): Promise<SystemConfig> {
         cloudinaryCloudName: data.cloudinaryCloudName ?? adminConfig?.cloudinaryCloudName ?? '',
         cloudinaryUploadPreset: data.cloudinaryUploadPreset ?? adminConfig?.cloudinaryUploadPreset ?? '',
         cloudinaryApiKey: data.cloudinaryApiKey ?? adminConfig?.cloudinaryApiKey ?? '',
-        cloudinaryApiSecret: data.cloudinaryApiSecret ?? adminConfig?.cloudinaryApiSecret ?? ''
+        cloudinaryApiSecret: data.cloudinaryApiSecret ?? adminConfig?.cloudinaryApiSecret ?? '',
+        geminiApiKey: data.geminiApiKey ?? adminConfig?.geminiApiKey ?? localStorage.getItem('modlienquan_gemini_api_key') ?? '',
+        aiModel: data.aiModel ?? adminConfig?.aiModel ?? 'gemini-3.5-flash',
+        aiCustomPrompt: data.aiCustomPrompt ?? adminConfig?.aiCustomPrompt ?? ''
       };
+      if (formatted.geminiApiKey && !formatted.geminiApiKey.includes('••••')) {
+        localStorage.setItem('modlienquan_gemini_api_key', formatted.geminiApiKey);
+      }
       localStorage.setItem('modlienquan_admin_config', JSON.stringify(formatted));
       return formatted;
     }
@@ -113,8 +119,25 @@ export async function fetchAdminConfigFromBackend(): Promise<SystemConfig> {
 
 export async function saveConfigToBackend(config: SystemConfig): Promise<SystemConfig> {
   // Always update localStorage first for instantaneous UI responsiveness & zero state loss
+  const rawAiKey = config.geminiApiKey?.trim() || localStorage.getItem('modlienquan_gemini_api_key') || '';
+  if (rawAiKey && !rawAiKey.includes('••••')) {
+    localStorage.setItem('modlienquan_gemini_api_key', rawAiKey);
+  }
+
   localStorage.setItem('modlienquan_config', JSON.stringify(config));
   localStorage.setItem('modlienquan_admin_config', JSON.stringify(config));
+
+  // Sync to AI Config local storage too
+  const aiCfgStr = localStorage.getItem('modlienquan_ai_config');
+  let aiCfg = aiCfgStr ? JSON.parse(aiCfgStr) : {};
+  aiCfg = {
+    ...aiCfg,
+    geminiApiKey: rawAiKey && !rawAiKey.includes('••••') ? rawAiKey : (aiCfg.geminiApiKey || ''),
+    hasApiKey: Boolean(rawAiKey || aiCfg.hasApiKey),
+    aiModel: config.aiModel || aiCfg.aiModel || 'gemini-3.5-flash',
+    aiCustomPrompt: config.aiCustomPrompt !== undefined ? config.aiCustomPrompt : (aiCfg.aiCustomPrompt || '')
+  };
+  localStorage.setItem('modlienquan_ai_config', JSON.stringify(aiCfg));
 
   const payload = {
     brandName: config.brandName ?? '',
@@ -134,7 +157,10 @@ export async function saveConfigToBackend(config: SystemConfig): Promise<SystemC
     cloudinaryCloudName: config.cloudinaryCloudName ?? '',
     cloudinaryUploadPreset: config.cloudinaryUploadPreset ?? '',
     cloudinaryApiKey: config.cloudinaryApiKey ?? '',
-    cloudinaryApiSecret: config.cloudinaryApiSecret ?? ''
+    cloudinaryApiSecret: config.cloudinaryApiSecret ?? '',
+    geminiApiKey: rawAiKey && !rawAiKey.includes('••••') ? rawAiKey : undefined,
+    aiModel: config.aiModel || 'gemini-3.5-flash',
+    aiCustomPrompt: config.aiCustomPrompt ?? ''
   };
   try {
     const token = await refreshAdminRollingToken();
@@ -170,7 +196,10 @@ export async function saveConfigToBackend(config: SystemConfig): Promise<SystemC
         cloudinaryCloudName: data.cloudinaryCloudName ?? config.cloudinaryCloudName ?? '',
         cloudinaryUploadPreset: data.cloudinaryUploadPreset ?? config.cloudinaryUploadPreset ?? '',
         cloudinaryApiKey: data.cloudinaryApiKey ?? config.cloudinaryApiKey ?? '',
-        cloudinaryApiSecret: data.cloudinaryApiSecret ?? config.cloudinaryApiSecret ?? ''
+        cloudinaryApiSecret: data.cloudinaryApiSecret ?? config.cloudinaryApiSecret ?? '',
+        geminiApiKey: rawAiKey && !rawAiKey.includes('••••') ? rawAiKey : (data.geminiApiKey || config.geminiApiKey || ''),
+        aiModel: data.aiModel ?? config.aiModel ?? 'gemini-3.5-flash',
+        aiCustomPrompt: data.aiCustomPrompt ?? config.aiCustomPrompt ?? ''
       };
       localStorage.setItem('modlienquan_admin_config', JSON.stringify(formatted));
       localStorage.setItem('modlienquan_config', JSON.stringify(formatted));

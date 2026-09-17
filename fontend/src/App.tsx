@@ -12,7 +12,8 @@ import {
   fetchConfigFromBackend,
   verifyCustomerPaymentInBackend,
   loginAdminInBackend,
-  revokeAdminToken
+  revokeAdminToken,
+  saveLocalOrder
 } from './services/api';
 
 // Components & Router
@@ -106,6 +107,7 @@ export default function App() {
         verifyCustomerPaymentInBackend(targetCode).then((result) => {
           if (result.success && result.data) {
             const paidOrder = result.data;
+            saveLocalOrder(paidOrder);
             const matchedApp: AppItem = apps.find((a) => a.id === paidOrder.appId) || apps[0] || {
               id: paidOrder.appId || 'app-1',
               name: paidOrder.appName || 'MOD VIP KEY',
