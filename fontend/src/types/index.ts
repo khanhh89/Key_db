@@ -193,3 +193,78 @@ export interface LinkedAppItem {
   ipaUrl?: string;
   platform?: 'android' | 'ios' | 'both';
 }
+
+// AI Analytics & UX Intelligence Types
+export interface AiFrictionPoint {
+  title: string;
+  count: number;
+  severity: 'HIGH' | 'MEDIUM' | 'LOW';
+  desc: string;
+}
+
+export interface AiMetricsData {
+  timeframe: string;
+  totalPageViews: number;
+  uniqueDevices: number;
+  mobileDevices: number;
+  desktopDevices: number;
+  totalOrders: number;
+  paidOrders: number;
+  pendingOrders: number;
+  cancelledOrders: number;
+  totalRevenue: number;
+  conversionRate: number;
+  abandonmentRate: number;
+  keyStockoutIncidents: number;
+  lookupNotFoundIncidents: number;
+  couponFailureIncidents: number;
+  paymentTimeoutIncidents: number;
+  checkoutAbandonedIncidents: number;
+  totalFeedbacks: number;
+  avgRating: number;
+  bugReportsCount: number;
+  complaintsCount: number;
+  negativeFeedbacksCount: number;
+  calculatedUxHealthScore: number;
+  healthStatus: 'EXCELLENT' | 'GOOD' | 'NEEDS_ATTENTION' | 'CRITICAL';
+  topFrictionPoints: AiFrictionPoint[];
+  topAppsPerformance: { name: string; sales: number }[];
+  recentCustomerComplaints: string[];
+}
+
+export interface AiAnalysisReport {
+  id: number;
+  scope: string;
+  uxHealthScore: number;
+  healthStatus: 'EXCELLENT' | 'GOOD' | 'NEEDS_ATTENTION' | 'CRITICAL';
+  summary: string;
+  userBehaviorAnalysis: string;
+  painPointsAnalysis: string;
+  recommendations: string;
+  rawMetricsJson?: string;
+  aiModelUsed: string;
+  createdAt: string;
+}
+
+export interface AiAnalysisResponse {
+  reportId: number;
+  timeframe: string;
+  uxHealthScore: number;
+  healthStatus: 'EXCELLENT' | 'GOOD' | 'NEEDS_ATTENTION' | 'CRITICAL';
+  summary: string;
+  userBehaviorAnalysis: string;
+  painPointsAnalysis: string;
+  recommendations: string;
+  aiModelUsed: string;
+  createdAt: string;
+  metrics: AiMetricsData;
+}
+
+export interface AiConfig {
+  geminiApiKey: string;
+  hasApiKey: boolean;
+  aiModel: string;
+  aiCustomPrompt: string;
+  activeProvider: string;
+}
+

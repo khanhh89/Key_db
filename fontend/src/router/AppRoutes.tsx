@@ -16,6 +16,7 @@ const CouponsPage = lazy(() => import('../pages/admin/CouponsPage').then((m) => 
 const ConfigPage = lazy(() => import('../pages/admin/ConfigPage').then((m) => ({ default: m.ConfigPage })));
 const LogsPage = lazy(() => import('../pages/admin/LogsPage').then((m) => ({ default: m.LogsPage })));
 const AdminFeedbackPage = lazy(() => import('../pages/admin/AdminFeedbackPage').then((m) => ({ default: m.AdminFeedbackPage })));
+const AiAnalyticsPage = lazy(() => import('../pages/admin/AiAnalyticsPage').then((m) => ({ default: m.AiAnalyticsPage })));
 const FreeNotesPage = lazy(() => import('../pages/admin/FreeNotesPage').then((m) => ({ default: m.FreeNotesPage })));
 const FreeKeyNotePage = lazy(() => import('../pages/FreeKeyNotePage').then((m) => ({ default: m.FreeKeyNotePage })));
 
@@ -261,6 +262,15 @@ export function AppRoutes({
               path="feedbacks"
               element={
                 <AdminFeedbackPage
+                  lang={lang}
+                  showToast={showToast}
+                />
+              }
+            />
+            <Route
+              path="ai-analytics"
+              element={
+                <AiAnalyticsPage
                   lang={lang}
                   showToast={showToast}
                 />

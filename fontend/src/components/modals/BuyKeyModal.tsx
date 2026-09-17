@@ -12,6 +12,7 @@ import {
   releaseCouponInBackend,
   saveLocalOrder,
   formatDateTime,
+  trackClientEvent,
   type PayosLinkData,
   type CouponApplyResult
 } from '../../services/api';
@@ -129,6 +130,9 @@ export function BuyKeyModal({
   }, []);
 
   const handleCloseModal = async () => {
+    if (order && order.status !== 'PAID') {
+      trackClientEvent('CLIENT_CHECKOUT_ABANDONED', `Khách đóng modal khi đang chờ thanh toán đơn [${order.id}] cho app [${app.name}].`);
+    }
     if (appliedCoupon && appliedCoupon.code && order?.status !== 'PAID') {
       await releaseCouponInBackend(appliedCoupon.code, order?.id);
       setAppliedCoupon(null);
@@ -194,6 +198,10 @@ export function BuyKeyModal({
       const appKeys = allKeys.filter((k) => isKeyBelongToApp(k, app.id));
       console.log(`🔑 [BuyKeyModal] Keys matching app [${app.name}] (ID: ${app.id}):`, appKeys);
       setAvailableKeys(appKeys);
+      const availCount = appKeys.filter((k) => k.status === 'AVAILABLE').length;
+      if (availCount === 0) {
+        trackClientEvent('CLIENT_KEY_OUT_OF_STOCK', `Khách xem mua app [${app.name}] nhưng kho hiện đã hết key.`);
+      }
     });
     // Fetch price presets — used as authoritative price source (overrides per-key price)
     fetchPricePresetsFromBackend().then((data) => {
@@ -308,6 +316,7 @@ export function BuyKeyModal({
       showToast(result.message);
     } else {
       setAppliedCoupon(null);
+      trackClientEvent('CLIENT_COUPON_FAIL', `Khách áp dụng mã [${couponCodeInput.trim()}] thất bại: ${result.message}`);
       showToast(result.message);
     }
     setIsApplyingCoupon(false);
@@ -402,6 +411,7 @@ export function BuyKeyModal({
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
+          trackClientEvent('CLIENT_PAYMENT_TIMEOUT', `Đơn hàng [${order.id}] mua app [${app.name}] tự hủy do quá hạn 15 phút chưa thanh toán.`);
           if (activeCouponCodeRef.current && !isOrderPaidRef.current) {
             releaseCouponInBackend(activeCouponCodeRef.current);
             setAppliedCoupon(null);

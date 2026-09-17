@@ -101,6 +101,8 @@ export function AdminLayout({ lang, config, onLogout, showToast }: AdminLayoutPr
         return lang === 'vi' ? 'Nhật Ký Hoạt Động Hệ Thống' : 'System Activity Audit Logs';
       case '/admin/feedbacks':
         return lang === 'vi' ? 'Quản Lý Phản Hồi Khách Hàng' : 'Customer Feedback Manager';
+      case '/admin/ai-analytics':
+        return lang === 'vi' ? 'Phân Tích AI & Trải Nghiệm Người Dùng' : 'AI Analytics & UX Intelligence';
       default:
         return lang === 'vi' ? 'Bảng Điều Khiển Tổng Quan' : 'Dashboard Analytics';
     }
@@ -251,6 +253,16 @@ export function AdminLayout({ lang, config, onLogout, showToast }: AdminLayoutPr
             }
           >
             💬 {lang === 'vi' ? 'Phản Hồi Khách Hàng' : 'Customer Feedbacks'}
+          </NavLink>
+
+          <NavLink
+            to="/admin/ai-analytics"
+            onClick={() => setIsSidebarOpen(false)}
+            className={({ isActive }) =>
+              `sidebar-nav-item ${isActive ? 'active' : ''}`
+            }
+          >
+            🤖 {lang === 'vi' ? 'Phân Tích AI' : 'AI Analytics'}
           </NavLink>
         </nav>
 

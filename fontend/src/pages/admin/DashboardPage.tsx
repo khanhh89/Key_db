@@ -219,6 +219,38 @@ export function DashboardPage({
         renderAppIcon={renderAppIcon}
       />
 
+      {/* AI UX Intelligence & Friction Quick Widget */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#1e1b4b]/80 via-[#0f172a] to-[#1e1b4b]/60 border border-[#6366f1]/40 rounded-3xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-[0_8px_30px_rgba(99,102,241,0.15)]">
+        <div className="flex items-center gap-4 z-10">
+          <div className="w-12 h-12 rounded-2xl bg-[#8b5cf6]/20 border border-[#8b5cf6]/40 text-[#c084fc] flex items-center justify-center text-2xl shrink-0 shadow-[0_0_15px_rgba(139,92,246,0.3)]">
+            🤖
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <h3 className="m-0 text-base md:text-lg font-bold text-white">
+                {lang === 'vi' ? 'AI UX Intelligence & Phân Tích Khó Khăn Người Dùng' : 'AI UX Intelligence & Friction Analytics'}
+              </h3>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30">
+                ACTIVE
+              </span>
+            </div>
+            <p className="m-0 text-xs text-[#94a3b8]">
+              {lang === 'vi'
+                ? 'Hệ thống AI tự động theo dõi các điểm nghẽn trải nghiệm, tỉ lệ bỏ dở thanh toán và đề xuất giải pháp cải tiến.'
+                : 'Automated AI telemetry tracking customer friction, checkout drop-offs, and strategic improvements.'}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => navigate('/admin/ai-analytics')}
+          className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#8b5cf6] to-[#6366f1] hover:from-[#7c3aed] hover:to-[#4f46e5] text-white font-bold text-xs tracking-wide cursor-pointer transition-all duration-300 shadow-[0_4px_15px_rgba(139,92,246,0.3)] flex items-center gap-2 shrink-0 z-10 hover:-translate-y-0.5"
+        >
+          <span>🚀</span>
+          <span>{lang === 'vi' ? 'Mở Trung Tâm AI Phân Tích' : 'Open AI Analytics Center'}</span>
+        </button>
+      </div>
+
       {/* Analytics & Quick Operations Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column: Revenue Breakdown per App (Refactored) */}

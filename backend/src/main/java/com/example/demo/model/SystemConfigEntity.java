@@ -87,4 +87,13 @@ public class SystemConfigEntity {
 
     @Column(name = "totp_secret")
     private String totpSecret;
+
+    @Column(name = "gemini_api_key", columnDefinition = "TEXT")
+    private String geminiApiKey;
+
+    @Column(name = "ai_model", length = 100)
+    private String aiModel;
+
+    @Column(name = "ai_custom_prompt", columnDefinition = "TEXT")
+    private String aiCustomPrompt;
 }

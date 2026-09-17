@@ -72,9 +72,12 @@ export function OrderLookupModal({ lang, onClose, showToast }: OrderLookupModalP
 
         // Refresh device history
         refreshDeviceOrders();
+      } else {
+        trackClientEvent('CLIENT_LOOKUP_NOT_FOUND', `Khách hàng tra cứu không tìm thấy đơn hàng với mã [${code}]`);
       }
     } catch (err) {
       console.error('Lookup order error:', err);
+      trackClientEvent('CLIENT_LOOKUP_NOT_FOUND', `Khách hàng tra cứu không tìm thấy đơn hàng với mã [${code}]`);
       setOrderResult(null);
     } finally {
       setIsLoading(false);
