@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -376,8 +378,12 @@ public class AiAnalyticsService {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("contents", List.of(contentObj));
 
+        String cleanKey = (apiKey != null) ? apiKey.trim().replaceAll("^[\"']|[\"']$", "") : "";
+        if (cleanKey.startsWith("Bearer ")) cleanKey = cleanKey.substring(7).trim();
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-goog-api-key", cleanKey);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<String> response = null;
@@ -390,7 +396,8 @@ public class AiAnalyticsService {
         Exception lastException = null;
         for (String m : modelCandidates) {
             try {
-                String url = "https://generativelanguage.googleapis.com/v1beta/models/" + m + ":generateContent?key=" + apiKey;
+                String encodedKey = URLEncoder.encode(cleanKey, StandardCharsets.UTF_8);
+                String url = "https://generativelanguage.googleapis.com/v1beta/models/" + m + ":generateContent?key=" + encodedKey;
                 response = restTemplate.postForEntity(url, entity, String.class);
                 if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                     logger.info("Successfully received Gemini response using model: {}", m);
@@ -656,6 +663,63 @@ public class AiAnalyticsService {
 
         systemConfigRepository.save(config);
         return getAiConfig();
+    }
+
+    public Map<String, Object> testGeminiApiKey(String apiKey, String model) {
+        String cleanKey = apiKey != null ? apiKey.trim().replaceAll("^[\"']|[\"']$", "") : "";
+        if (cleanKey.startsWith("Bearer ")) cleanKey = cleanKey.substring(7).trim();
+
+        if (cleanKey.isEmpty() || cleanKey.contains("••••")) {
+            SystemConfigEntity config = systemConfigRepository.findAll().stream().findFirst().orElse(null);
+            if (config != null && config.getGeminiApiKey() != null) {
+                cleanKey = config.getGeminiApiKey().trim().replaceAll("^[\"']|[\"']$", "");
+            }
+        }
+        if (cleanKey.isEmpty()) {
+            cleanKey = System.getenv("GEMINI_API_KEY");
+            if (cleanKey != null) cleanKey = cleanKey.trim().replaceAll("^[\"']|[\"']$", "");
+        }
+        if (cleanKey == null || cleanKey.isEmpty() || cleanKey.length() < 10) {
+            return Map.of("success", false, "message", "API Key không hợp lệ hoặc đang để trống. Vui lòng nhập key lấy từ Google AI Studio.");
+        }
+
+        String primaryModel = (model != null && !model.trim().isEmpty()) ? model.trim() : "gemini-3.5-flash";
+        List<String> candidates = new ArrayList<>();
+        candidates.add(primaryModel);
+        if (!primaryModel.equals("gemini-3.5-flash")) candidates.add("gemini-3.5-flash");
+        if (!primaryModel.equals("gemini-2.0-flash")) candidates.add("gemini-2.0-flash");
+        if (!primaryModel.equals("gemini-1.5-flash")) candidates.add("gemini-1.5-flash");
+
+        Map<String, Object> textPart = Map.of("text", "Trả lời 1 từ duy nhất: OK");
+        Map<String, Object> requestBody = Map.of("contents", List.of(Map.of("parts", List.of(textPart))));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-goog-api-key", cleanKey);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        String lastError = "";
+        for (String m : candidates) {
+            try {
+                String encodedKey = URLEncoder.encode(cleanKey, StandardCharsets.UTF_8);
+                String url = "https://generativelanguage.googleapis.com/v1beta/models/" + m + ":generateContent?key=" + encodedKey;
+                ResponseEntity<String> res = restTemplate.postForEntity(url, entity, String.class);
+                if (res.getStatusCode().is2xxSuccessful() && res.getBody() != null) {
+                    return Map.of("success", true, "message", "Kết nối Google Gemini thành công với model [" + m + "]! Key hoạt động tốt.", "modelUsed", m);
+                }
+            } catch (Exception ex) {
+                lastError = ex.getMessage();
+                logger.warn("Test Gemini key with model [{}] failed: {}", m, lastError);
+            }
+        }
+
+        if (lastError.contains("unregistered callers") || lastError.contains("without established identity")) {
+            return Map.of("success", false, "message", "Google từ chối: API Key chưa kích hoạt Generative Language API hoặc bị giới hạn IP/HTTP referrers trong Google Cloud Console. Hãy tạo API Key mới từ https://aistudio.google.com/app/apikey.");
+        } else if (lastError.contains("API key not valid")) {
+            return Map.of("success", false, "message", "API Key không hợp lệ. Vui lòng kiểm tra và dán chính xác API Key lấy từ Google AI Studio.");
+        }
+
+        return Map.of("success", false, "message", "Không thể kết nối Google Gemini: " + lastError);
     }
 
     private LocalDateTime getCutoffDateTime(String timeframe) {

@@ -146,22 +146,55 @@ export async function updateAiConfig(newConfig: Partial<AiConfig>): Promise<AiCo
 }
 
 export async function testGeminiApiKey(apiKey: string, model: string = 'gemini-3.5-flash'): Promise<{ success: boolean; message: string; modelUsed?: string }> {
-  const cleanKey = apiKey?.trim() || localStorage.getItem(AI_RAW_KEY) || '';
+  let cleanKey = (apiKey || '').trim().replace(/^['"]|['"]$/g, '');
+  if (!cleanKey) {
+    cleanKey = (localStorage.getItem(AI_RAW_KEY) || '').trim().replace(/^['"]|['"]$/g, '');
+  }
+  if (cleanKey.startsWith('Bearer ')) cleanKey = cleanKey.slice(7).trim();
+  if (cleanKey.includes('=')) cleanKey = cleanKey.split('=').pop()!.trim();
+
   if (!cleanKey || cleanKey.length < 10 || cleanKey.includes('••••')) {
     return { success: false, message: 'API Key không hợp lệ hoặc đang bị che. Vui lòng nhập đầy đủ mã key từ Google AI Studio.' };
   }
 
-  // Candidate models: user choice first, then fallback
-  const candidates = [model, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.5-flash'];
+  // 1. Try server-side verification first (avoids browser CORS & network interference)
+  try {
+    const token = await refreshAdminRollingToken();
+    const srvRes = await fetch(`${API_BASE_URL}/v1/admin/ai/test-key`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Auth': token
+      },
+      body: JSON.stringify({ apiKey: cleanKey, model })
+    });
+    if (srvRes.ok) {
+      const srvData = await srvRes.json();
+      if (srvData && srvData.success) {
+        return srvData;
+      }
+      if (srvData && srvData.message && (srvData.message.includes('Google từ chối') || srvData.message.includes('không hợp lệ'))) {
+        return srvData;
+      }
+    }
+  } catch (err) {
+    // Server test failed/unreachable, continue with direct browser test
+  }
+
+  // 2. Direct browser test (with both x-goog-api-key header and url encoded query param)
+  const candidates = [model, 'gemini-3.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
   const uniqueCandidates = Array.from(new Set(candidates.filter(Boolean)));
   let lastErrorMsg = '';
 
   for (const m of uniqueCandidates) {
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${cleanKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(cleanKey)}`;
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': cleanKey
+        },
         body: JSON.stringify({
           contents: [{ parts: [{ text: 'Trả lời đúng 1 từ duy nhất: OK' }] }]
         })
@@ -180,6 +213,12 @@ export async function testGeminiApiKey(apiKey: string, model: string = 'gemini-3
     } catch (err: any) {
       lastErrorMsg = err.message || 'Lỗi mạng khi kết nối Google API';
     }
+  }
+
+  if (lastErrorMsg.includes('unregistered callers') || lastErrorMsg.includes('without established identity')) {
+    lastErrorMsg = 'Google từ chối: API Key chưa kích hoạt Generative Language API hoặc bị giới hạn IP/Domain trong Google Cloud Console. Vui lòng tạo API Key mới từ Google AI Studio (https://aistudio.google.com/app/apikey).';
+  } else if (lastErrorMsg.includes('API key not valid')) {
+    lastErrorMsg = 'Mã API Key không hợp lệ. Vui lòng kiểm tra lại mã đã sao chép từ Google AI Studio.';
   }
 
   return {
@@ -521,10 +560,14 @@ Hãy phân tích ngắn gọn bằng tiếng Việt và chia rõ thành 4 phần
 (Các giải pháp cải tiến phân theo: ### 🔴 Khẩn Cấp, ### 🟡 Trung Bình, ### 🟢 Tiềm Năng)
 `;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const cleanKey = (apiKey || '').trim().replace(/^['"]|['"]$/g, '');
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(cleanKey)}`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': cleanKey
+    },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }]
     })

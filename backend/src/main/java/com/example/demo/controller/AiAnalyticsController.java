@@ -122,4 +122,19 @@ public class AiAnalyticsController {
         AiConfigDTO updated = aiAnalyticsService.updateAiConfig(dto);
         return ResponseEntity.ok(updated);
     }
+
+    @PostMapping("/test-key")
+    public ResponseEntity<?> testApiKey(
+            @RequestHeader(value = "X-Admin-Auth", required = false) String adminAuth,
+            @RequestBody Map<String, String> body) {
+
+        if (!AdminSecurityUtil.isValidAdmin(adminAuth)) {
+            return ResponseEntity.status(403).body(Map.of("success", false, "message", "Lỗi bảo mật: Quyền truy cập bị từ chối."));
+        }
+
+        String key = body != null ? body.get("apiKey") : null;
+        String model = body != null ? body.getOrDefault("model", "gemini-3.5-flash") : "gemini-3.5-flash";
+        Map<String, Object> result = aiAnalyticsService.testGeminiApiKey(key, model);
+        return ResponseEntity.ok(result);
+    }
 }
