@@ -396,38 +396,36 @@ public class ShortlinkGatewayService {
 
         long start = System.currentTimeMillis();
         try {
-            String tokenParam = req.getParamTokenName() != null ? req.getParamTokenName() : "api";
-            String urlParam = req.getParamUrlName() != null ? req.getParamUrlName() : "url";
+            String tokenParam = req.getParamTokenName() != null && !req.getParamTokenName().trim().isEmpty()
+                    ? req.getParamTokenName().trim() : "api";
+            String urlParam = req.getParamUrlName() != null && !req.getParamUrlName().trim().isEmpty()
+                    ? req.getParamUrlName().trim() : "url";
 
             String encodedTarget = URLEncoder.encode(testTargetUrl, StandardCharsets.UTF_8);
-            String fullUrl = apiUrl + (apiUrl.contains("?") ? "&" : "?")
+            String fullUrl = apiUrl.trim() + (apiUrl.contains("?") ? "&" : "?")
                     + tokenParam + "=" + apiToken.trim()
                     + "&" + urlParam + "=" + encodedTarget;
 
-            String responseBody = restClient.get()
-                    .uri(fullUrl)
-                    .retrieve()
-                    .body(String.class);
-
+            // Execute request with manual redirect inspection
+            ProviderApiResponse res = executeProviderHttpRequest(fullUrl);
             long elapsed = System.currentTimeMillis() - start;
-            String shortened = parseShortenedUrlFromResponse(responseBody);
 
-            if (shortened != null && !shortened.isEmpty()) {
+            if (res.isSuccess() && res.getShortenedUrl() != null && !res.getShortenedUrl().isEmpty()) {
                 return TestProviderResponseDTO.builder()
                         .success(true)
-                        .httpStatus(200)
-                        .shortenedUrl(shortened)
+                        .httpStatus(res.getStatusCode())
+                        .shortenedUrl(res.getShortenedUrl())
                         .responseTimeMs(elapsed)
-                        .rawResponse(responseBody)
-                        .message("✅ Kết nối API thành công! Đã rút gọn link mẫu trong " + elapsed + "ms.")
+                        .rawResponse(res.getRawResponse())
+                        .message("✅ Kết nối API thành công! Đã tạo link rút gọn trong " + elapsed + "ms.")
                         .build();
             } else {
                 return TestProviderResponseDTO.builder()
                         .success(false)
-                        .httpStatus(200)
+                        .httpStatus(res.getStatusCode())
                         .responseTimeMs(elapsed)
-                        .rawResponse(responseBody)
-                        .message("⚠️ API trả về thành công nhưng không tìm thấy trường shortenedUrl trong response.")
+                        .rawResponse(res.getRawResponse())
+                        .message("⚠️ API phản hồi status " + res.getStatusCode() + " nhưng không lấy được link rút gọn: " + res.getRawResponse())
                         .build();
             }
 
@@ -483,6 +481,33 @@ public class ShortlinkGatewayService {
     // INTERNAL HELPER METHODS
     // =========================================================================
 
+    @jakarta.annotation.PostConstruct
+    public void initDefaultProvidersIfEmpty() {
+        try {
+            if (providerRepository.count() == 0) {
+                log.info("[ShortlinkGateway] Chưa có nhà mạng nào trong DB. Khởi tạo nhà mạng mặc định: Link4m...");
+                BypassProviderEntity link4m = BypassProviderEntity.builder()
+                        .id("prov-link4m-vip")
+                        .name("Link4m VIP")
+                        .apiUrl("https://link4m.co/st")
+                        .apiToken("640198395235d0630a212bab")
+                        .paramTokenName("api")
+                        .paramUrlName("url")
+                        .requestType("GET")
+                        .weight(10)
+                        .priority(1)
+                        .isActive(true)
+                        .totalClicks(0)
+                        .totalCompleted(0)
+                        .build();
+                providerRepository.save(link4m);
+                log.info("[ShortlinkGateway] Đã khởi tạo nhà mạng Link4m VIP thành công!");
+            }
+        } catch (Exception e) {
+            log.warn("[ShortlinkGateway] Không thể seed nhà mạng mặc định: {}", e.getMessage());
+        }
+    }
+
     private BypassProviderEntity selectWeightedProvider(List<BypassProviderEntity> activeProviders) {
         int totalWeight = activeProviders.stream().mapToInt(p -> p.getWeight() != null && p.getWeight() > 0 ? p.getWeight() : 1).sum();
         if (totalWeight <= 0) return activeProviders.get(0);
@@ -531,20 +556,118 @@ public class ShortlinkGatewayService {
     }
 
     private String callSingleProviderApi(BypassProviderEntity provider, String targetUrl) {
-        String tokenParam = provider.getParamTokenName() != null ? provider.getParamTokenName() : "api";
-        String urlParam = provider.getParamUrlName() != null ? provider.getParamUrlName() : "url";
+        String tokenParam = provider.getParamTokenName() != null && !provider.getParamTokenName().trim().isEmpty()
+                ? provider.getParamTokenName().trim() : "api";
+        String urlParam = provider.getParamUrlName() != null && !provider.getParamUrlName().trim().isEmpty()
+                ? provider.getParamUrlName().trim() : "url";
         String encodedTarget = URLEncoder.encode(targetUrl, StandardCharsets.UTF_8);
 
-        String fullUrl = provider.getApiUrl() + (provider.getApiUrl().contains("?") ? "&" : "?")
+        String fullUrl = provider.getApiUrl().trim() + (provider.getApiUrl().contains("?") ? "&" : "?")
                 + tokenParam + "=" + provider.getApiToken().trim()
                 + "&" + urlParam + "=" + encodedTarget;
 
-        String responseBody = restClient.get()
-                .uri(fullUrl)
-                .retrieve()
-                .body(String.class);
+        ProviderApiResponse res = executeProviderHttpRequest(fullUrl);
+        if (res.isSuccess() && res.getShortenedUrl() != null && !res.getShortenedUrl().isEmpty()) {
+            return res.getShortenedUrl();
+        }
 
-        return parseShortenedUrlFromResponse(responseBody);
+        // If QuickLink url format like link4m.co/st, return fullUrl directly if server returns redirect
+        if (provider.getApiUrl().contains("/st")) {
+            return fullUrl;
+        }
+
+        return null;
+    }
+
+    /**
+     * Executes HTTP GET with custom redirect inspection (supports 302 QuickLinks like Link4m & standard JSON APIs)
+     */
+    private ProviderApiResponse executeProviderHttpRequest(String requestUrl) {
+        java.net.HttpURLConnection conn = null;
+        try {
+            java.net.URI uri = java.net.URI.create(requestUrl);
+            conn = (java.net.HttpURLConnection) uri.toURL().openConnection();
+            conn.setInstanceFollowRedirects(false); // Do not follow redirect so we can capture Location header
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(6000);
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            conn.setRequestProperty("Accept", "application/json, text/html, */*");
+
+            int status = conn.getResponseCode();
+
+            // 1. Check HTTP Redirects (301, 302, 303, 307, 308) -> Location Header
+            if (status >= 300 && status < 400) {
+                String location = conn.getHeaderField("Location");
+                if (location != null && !location.trim().isEmpty()) {
+                    return ProviderApiResponse.builder()
+                            .success(true)
+                            .statusCode(status)
+                            .shortenedUrl(location.trim())
+                            .rawResponse("HTTP " + status + " Redirect -> " + location)
+                            .build();
+                }
+            }
+
+            // 2. Read Response Body
+            java.io.InputStream is = (status >= 200 && status < 400) ? conn.getInputStream() : conn.getErrorStream();
+            String responseBody = "";
+            if (is != null) {
+                try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    responseBody = reader.lines().collect(Collectors.joining("\n"));
+                }
+            }
+
+            if (status >= 200 && status < 300) {
+                String parsedUrl = parseShortenedUrlFromResponse(responseBody);
+                if (parsedUrl != null && !parsedUrl.isEmpty()) {
+                    return ProviderApiResponse.builder()
+                            .success(true)
+                            .statusCode(status)
+                            .shortenedUrl(parsedUrl)
+                            .rawResponse(responseBody)
+                            .build();
+                }
+
+                // If response is just a direct URL string
+                if (responseBody.startsWith("http://") || responseBody.startsWith("https://")) {
+                    return ProviderApiResponse.builder()
+                            .success(true)
+                            .statusCode(status)
+                            .shortenedUrl(responseBody.trim())
+                            .rawResponse(responseBody)
+                            .build();
+                }
+
+                // QuickLink fallback if status 200 returned
+                if (requestUrl.contains("/st?")) {
+                    return ProviderApiResponse.builder()
+                            .success(true)
+                            .statusCode(status)
+                            .shortenedUrl(requestUrl)
+                            .rawResponse(responseBody)
+                            .build();
+                }
+            }
+
+            return ProviderApiResponse.builder()
+                    .success(false)
+                    .statusCode(status)
+                    .rawResponse(responseBody)
+                    .build();
+
+        } catch (Exception e) {
+            log.error("Lỗi khi kết nối tới Shortlink Provider ({}): {}", requestUrl, e.getMessage());
+            return ProviderApiResponse.builder()
+                    .success(false)
+                    .statusCode(500)
+                    .rawResponse("Exception: " + e.getMessage())
+                    .build();
+        } finally {
+            if (conn != null) {
+                try { conn.disconnect(); } catch (Exception ignored) {}
+            }
+        }
     }
 
     private String parseShortenedUrlFromResponse(String rawJson) {
@@ -560,6 +683,7 @@ public class ShortlinkGatewayService {
                 JsonNode data = root.get("data");
                 if (data.has("shortenedUrl")) return data.get("shortenedUrl").asText();
                 if (data.has("url")) return data.get("url").asText();
+                if (data.has("link")) return data.get("link").asText();
             }
         } catch (Exception e) {
             // Not json, check if raw response is a url
@@ -632,5 +756,16 @@ public class ShortlinkGatewayService {
             ip = ip.split(",")[0].trim();
         }
         return ip != null ? ip : "127.0.0.1";
+    }
+
+    @lombok.Data
+    @lombok.Builder
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
+    private static class ProviderApiResponse {
+        private boolean success;
+        private int statusCode;
+        private String shortenedUrl;
+        private String rawResponse;
     }
 }
