@@ -19,7 +19,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "feedbacks", indexes = {
     @Index(name = "idx_feedback_device_id", columnList = "device_id"),
-    @Index(name = "idx_feedback_status_created", columnList = "status, created_at")
+    @Index(name = "idx_feedback_status_created", columnList = "status, created_at"),
+    @Index(name = "idx_feedback_home_approved", columnList = "is_approved_for_home, created_at"),
+    @Index(name = "idx_feedback_category_status", columnList = "category, status")
 })
 @Data
 @NoArgsConstructor

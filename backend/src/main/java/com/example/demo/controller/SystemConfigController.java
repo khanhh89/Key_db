@@ -16,6 +16,7 @@ public class SystemConfigController {
     private SystemConfigRepository systemConfigRepository;
 
     @GetMapping
+    @org.springframework.cache.annotation.Cacheable(value = "system_config", key = "#adminAuth != null ? #adminAuth : 'public'")
     public ResponseEntity<SystemConfigEntity> getConfig(@RequestHeader(value = "X-Admin-Auth", required = false) String adminAuth) {
         SystemConfigEntity config = systemConfigRepository.findAll().stream().findFirst()
                 .orElseGet(() -> {
@@ -61,6 +62,7 @@ public class SystemConfigController {
     }
 
     @PutMapping
+    @org.springframework.cache.annotation.CacheEvict(value = "system_config", allEntries = true)
     public ResponseEntity<?> updateConfig(
             @RequestHeader(value = "X-Admin-Auth", required = false) String adminAuth,
             @RequestBody SystemConfigEntity configDetails) {
