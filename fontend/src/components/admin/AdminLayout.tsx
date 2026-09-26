@@ -93,6 +93,8 @@ export function AdminLayout({ lang, config, onLogout, showToast }: AdminLayoutPr
         return lang === 'vi' ? 'Quản Lý Kho Key Bản Quyền' : 'Keys Inventory Manager';
       case '/admin/notes':
         return lang === 'vi' ? 'Quản Lý Trang Note Key Free' : 'Free Key Notes Manager';
+      case '/admin/gateway':
+        return lang === 'vi' ? 'Quản Lý Cổng Link Vượt (Bypass Gateway)' : 'Bypass Shortlink Gateway';
       case '/admin/orders':
         return lang === 'vi' ? 'Quản Lý Đơn Hàng & VietQR Auto Payment' : 'Orders & VietQR Payment Manager';
       case '/admin/config':
