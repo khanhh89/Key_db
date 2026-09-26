@@ -19,6 +19,8 @@ const AdminFeedbackPage = lazy(() => import('../pages/admin/AdminFeedbackPage').
 const AiAnalyticsPage = lazy(() => import('../pages/admin/AiAnalyticsPage').then((m) => ({ default: m.AiAnalyticsPage })));
 const FreeNotesPage = lazy(() => import('../pages/admin/FreeNotesPage').then((m) => ({ default: m.FreeNotesPage })));
 const FreeKeyNotePage = lazy(() => import('../pages/FreeKeyNotePage').then((m) => ({ default: m.FreeKeyNotePage })));
+const VerifyBypassPage = lazy(() => import('../pages/VerifyBypassPage').then((m) => ({ default: m.VerifyBypassPage })));
+const ShortlinkGatewayPage = lazy(() => import('../pages/admin/ShortlinkGatewayPage').then((m) => ({ default: m.ShortlinkGatewayPage })));
 
 export function PageLoader() {
   return (
@@ -133,6 +135,18 @@ export function AppRoutes({
           }
         />
 
+        {/* PUBLIC VERIFY BYPASS ROUTE */}
+        <Route
+          path="/verify-bypass"
+          element={
+            <VerifyBypassPage
+              config={config}
+              lang={lang}
+              showToast={showToast}
+            />
+          }
+        />
+
         {/* ADMIN LOGIN ROUTE */}
         <Route
           path="/admin/login"
@@ -204,6 +218,15 @@ export function AppRoutes({
                   lang={lang}
                   apps={apps}
                   config={config}
+                  showToast={showToast}
+                />
+              }
+            />
+            <Route
+              path="gateway"
+              element={
+                <ShortlinkGatewayPage
+                  lang={lang}
                   showToast={showToast}
                 />
               }

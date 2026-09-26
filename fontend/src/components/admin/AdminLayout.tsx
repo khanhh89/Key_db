@@ -198,6 +198,16 @@ export function AdminLayout({ lang, config, onLogout, showToast }: AdminLayoutPr
           </NavLink>
 
           <NavLink
+            to="/admin/gateway"
+            onClick={() => setIsSidebarOpen(false)}
+            className={({ isActive }) =>
+              `sidebar-nav-item ${isActive ? 'active' : ''}`
+            }
+          >
+            🚀 {lang === 'vi' ? 'Cổng Link Vượt' : 'Bypass Gateway'}
+          </NavLink>
+
+          <NavLink
             to="/admin/orders"
             onClick={() => setIsSidebarOpen(false)}
             className={({ isActive }) =>

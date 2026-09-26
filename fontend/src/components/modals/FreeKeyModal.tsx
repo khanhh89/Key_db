@@ -131,6 +131,54 @@ export function FreeKeyModal({
                   : `📋 ${lang === 'vi' ? 'SAO CHÉP MÃ KEY FREE' : 'COPY FREE KEY'}`}
               </button>
             )}
+
+            {/* AUTO BYPASS GATEWAY BUTTON */}
+            <button
+              type="button"
+              onClick={async () => {
+                let deviceId = localStorage.getItem('modlienquan_device_id');
+                if (!deviceId) {
+                  deviceId = 'dev_' + Math.random().toString(36).substring(2, 12);
+                  localStorage.setItem('modlienquan_device_id', deviceId);
+                }
+                showToast(lang === 'vi' ? '⏳ Đang tạo link vượt an toàn...' : 'Generating secure bypass link...');
+                try {
+                  const { createBypassSession } = await import('../../services/gatewayApi');
+                  const res = await createBypassSession(deviceId, app.id);
+                  if (res.success && res.shortenedUrl) {
+                    showToast(lang === 'vi' ? '🚀 Đang chuyển hướng đến trang vượt link...' : 'Redirecting to bypass link...');
+                    window.open(res.shortenedUrl, '_blank');
+                    onClose();
+                  } else if (res.alreadyEntitled) {
+                    showToast(lang === 'vi' ? '🎉 Thiết bị của bạn đã được mở khóa 24h!' : 'Your device is already unlocked 24h!');
+                  } else {
+                    showToast(`❌ ${res.message || 'Lỗi kết nối cổng link'}`);
+                  }
+                } catch {
+                  showToast(lang === 'vi' ? '❌ Lỗi kết nối' : 'Connection error');
+                }
+              }}
+              style={{
+                width: '100%',
+                marginTop: '10px',
+                padding: '12px 16px',
+                borderRadius: '10px',
+                fontWeight: 800,
+                fontSize: '13px',
+                background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
+                color: '#ffffff',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(14, 165, 233, 0.35)',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}
+            >
+              🚀 {lang === 'vi' ? 'VƯỢT LINK NHẬN KEY 24H (TỰ ĐỘNG)' : 'BYPASS LINK TO GET 24H KEY'}
+            </button>
           </div>
 
           {/* INSTRUCTIONS & UPGRADE PROMPT */}

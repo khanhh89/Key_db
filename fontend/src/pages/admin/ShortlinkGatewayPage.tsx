@@ -522,7 +522,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
           title={lang === 'vi' ? 'Xác Nhận Xóa Nhà Mạng' : 'Confirm Delete Provider'}
           message={lang === 'vi' ? `Bạn có chắc chắn muốn xóa nhà mạng [${deletingProvider.name}] khỏi hệ thống?` : `Are you sure to delete [${deletingProvider.name}]?`}
           onConfirm={confirmDelete}
-          onClose={() => setDeletingProvider(null)}
+          onCancel={() => setDeletingProvider(null)}
           lang={lang}
         />
       )}
