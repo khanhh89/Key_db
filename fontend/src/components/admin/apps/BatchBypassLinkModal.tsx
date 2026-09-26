@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react';
 import type { AppItem, Language } from '../../../types';
 import { ModalPortal } from '../../common/ModalPortal';
-import { batchSetBypassLink, fetchAppsFromBackend } from '../../../services/appsApi';
+import {
+  batchSetBypassLink,
+  fetchAppsFromBackend,
+  fetchBypassRotationStatus,
+  saveBypassRotationConfig,
+  forceRotateBypassNow,
+  type BypassRotationStatus,
+} from '../../../services/appsApi';
+import { BypassAutoRotationTab } from './bypass/BypassAutoRotationTab';
+import { BypassSingleLinkTab } from './bypass/BypassSingleLinkTab';
+import { BypassAppSelector } from './bypass/BypassAppSelector';
 
 interface BatchBypassLinkModalProps {
   isOpen: boolean;
@@ -12,58 +22,145 @@ interface BatchBypassLinkModalProps {
   onSuccess: (freshApps: AppItem[]) => void;
 }
 
-export function BatchBypassLinkModal({ isOpen, onClose, apps, lang, showToast, onSuccess }: BatchBypassLinkModalProps) {
+export function BatchBypassLinkModal({
+  isOpen,
+  onClose,
+  apps,
+  lang,
+  showToast,
+  onSuccess,
+}: BatchBypassLinkModalProps) {
+  const [activeTab, setActiveTab] = useState<'AUTO_ROTATION' | 'SINGLE_LINK'>('AUTO_ROTATION');
+
+  // Auto Rotation state
+  const [linkPoolText, setLinkPoolText] = useState('');
+  const [rotationMode, setRotationMode] = useState<'DAILY_SEQUENTIAL' | 'DAILY_RANDOM'>('DAILY_SEQUENTIAL');
+  const [autoRotateEnabled, setAutoRotateEnabled] = useState(true);
+  const [rotationStatus, setRotationStatus] = useState<BypassRotationStatus | null>(null);
+  const [isRotatingNow, setIsRotatingNow] = useState(false);
+
+  // Single Link state
   const [bypassLinkUrl, setBypassLinkUrl] = useState(() => localStorage.getItem('lastSyncBypassLink') || '');
+
+  // App Selection state
   const [selectedAppIds, setSelectedAppIds] = useState<string[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Auto-select apps when modal opens or apps change, based on current bypassLinkUrl
+  // Load rotation status on open
   useEffect(() => {
     if (isOpen) {
-      if (bypassLinkUrl) {
-        setSelectedAppIds(apps.filter(a => a.ipaUrl === bypassLinkUrl).map(a => a.id));
-      } else {
-        setSelectedAppIds([]);
-      }
+      fetchBypassRotationStatus().then((status) => {
+        if (status) {
+          setRotationStatus(status);
+          if (status.poolRaw) {
+            setLinkPoolText(status.poolRaw);
+          } else if (status.pool && status.pool.length > 0) {
+            setLinkPoolText(status.pool.join('\n'));
+          }
+          if (status.rotationMode) {
+            setRotationMode(status.rotationMode);
+          }
+          if (status.autoRotateEnabled !== undefined) {
+            setAutoRotateEnabled(status.autoRotateEnabled);
+          }
+          if (status.isAllApps || !status.targetAppIds || status.targetAppIds.length === 0) {
+            setSelectedAppIds(apps.map((a) => a.id));
+          } else {
+            setSelectedAppIds(status.targetAppIds);
+          }
+        } else {
+          setSelectedAppIds(apps.map((a) => a.id));
+        }
+      });
     }
   }, [isOpen, apps]);
 
-  const handleBypassLinkChange = (val: string) => {
-    setBypassLinkUrl(val);
-    if (val) {
-      setSelectedAppIds(apps.filter(a => a.ipaUrl === val).map(a => a.id));
+  const parsedPoolCount = linkPoolText
+    .split('\n')
+    .map((s) => s.trim())
+    .filter((s) => s.startsWith('http://') || s.startsWith('https://') || s.startsWith('//')).length;
+
+  // Handle Save Auto Rotation
+  const handleSaveAutoRotation = async () => {
+    if (parsedPoolCount === 0) {
+      showToast(
+        lang === 'vi'
+          ? '⚠️ Vui lòng dán ít nhất 1-3 link hợp lệ (bắt đầu bằng http:// hoặc https://)!'
+          : '⚠️ Please enter at least 1-3 valid URLs!'
+      );
+      return;
+    }
+
+    if (selectedAppIds.length === 0) {
+      showToast(lang === 'vi' ? '⚠️ Vui lòng chọn ít nhất 1 App để áp dụng!' : '⚠️ Please select at least 1 app!');
+      return;
+    }
+
+    setIsSyncing(true);
+    const res = await saveBypassRotationConfig({
+      linkPool: linkPoolText,
+      rotationMode,
+      targetAppIds: selectedAppIds.length === apps.length ? [] : selectedAppIds,
+      autoRotateEnabled,
+    });
+    setIsSyncing(false);
+
+    if (res.success) {
+      const freshApps = await fetchAppsFromBackend();
+      onSuccess(freshApps);
+      showToast(lang === 'vi' ? `✅ ${res.message || 'Đã lưu cấu hình tự xoay link vượt!'}` : `✅ Saved Auto Rotation configuration!`);
+      onClose();
     } else {
-      setSelectedAppIds([]);
+      showToast(`❌ ${res.message || 'Lỗi khi lưu cấu hình'}`);
     }
   };
 
-  const toggle = (appId: string) => setSelectedAppIds(prev => prev.includes(appId) ? prev.filter(id => id !== appId) : [...prev, appId]);
+  // Handle Force Rotate Immediately
+  const handleForceRotateNow = async () => {
+    setIsRotatingNow(true);
+    const res = await forceRotateBypassNow();
+    setIsRotatingNow(false);
+    if (res.success && res.data) {
+      setRotationStatus(res.data);
+      const freshApps = await fetchAppsFromBackend();
+      onSuccess(freshApps);
+      showToast(lang === 'vi' ? `⚡ ${res.message || 'Đã chuyển sang link kế tiếp!'}` : `⚡ Switched to next link!`);
+    } else {
+      showToast(`❌ ${res.message || 'Lỗi chuyển link'}`);
+    }
+  };
 
-  const handleSync = async () => {
+  // Handle Single Link Sync
+  const handleSyncSingleLink = async () => {
     if (!bypassLinkUrl.trim()) {
       showToast(lang === 'vi' ? '⚠️ Vui lòng nhập URL Link Vượt!' : '⚠️ Please enter Bypass Link URL!');
       return;
     }
-    
+
     setIsSyncing(true);
-    
-    const appsToClear = apps.filter(a => a.ipaUrl === bypassLinkUrl && !selectedAppIds.includes(a.id)).map(a => a.id);
-    
+    const appsToClear = apps.filter((a) => a.ipaUrl === bypassLinkUrl && !selectedAppIds.includes(a.id)).map((a) => a.id);
+
     let hasError = false;
     let errMsg = '';
-    
+
     if (selectedAppIds.length > 0) {
       const res = await batchSetBypassLink(selectedAppIds, bypassLinkUrl);
-      if (!res.success) { hasError = true; errMsg = res.message || ''; }
+      if (!res.success) {
+        hasError = true;
+        errMsg = res.message || '';
+      }
     }
-    
+
     if (appsToClear.length > 0 && !hasError) {
-      const res = await batchSetBypassLink(appsToClear, "");
-      if (!res.success) { hasError = true; errMsg = res.message || ''; }
+      const res = await batchSetBypassLink(appsToClear, '');
+      if (!res.success) {
+        hasError = true;
+        errMsg = res.message || '';
+      }
     }
 
     setIsSyncing(false);
-    
+
     if (!hasError) {
       const freshApps = await fetchAppsFromBackend();
       onSuccess(freshApps);
@@ -79,90 +176,119 @@ export function BatchBypassLinkModal({ isOpen, onClose, apps, lang, showToast, o
 
   return (
     <ModalPortal>
-      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(14px)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', zIndex: 999999, padding: '20px 16px', overflowY: 'auto' }} onClick={onClose}>
-        <div style={{ width: 'min(560px, 94vw)', margin: 'auto', background: '#0f172a', border: '1px solid rgba(56,189,248,0.35)', borderRadius: '24px', padding: '28px', boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 30px rgba(56,189,248,0.1)', position: 'relative' }} onClick={e => e.stopPropagation()}>
-          <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '20px', background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '22px', cursor: 'pointer', lineHeight: 1 }}>×</button>
+      <div
+        className="fixed inset-0 bg-black/85 backdrop-blur-[14px] flex justify-center items-start z-[999999] p-[20px_16px] overflow-y-auto animate-[fadeIn_0.25s_ease-out]"
+        onClick={onClose}
+      >
+        <div
+          className="w-[min(640px,94vw)] margin-auto bg-[#0f172a] border border-[#38bdf8]/35 rounded-[24px] p-7 backdrop-blur-[24px] shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_35px_rgba(56,189,248,0.15)] relative flex flex-col gap-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex justify-between items-center">
+            <h3 className="m-0 text-[#38bdf8] text-lg font-heading font-extrabold flex items-center gap-2">
+              🔗 {lang === 'vi' ? 'Cấu Hình Link Vượt (Bypass Link)' : 'Bypass Link Configuration'}
+            </h3>
+            <button
+              type="button"
+              className="bg-transparent border-0 text-[#94a3b8] text-2xl cursor-pointer hover:text-white transition-colors"
+              onClick={onClose}
+            >
+              ×
+            </button>
+          </div>
 
-          <h4 style={{ margin: '0 0 6px', color: '#38bdf8', fontSize: '18px', fontWeight: 800 }}>🔗 {lang === 'vi' ? 'Sync Link Vượt Cho Nhiều App' : 'Sync Bypass Link to Multiple Apps'}</h4>
-          <p style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '20px' }}>
-            {lang === 'vi' ? 'Nhập 1 URL Link Vượt và chọn các App muốn áp dụng link này.' : 'Enter one Bypass Link URL and select apps to apply it to.'}
+          <p className="text-[#94a3b8] text-xs m-0">
+            {lang === 'vi'
+              ? 'Dán 2-3 link vượt để hệ thống tự động đổi link mới mỗi ngày, hoặc dán 1 link cố định.'
+              : 'Paste 2-3 bypass links for daily auto-rotation, or set a single static link.'}
           </p>
 
-          {/* Bypass Link Input */}
-          <div style={{ marginBottom: '18px' }}>
-            <label style={{ display: 'block', fontWeight: 700, color: '#e2e8f0', marginBottom: '8px', fontSize: '13px' }}>
-              {lang === 'vi' ? '🔗 URL Link Vượt (Bypass Link) dùng chung:' : '🔗 Shared Bypass Link URL:'}
-            </label>
-            <input
-              type="text"
-              value={bypassLinkUrl}
-              onChange={e => handleBypassLinkChange(e.target.value)}
-              placeholder={lang === 'vi' ? 'Nhập URL Link Vượt (vd: https://linkvertise...)' : 'Enter Bypass Link URL...'}
-              style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(56,189,248,0.4)', background: '#080c14', color: '#fff', fontSize: '14px', fontFamily: 'monospace', fontWeight: 'bold', outline: 'none', boxSizing: 'border-box' }}
+          {/* Mode Switch Tabs */}
+          <div className="grid grid-cols-2 gap-2 bg-[#080c14] p-1 rounded-xl border border-white/[0.06]">
+            <button
+              type="button"
+              onClick={() => setActiveTab('AUTO_ROTATION')}
+              className="py-2.5 px-3 rounded-lg border-0 font-extrabold text-xs cursor-pointer transition-all flex items-center justify-center gap-1.5"
+              style={{
+                background: activeTab === 'AUTO_ROTATION' ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'transparent',
+                color: activeTab === 'AUTO_ROTATION' ? '#fff' : '#94a3b8',
+              }}
+            >
+              🔄 {lang === 'vi' ? 'Tự Xoay 2-3 Link Mỗi Ngày' : 'Auto Daily Rotate (2-3 Links)'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('SINGLE_LINK')}
+              className="py-2.5 px-3 rounded-lg border-0 font-extrabold text-xs cursor-pointer transition-all flex items-center justify-center gap-1.5"
+              style={{
+                background: activeTab === 'SINGLE_LINK' ? 'linear-gradient(135deg, #334155 0%, #1e293b 100%)' : 'transparent',
+                color: activeTab === 'SINGLE_LINK' ? '#fff' : '#94a3b8',
+              }}
+            >
+              📌 {lang === 'vi' ? 'Dán 1 Link Cố Định' : 'Single Static Link'}
+            </button>
+          </div>
+
+          {/* Tab Content */}
+          {activeTab === 'AUTO_ROTATION' ? (
+            <BypassAutoRotationTab
+              lang={lang}
+              linkPoolText={linkPoolText}
+              setLinkPoolText={setLinkPoolText}
+              rotationMode={rotationMode}
+              setRotationMode={setRotationMode}
+              autoRotateEnabled={autoRotateEnabled}
+              setAutoRotateEnabled={setAutoRotateEnabled}
+              rotationStatus={rotationStatus}
+              isRotatingNow={isRotatingNow}
+              onForceRotateNow={handleForceRotateNow}
             />
-          </div>
+          ) : (
+            <BypassSingleLinkTab
+              lang={lang}
+              bypassLinkUrl={bypassLinkUrl}
+              setBypassLinkUrl={setBypassLinkUrl}
+            />
+          )}
 
-          {/* App Selector */}
-          <div style={{ marginBottom: '18px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <label style={{ fontWeight: 700, color: '#e2e8f0', fontSize: '13px' }}>
-                {lang === 'vi' ? '📱 Chọn App áp dụng:' : '📱 Select Apps:'}
-                <span style={{ marginLeft: '8px', background: 'rgba(56,189,248,0.2)', color: '#38bdf8', padding: '2px 8px', borderRadius: '8px', fontSize: '12px', fontWeight: 800 }}>
-                  {selectedAppIds.length}/{apps.length}
-                </span>
-              </label>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                <button type="button" onClick={() => setSelectedAppIds(apps.map(a => a.id))} style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(56,189,248,0.4)', background: 'rgba(56,189,248,0.1)', color: '#38bdf8', cursor: 'pointer', fontWeight: 700 }}>
-                  {lang === 'vi' ? '✓ Chọn tất cả' : '✓ Select all'}
-                </button>
-                <button type="button" onClick={() => setSelectedAppIds([])} style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(100,116,139,0.4)', background: 'rgba(100,116,139,0.1)', color: '#94a3b8', cursor: 'pointer', fontWeight: 700 }}>
-                  {lang === 'vi' ? '✕ Bỏ chọn' : '✕ Deselect'}
-                </button>
-              </div>
-            </div>
-            <div style={{ maxHeight: '240px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px', padding: '2px' }}>
-              {apps.map(a => (
-                <label key={a.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '10px', cursor: 'pointer', background: selectedAppIds.includes(a.id) ? 'rgba(56,189,248,0.12)' : 'transparent', border: selectedAppIds.includes(a.id) ? '1px solid rgba(56,189,248,0.4)' : '1px solid transparent', transition: 'all 0.15s ease' }}>
-                  <input type="checkbox" checked={selectedAppIds.includes(a.id)} onChange={() => toggle(a.id)} style={{ width: '16px', height: '16px', accentColor: '#38bdf8', cursor: 'pointer', flexShrink: 0 }} />
-                  
-                  {a.icon && (a.icon.startsWith('http') || a.icon.startsWith('data:image/') || a.icon.startsWith('/')) ? (
-                    <img src={a.icon} alt={a.name} style={{ width: '28px', height: '28px', borderRadius: '6px', objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)' }} />
-                  ) : (
-                    <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      {a.icon ? a.icon : '📱'}
-                    </div>
-                  )}
+          {/* App Selector Component */}
+          <BypassAppSelector
+            lang={lang}
+            apps={apps}
+            selectedAppIds={selectedAppIds}
+            setSelectedAppIds={setSelectedAppIds}
+          />
 
-                  <span style={{ fontSize: '13px', color: selectedAppIds.includes(a.id) ? '#7dd3fc' : '#cbd5e1', fontWeight: selectedAppIds.includes(a.id) ? 700 : 400, display: 'flex', alignItems: 'center', gap: '8px', flex: 1, overflow: 'hidden' }}>
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.name}</span>
-                    {a.ipaUrl && (
-                      <span 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleBypassLinkChange(a.ipaUrl || '');
-                        }}
-                        style={{ fontSize: '11px', color: '#38bdf8', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px', display: 'inline-block', verticalAlign: 'bottom', background: 'rgba(56,189,248,0.1)', padding: '2px 6px', borderRadius: '4px', flexShrink: 0, cursor: 'copy' }}
-                        title={lang === 'vi' ? 'Bấm để load link này lên ô nhập' : 'Click to load this link'}
-                      >
-                        {a.ipaUrl}
-                      </span>
-                    )}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-            <button type="button" onClick={onClose} style={{ padding: '11px 20px', borderRadius: '12px', border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0', fontWeight: 700, cursor: 'pointer' }}>
+          {/* Action Buttons */}
+          <div className="flex gap-2.5 justify-end pt-2 border-t border-white/10">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2.5 rounded-xl border border-[#334155] bg-[#1e293b] text-[#e2e8f0] font-bold text-xs cursor-pointer hover:bg-[#334155] transition-all"
+            >
               {lang === 'vi' ? 'Hủy' : 'Cancel'}
             </button>
-            <button type="button" onClick={handleSync} disabled={isSyncing || !bypassLinkUrl.trim()}
-              style={{ padding: '11px 24px', borderRadius: '12px', border: 'none', background: isSyncing || !bypassLinkUrl.trim() ? 'rgba(56,189,248,0.3)' : 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', color: '#fff', fontWeight: 800, cursor: isSyncing || !bypassLinkUrl.trim() ? 'not-allowed' : 'pointer', fontSize: '13px', boxShadow: '0 4px 14px rgba(56,189,248,0.3)', transition: 'all 0.2s ease' }}>
-              {isSyncing ? (lang === 'vi' ? '⏳ Đang lưu...' : '⏳ Saving...') : `✅ ${lang === 'vi' ? 'Lưu cấu hình' : 'Save Config'}`}
-            </button>
+
+            {activeTab === 'AUTO_ROTATION' ? (
+              <button
+                type="button"
+                onClick={handleSaveAutoRotation}
+                disabled={isSyncing || parsedPoolCount === 0}
+                className="px-6 py-2.5 rounded-xl border-0 bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] text-white font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(56,189,248,0.3)] transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSyncing ? (lang === 'vi' ? '⏳ Đang lưu...' : '⏳ Saving...') : `💾 ${lang === 'vi' ? 'Lưu & Bật Tự Động Xoay Link' : 'Save & Enable Auto Rotation'}`}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSyncSingleLink}
+                disabled={isSyncing || !bypassLinkUrl.trim()}
+                className="px-6 py-2.5 rounded-xl border-0 bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] text-white font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(56,189,248,0.3)] transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSyncing ? (lang === 'vi' ? '⏳ Đang lưu...' : '⏳ Saving...') : `✅ ${lang === 'vi' ? 'Lưu Link Cố Định' : 'Save Static Link'}`}
+              </button>
+            )}
           </div>
         </div>
       </div>

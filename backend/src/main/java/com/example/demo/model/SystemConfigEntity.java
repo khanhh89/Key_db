@@ -96,4 +96,25 @@ public class SystemConfigEntity {
 
     @Column(name = "ai_custom_prompt", columnDefinition = "TEXT")
     private String aiCustomPrompt;
+
+    @Column(name = "bypass_link_pool", columnDefinition = "TEXT")
+    private String bypassLinkPool;
+
+    @Column(name = "bypass_rotation_mode", length = 50)
+    private String bypassRotationMode;
+
+    @Column(name = "bypass_target_app_ids", columnDefinition = "TEXT")
+    private String bypassTargetAppIds;
+
+    @Column(name = "bypass_current_index")
+    private Integer bypassCurrentIndex;
+
+    @Column(name = "bypass_current_active_link", columnDefinition = "TEXT")
+    private String bypassCurrentActiveLink;
+
+    @Column(name = "bypass_last_rotated_date", length = 30)
+    private String bypassLastRotatedDate;
+
+    @Column(name = "bypass_auto_rotate_enabled")
+    private Boolean bypassAutoRotateEnabled;
 }

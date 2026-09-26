@@ -200,3 +200,81 @@ export async function batchSetBypassLink(appIds: string[], bypassLink: string): 
     return { success: false, message: 'Lỗi kết nối server.' };
   }
 }
+
+export interface BypassRotationStatus {
+  activeLink: string;
+  currentIndex: number;
+  totalLinks: number;
+  lastRotatedDate?: string;
+  autoRotateEnabled: boolean;
+  rotationMode: 'DAILY_SEQUENTIAL' | 'DAILY_RANDOM';
+  pool?: string[];
+  poolRaw?: string;
+  targetAppIds?: string[];
+  isAllApps?: boolean;
+  message?: string;
+}
+
+export async function fetchBypassRotationStatus(): Promise<BypassRotationStatus | null> {
+  try {
+    const token = await refreshAdminRollingToken();
+    const res = await fetch(`${API_BASE_URL}/bypass-rotation/status`, {
+      headers: token ? { 'X-Admin-Auth': token } : {}
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn('fetchBypassRotationStatus failed', err);
+  }
+  return null;
+}
+
+export async function saveBypassRotationConfig(payload: {
+  linkPool: string;
+  rotationMode: string;
+  targetAppIds: string[];
+  autoRotateEnabled: boolean;
+}): Promise<{ success: boolean; data?: BypassRotationStatus; message?: string }> {
+  try {
+    const token = await refreshAdminRollingToken();
+    const res = await fetch(`${API_BASE_URL}/bypass-rotation/config`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Auth': token
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      return { success: true, data, message: data.message };
+    }
+    return { success: false, message: data.message || 'Lỗi lưu cấu hình xoay link.' };
+  } catch (err) {
+    console.warn('saveBypassRotationConfig failed', err);
+    return { success: false, message: 'Lỗi kết nối server.' };
+  }
+}
+
+export async function forceRotateBypassNow(): Promise<{ success: boolean; data?: BypassRotationStatus; message?: string }> {
+  try {
+    const token = await refreshAdminRollingToken();
+    const res = await fetch(`${API_BASE_URL}/bypass-rotation/rotate-now`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Auth': token
+      }
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      return { success: true, data, message: data.message };
+    }
+    return { success: false, message: data.message || 'Lỗi chuyển link vượt.' };
+  } catch (err) {
+    console.warn('forceRotateBypassNow failed', err);
+    return { success: false, message: 'Lỗi kết nối server.' };
+  }
+}
+
