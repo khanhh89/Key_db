@@ -19,6 +19,7 @@ export function VerifyBypassPage({ lang, showToast }: VerifyBypassPageProps) {
   const [scanStep, setScanStep] = useState(1);
   const [result, setResult] = useState<VerifyBypassSessionResponse | null>(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [autoRedirectTimer, setAutoRedirectTimer] = useState<number>(5);
 
   useEffect(() => {
     if (!sessionId) {
@@ -39,16 +40,30 @@ export function VerifyBypassPage({ lang, showToast }: VerifyBypassPageProps) {
 
     // Visual scanning animation sequence
     const t1 = setTimeout(() => setScanStep(2), 600);
-    const t2 = setTimeout(() => setScanStep(3), 1400);
+    const t2 = setTimeout(() => setScanStep(3), 1300);
 
     const t3 = setTimeout(async () => {
       const res = await verifyBypassSession(sessionId, deviceId!);
       setResult(res);
       setIsLoading(false);
+
       if (res.success) {
-        showToast(lang === 'vi' ? '🎉 Mở khóa thành công 24h!' : '🎉 Unlocked successfully for 24h!');
+        // Save entitlement locally
+        localStorage.setItem('modlienquan_bypass_unlocked', 'true');
+        if (res.targetAppId) {
+          localStorage.setItem('modlienquan_unlocked_app_id', res.targetAppId);
+        }
+        if (res.freeKey) {
+          localStorage.setItem('modlienquan_last_free_key', res.freeKey);
+          // Auto copy key to clipboard
+          copyTextToClipboard(res.freeKey);
+          setIsCopied(true);
+          showToast(lang === 'vi' ? '🎉 Đã tự động sao chép Key Free vào bộ nhớ tạm!' : '🎉 Free Key auto-copied to clipboard!');
+        } else {
+          showToast(lang === 'vi' ? '🎉 Mở khóa thành công 24h!' : '🎉 Unlocked successfully for 24h!');
+        }
       }
-    }, 2200);
+    }, 2000);
 
     return () => {
       clearTimeout(t1);
@@ -56,6 +71,24 @@ export function VerifyBypassPage({ lang, showToast }: VerifyBypassPageProps) {
       clearTimeout(t3);
     };
   }, [sessionId, lang, showToast]);
+
+  // Auto redirect countdown timer after success
+  useEffect(() => {
+    if (!result?.success || isLoading) return;
+
+    const interval = setInterval(() => {
+      setAutoRedirectTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          handleGoToFreeKey();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [result, isLoading]);
 
   const handleCopyKey = () => {
     if (!result?.freeKey) return;
@@ -65,9 +98,18 @@ export function VerifyBypassPage({ lang, showToast }: VerifyBypassPageProps) {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
+  const handleGoToFreeKey = () => {
+    const appId = result?.targetAppId;
+    if (appId) {
+      navigate(`/?open_free_key=${encodeURIComponent(appId)}&unlocked=true`);
+    } else {
+      navigate('/?unlocked=true');
+    }
+  };
+
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
-      <div className="w-[min(540px,94vw)] bg-[#0f172a]/90 border border-[#38bdf8]/35 rounded-[28px] p-8 backdrop-blur-[24px] shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_35px_rgba(56,189,248,0.2)] flex flex-col items-center text-center relative overflow-hidden">
+      <div className="w-[min(540px,94vw)] bg-[#0f172a]/95 border border-[#38bdf8]/40 rounded-[28px] p-8 backdrop-blur-[24px] shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_35px_rgba(56,189,248,0.25)] flex flex-col items-center text-center relative overflow-hidden">
         {/* Glow decoration */}
         <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#38bdf8]/15 rounded-full blur-3xl pointer-events-none" />
 
@@ -106,41 +148,57 @@ export function VerifyBypassPage({ lang, showToast }: VerifyBypassPageProps) {
 
             <div>
               <span className="inline-block text-[11px] font-extrabold bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/40 px-3 py-1 rounded-full uppercase tracking-wider mb-2">
-                {lang === 'vi' ? '🟢 Xác Thực Thành Công' : '🟢 Verified Successfully'}
+                {lang === 'vi' ? '🟢 VƯỢT LINK THÀNH CÔNG' : '🟢 BYPASS SUCCESSFUL'}
               </span>
               <h2 className="text-2xl font-heading font-extrabold text-white m-0">
-                {lang === 'vi' ? 'Đã Mở Khóa Quyền Sử Dụng 24H' : '24-Hour Access Unlocked!'}
+                {lang === 'vi' ? 'ĐÃ MỞ KHÓA KEY FREE 24H!' : '24H FREE KEY UNLOCKED!'}
               </h2>
               {result.targetAppName && (
                 <p className="text-xs text-[#38bdf8] mt-1 font-bold">
-                  📱 {result.targetAppName}
+                  📱 Ứng dụng: {result.targetAppName}
                 </p>
               )}
             </div>
 
             {/* Free Key Box */}
-            {result.freeKey ? (
-              <div className="w-full bg-[#080c14] border border-[#38bdf8]/40 rounded-2xl p-4 flex flex-col gap-2">
-                <div className="text-xs text-[#94a3b8] font-bold text-left">
-                  🔑 {lang === 'vi' ? 'MÃ KEY CỦA BẠN (HẠN DÙNG 24 GIỜ):' : 'YOUR FREE KEY (24H ACCESS):'}
-                </div>
-                <div className="flex items-center justify-between gap-2 bg-black/60 p-2.5 rounded-xl border border-white/10">
-                  <span className="text-sm font-mono font-extrabold text-[#00f2fe] tracking-wider truncate">
-                    {result.freeKey}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopyKey}
-                    className="px-3 py-1.5 rounded-lg border-0 bg-[#38bdf8]/20 text-[#38bdf8] hover:bg-[#38bdf8]/30 font-bold text-xs cursor-pointer transition-all shrink-0"
-                  >
-                    {isCopied ? (lang === 'vi' ? '✓ Đã chép' : '✓ Copied') : (lang === 'vi' ? '📋 Sao chép' : '📋 Copy')}
-                  </button>
-                </div>
+            <div className="w-full bg-[#080c14] border border-[#22c55e]/50 rounded-2xl p-4 flex flex-col gap-3 shadow-[0_0_20px_rgba(34,197,94,0.15)]">
+              <div className="text-xs text-[#86efac] font-bold text-left flex items-center justify-between">
+                <span>🔑 {lang === 'vi' ? 'MÃ KEY FREE CỦA BẠN (HẠN DÙNG 24H):' : 'YOUR FREE KEY (24H ACCESS):'}</span>
+                <span className="text-[10px] text-[#38bdf8] bg-[#38bdf8]/10 px-2 py-0.5 rounded">Tự động kích hoạt</span>
               </div>
-            ) : null}
+              <div className="flex items-center justify-between gap-2 bg-black/70 p-3 rounded-xl border border-[#22c55e]/30">
+                <span className="text-base font-mono font-extrabold text-[#4ade80] tracking-wider truncate">
+                  {result.freeKey || 'KEY-FREE-24H-UNLOCKED'}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyKey}
+                  className="px-3.5 py-2 rounded-lg border-0 bg-[#22c55e] hover:bg-[#16a34a] text-black font-extrabold text-xs cursor-pointer transition-all shrink-0 shadow-[0_2px_10px_rgba(34,197,94,0.3)]"
+                >
+                  {isCopied ? (lang === 'vi' ? '✓ Đã chép' : '✓ Copied') : (lang === 'vi' ? '📋 Sao chép' : '📋 Copy')}
+                </button>
+              </div>
+            </div>
+
+            {/* Countdown Auto-Redirect Notice */}
+            <div className="text-xs text-[#94a3b8] flex items-center gap-1.5">
+              <span>⏱️</span>
+              <span>
+                {lang === 'vi'
+                  ? `Tự động mở trang Key Free sau ${autoRedirectTimer}s...`
+                  : `Auto-redirecting to Free Key page in ${autoRedirectTimer}s...`}
+              </span>
+            </div>
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-3 w-full mt-2">
+            <div className="flex flex-col sm:flex-row gap-3 w-full mt-1">
+              <button
+                type="button"
+                onClick={handleGoToFreeKey}
+                className="flex-1 py-3 px-5 rounded-xl font-heading font-extrabold text-xs text-black bg-gradient-to-r from-[#00f2fe] to-[#4facfe] shadow-[0_4px_16px_rgba(0,242,254,0.35)] flex items-center justify-center gap-2 hover:brightness-110 transition-all cursor-pointer border-0"
+              >
+                🎁 {lang === 'vi' ? 'Mở Trang Key Free Ngay' : 'Open Free Key Page Now'}
+              </button>
               {result.downloadUrl && (
                 <a
                   href={result.downloadUrl}
@@ -148,16 +206,9 @@ export function VerifyBypassPage({ lang, showToast }: VerifyBypassPageProps) {
                   rel="noreferrer"
                   className="flex-1 py-3 px-5 rounded-xl font-heading font-extrabold text-xs text-white bg-gradient-to-r from-[#10b981] to-[#059669] shadow-[0_4px_14px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2 hover:brightness-110 transition-all text-center no-underline"
                 >
-                  🚀 {lang === 'vi' ? 'Tải Ứng Dụng Ngay' : 'Download App Now'}
+                  🚀 {lang === 'vi' ? 'Tải Ứng Dụng' : 'Download App'}
                 </a>
               )}
-              <button
-                type="button"
-                onClick={() => navigate('/')}
-                className="flex-1 py-3 px-5 rounded-xl font-heading font-extrabold text-xs text-white bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] shadow-[0_4px_14px_rgba(14,165,233,0.35)] flex items-center justify-center gap-2 hover:brightness-110 transition-all cursor-pointer border-0"
-              >
-                🏠 {lang === 'vi' ? 'Về Trang Chủ' : 'Go to Homepage'}
-              </button>
             </div>
           </div>
         ) : (

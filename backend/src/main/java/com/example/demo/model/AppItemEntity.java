@@ -68,6 +68,10 @@ public class AppItemEntity {
     @JsonProperty("hidden")
     private Boolean hidden;
 
+    @Column(name = "require_bypass")
+    @JsonProperty("requireBypass")
+    private Boolean requireBypass;
+
     @Column(name = "updated_at")
     private String updatedAt;
 }

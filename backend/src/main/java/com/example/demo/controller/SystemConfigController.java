@@ -28,6 +28,7 @@ public class SystemConfigController {
                             .zaloUrl("")
                             .telegramUrl("")
                             .specialties("")
+                            .bypassNestedSteps(2)
                             .build();
                     return systemConfigRepository.save(defaultConfig);
                 });
@@ -97,6 +98,9 @@ public class SystemConfigController {
         }
         if (configDetails.getAiCustomPrompt() != null) {
             config.setAiCustomPrompt(configDetails.getAiCustomPrompt().trim());
+        }
+        if (configDetails.getBypassNestedSteps() != null && configDetails.getBypassNestedSteps() > 0) {
+            config.setBypassNestedSteps(configDetails.getBypassNestedSteps());
         }
 
         if (configDetails.getAdminUsername() != null && !configDetails.getAdminUsername().isEmpty()) {

@@ -61,6 +61,9 @@ public class AppService {
         if (app.getHidden() == null) {
             app.setHidden(false);
         }
+        if (app.getRequireBypass() == null) {
+            app.setRequireBypass(true); // Default is true for safety/profit
+        }
         if (app.getUpdatedAt() == null || app.getUpdatedAt().trim().isEmpty()) {
             app.setUpdatedAt(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy").format(java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"))));
         }
@@ -85,6 +88,7 @@ public class AppService {
             app.setAllowSellKey(appDetails.getAllowSellKey() != null ? appDetails.getAllowSellKey() : (app.getAllowSellKey() != null ? app.getAllowSellKey() : true));
             app.setAllowFreeKey(appDetails.getAllowFreeKey() != null ? appDetails.getAllowFreeKey() : (app.getAllowFreeKey() != null ? app.getAllowFreeKey() : true));
             app.setHidden(appDetails.getHidden() != null ? appDetails.getHidden() : (app.getHidden() != null ? app.getHidden() : false));
+            app.setRequireBypass(appDetails.getRequireBypass() != null ? appDetails.getRequireBypass() : (app.getRequireBypass() != null ? app.getRequireBypass() : true));
             app.setFreeKey(appDetails.getFreeKey());
             app.setTags(appDetails.getTags());
             app.setUpdatedAt(appDetails.getUpdatedAt() != null && !appDetails.getUpdatedAt().trim().isEmpty()

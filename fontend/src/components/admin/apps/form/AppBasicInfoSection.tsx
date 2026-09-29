@@ -11,6 +11,8 @@ interface AppBasicInfoSectionProps {
   setAppAllowSellKey: (val: boolean) => void;
   appAllowFreeKey: boolean;
   setAppAllowFreeKey: (val: boolean) => void;
+  appRequireBypass: boolean;
+  setAppRequireBypass: (val: boolean) => void;
   appHidden: boolean;
   setAppHidden: (val: boolean) => void;
   appNameInputRef: RefObject<HTMLInputElement | null>;
@@ -26,6 +28,8 @@ export function AppBasicInfoSection({
   setAppAllowSellKey,
   appAllowFreeKey,
   setAppAllowFreeKey,
+  appRequireBypass,
+  setAppRequireBypass,
   appHidden,
   setAppHidden,
   appNameInputRef,
@@ -90,6 +94,20 @@ export function AppBasicInfoSection({
             🔑 {lang === 'vi' ? 'Cho Phép Cấp Key Free (Hiển thị nút Lấy Key Free trên trang chủ)' : 'Enable Free Key'}
           </span>
         </label>
+
+        {appAllowFreeKey && (
+          <label className="flex items-center gap-2.5 cursor-pointer select-none ml-6">
+            <input
+              type="checkbox"
+              checked={appRequireBypass}
+              onChange={(e) => setAppRequireBypass(e.target.checked)}
+              className="w-[18px] h-[18px] accent-[#a855f7] cursor-pointer"
+            />
+            <span className="text-sm font-bold" style={{ color: appRequireBypass ? '#a855f7' : '#94a3b8' }}>
+              ⛓️ {lang === 'vi' ? 'Yêu cầu Vượt Link (Bật = Bắt buộc vượt link để lấy Key Free)' : 'Require Bypass for Free Key'}
+            </span>
+          </label>
+        )}
 
         <label className="flex items-center gap-2.5 cursor-pointer select-none">
           <input

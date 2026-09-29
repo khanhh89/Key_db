@@ -34,7 +34,8 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
   const [formApiToken, setFormApiToken] = useState('');
   const [formParamTokenName, setFormParamTokenName] = useState('api');
   const [formParamUrlName, setFormParamUrlName] = useState('url');
-  const [formWeight, setFormWeight] = useState(1);
+  const [formWeight, setFormWeight] = useState<number | ''>(1);
+  const [formBypassSteps, setFormBypassSteps] = useState<number | ''>(1);
   const [formIsActive, setFormIsActive] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -65,6 +66,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
     setFormParamTokenName('api');
     setFormParamUrlName('url');
     setFormWeight(1);
+    setFormBypassSteps(1);
     setFormIsActive(true);
     setTestResult(null);
     setIsModalOpen(true);
@@ -78,6 +80,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
     setFormParamTokenName(p.paramTokenName || 'api');
     setFormParamUrlName(p.paramUrlName || 'url');
     setFormWeight(p.weight || 1);
+    setFormBypassSteps(p.bypassSteps || 1);
     setFormIsActive(p.isActive !== false);
     setTestResult(null);
     setIsModalOpen(true);
@@ -123,6 +126,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
       paramTokenName: formParamTokenName.trim(),
       paramUrlName: formParamUrlName.trim(),
       weight: Number(formWeight) || 1,
+      bypassSteps: Number(formBypassSteps) || 1,
       isActive: formIsActive
     };
 
@@ -295,7 +299,6 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                       <td className="p-3.5">
                         <div className="flex items-center gap-2">
                           <span className="font-extrabold text-white text-xs">{weightPercent}%</span>
-                          <span className="text-[11px] text-[#64748b]">(Trọng số: {p.weight})</span>
                         </div>
                       </td>
                       <td className="p-3.5 font-mono text-white">
@@ -443,6 +446,35 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                       type="text"
                       value={formParamUrlName}
                       onChange={(e) => setFormParamUrlName(e.target.value)}
+                      className="px-3.5 py-2 rounded-xl border border-white/10 bg-[#080c14] text-white text-xs font-mono outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-[#94a3b8]">
+                      Trọng số (Weight):
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={formWeight}
+                      onChange={(e) => setFormWeight(e.target.value === '' ? '' : Number(e.target.value))}
+                      className="px-3.5 py-2 rounded-xl border border-white/10 bg-[#080c14] text-white text-xs font-mono outline-none"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-[#94a3b8]">
+                      Số Lần Vượt (Bypass Steps):
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={formBypassSteps}
+                      onChange={(e) => setFormBypassSteps(e.target.value === '' ? '' : Number(e.target.value))}
                       className="px-3.5 py-2 rounded-xl border border-white/10 bg-[#080c14] text-white text-xs font-mono outline-none"
                     />
                   </div>

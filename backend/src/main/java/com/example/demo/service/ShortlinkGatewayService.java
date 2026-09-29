@@ -9,6 +9,7 @@ import com.example.demo.repository.AppRepository;
 import com.example.demo.repository.BypassDeviceEntitlementRepository;
 import com.example.demo.repository.BypassProviderRepository;
 import com.example.demo.repository.BypassSessionRepository;
+import com.example.demo.repository.SystemConfigRepository;
 import com.example.demo.util.AdminSecurityUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,18 +46,21 @@ public class ShortlinkGatewayService {
     private final SystemLogService systemLogService;
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
+    private final SystemConfigRepository systemConfigRepository;
 
     @Autowired
     public ShortlinkGatewayService(BypassProviderRepository providerRepository,
                                   BypassSessionRepository sessionRepository,
                                   BypassDeviceEntitlementRepository entitlementRepository,
                                   AppRepository appRepository,
-                                  SystemLogService systemLogService) {
+                                  SystemLogService systemLogService,
+                                  SystemConfigRepository systemConfigRepository) {
         this.providerRepository = providerRepository;
         this.sessionRepository = sessionRepository;
         this.entitlementRepository = entitlementRepository;
         this.appRepository = appRepository;
         this.systemLogService = systemLogService;
+        this.systemConfigRepository = systemConfigRepository;
         this.objectMapper = new ObjectMapper();
 
         // Configure RestClient with 6-second timeout
@@ -69,6 +73,12 @@ public class ShortlinkGatewayService {
     // =========================================================================
     // PUBLIC CLIENT APIS
     // =========================================================================
+
+    private int getNestedBypassSteps() {
+        return systemConfigRepository.findAll().stream().findFirst()
+                .map(c -> c.getBypassNestedSteps() != null && c.getBypassNestedSteps() > 0 ? c.getBypassNestedSteps() : 2)
+                .orElse(2);
+    }
 
     /**
      * Check if client device currently has active entitlement (already completed bypass)
@@ -147,8 +157,18 @@ public class ShortlinkGatewayService {
         }
         String callbackUrl = baseUrl + "/verify-bypass?session=" + sessionId;
 
-        // Call Shortlink API with auto-failover
-        String shortenedUrl = callProviderApiWithFailover(selectedProvider, activeProviders, callbackUrl);
+        // Tạo vượt chồng link (Nested bypass) theo số lần cấu hình của nhà mạng
+        int nestedSteps = selectedProvider.getBypassSteps() != null && selectedProvider.getBypassSteps() > 0 ? selectedProvider.getBypassSteps() : 1;
+        String currentTargetUrl = callbackUrl;
+        for (int i = 0; i < nestedSteps; i++) {
+            String stepUrl = callProviderApiWithFailover(selectedProvider, activeProviders, currentTargetUrl);
+            if (stepUrl != null && !stepUrl.isEmpty() && !stepUrl.equals(currentTargetUrl)) {
+                currentTargetUrl = stepUrl;
+            } else {
+                break; // Dừng lại nếu lỗi hoặc API trả về đúng URL cũ (không tạo được link mới)
+            }
+        }
+        String shortenedUrl = currentTargetUrl;
 
         // Lookup App details
         String targetAppName = "All VIP Apps";
@@ -317,6 +337,7 @@ public class ShortlinkGatewayService {
                 .weight(dto.getWeight() != null && dto.getWeight() > 0 ? dto.getWeight() : 1)
                 .priority(dto.getPriority() != null ? dto.getPriority() : 1)
                 .isActive(dto.getIsActive() != null ? dto.getIsActive() : true)
+                .bypassSteps(dto.getBypassSteps() != null && dto.getBypassSteps() > 0 ? dto.getBypassSteps() : 1)
                 .totalClicks(0)
                 .totalCompleted(0)
                 .build();
@@ -347,6 +368,7 @@ public class ShortlinkGatewayService {
         if (dto.getWeight() != null && dto.getWeight() > 0) existing.setWeight(dto.getWeight());
         if (dto.getPriority() != null) existing.setPriority(dto.getPriority());
         if (dto.getIsActive() != null) existing.setIsActive(dto.getIsActive());
+        if (dto.getBypassSteps() != null && dto.getBypassSteps() > 0) existing.setBypassSteps(dto.getBypassSteps());
 
         BypassProviderEntity saved = providerRepository.save(existing);
         return BypassProviderDTO.fromEntity(saved, false);
@@ -481,32 +503,7 @@ public class ShortlinkGatewayService {
     // INTERNAL HELPER METHODS
     // =========================================================================
 
-    @jakarta.annotation.PostConstruct
-    public void initDefaultProvidersIfEmpty() {
-        try {
-            if (providerRepository.count() == 0) {
-                log.info("[ShortlinkGateway] Chưa có nhà mạng nào trong DB. Khởi tạo nhà mạng mặc định: Link4m...");
-                BypassProviderEntity link4m = BypassProviderEntity.builder()
-                        .id("prov-link4m-vip")
-                        .name("Link4m VIP")
-                        .apiUrl("https://link4m.co/st")
-                        .apiToken("640198395235d0630a212bab")
-                        .paramTokenName("api")
-                        .paramUrlName("url")
-                        .requestType("GET")
-                        .weight(10)
-                        .priority(1)
-                        .isActive(true)
-                        .totalClicks(0)
-                        .totalCompleted(0)
-                        .build();
-                providerRepository.save(link4m);
-                log.info("[ShortlinkGateway] Đã khởi tạo nhà mạng Link4m VIP thành công!");
-            }
-        } catch (Exception e) {
-            log.warn("[ShortlinkGateway] Không thể seed nhà mạng mặc định: {}", e.getMessage());
-        }
-    }
+    // Khởi tạo nhà mạng mặc định đã bị xóa, admin phải tự thêm trên giao diện.
 
     private BypassProviderEntity selectWeightedProvider(List<BypassProviderEntity> activeProviders) {
         int totalWeight = activeProviders.stream().mapToInt(p -> p.getWeight() != null && p.getWeight() > 0 ? p.getWeight() : 1).sum();

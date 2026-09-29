@@ -29,6 +29,7 @@ export function ConfigPage({
   const [cfgApiSecret, setCfgApiSecret] = useState(config.cloudinaryApiSecret || '');
   const [cfgGeminiApiKey, setCfgGeminiApiKey] = useState(config.geminiApiKey || localStorage.getItem('modlienquan_gemini_api_key') || '');
   const [cfgAiModel, setCfgAiModel] = useState(config.aiModel || 'gemini-3.5-flash');
+  const [cfgBypassNestedSteps, setCfgBypassNestedSteps] = useState(config.bypassNestedSteps || 2);
   const [showAiKey, setShowAiKey] = useState(false);
   const [isTestingAiKey, setIsTestingAiKey] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -70,6 +71,7 @@ export function ConfigPage({
         setCfgApiSecret(adminCfg.cloudinaryApiSecret || '');
         setCfgGeminiApiKey(adminCfg.geminiApiKey || localStorage.getItem('modlienquan_gemini_api_key') || '');
         setCfgAiModel(adminCfg.aiModel || 'gemini-3.5-flash');
+        setCfgBypassNestedSteps(adminCfg.bypassNestedSteps || 2);
 
         if (adminCfg.socialChannels && adminCfg.socialChannels.length > 0) {
           setChannels(adminCfg.socialChannels);
@@ -201,7 +203,8 @@ export function ConfigPage({
         cloudinaryApiKey: cfgApiKey,
         cloudinaryApiSecret: cfgApiSecret,
         geminiApiKey: cfgGeminiApiKey.trim(),
-        aiModel: cfgAiModel
+        aiModel: cfgAiModel,
+        bypassNestedSteps: Number(cfgBypassNestedSteps) || 2
       };
 
       const savedConfig = await saveConfigToBackend(newConfigPayload);
@@ -252,6 +255,20 @@ export function ConfigPage({
             />
             <span style={{ fontSize: '12px', color: '#94a3b8' }}>
               {lang === 'vi' ? 'Dán link YouTube (ví dụ https://www.youtube.com/watch?v=xxx) để hiển thị khung xem video trực tiếp cho khách hàng' : 'Paste YouTube URL or Video ID to embed live tutorial player for customers'}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label>{lang === 'vi' ? 'Số lần Vượt Chồng Link (Nested Bypass):' : 'Nested Bypass Steps:'}</label>
+            <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+              type="number"
+              min="1"
+              max="10"
+              value={cfgBypassNestedSteps}
+              onChange={(e) => setCfgBypassNestedSteps(Number(e.target.value))}
+            />
+            <span className="text-[11px] text-[#94a3b8]">
+              {lang === 'vi' ? 'Số lần người dùng phải vượt link (VD: 2 lần)' : 'Number of times a user must bypass links (e.g., 2 times)'}
             </span>
           </div>
 

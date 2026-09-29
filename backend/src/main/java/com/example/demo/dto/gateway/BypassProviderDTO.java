@@ -25,6 +25,7 @@ public class BypassProviderDTO {
     private Integer weight;
     private Integer priority;
     private Boolean isActive;
+    private Integer bypassSteps;
     private Integer totalClicks;
     private Integer totalCompleted;
     private Double conversionRate;
@@ -53,6 +54,7 @@ public class BypassProviderDTO {
                 .weight(e.getWeight() != null ? e.getWeight() : 1)
                 .priority(e.getPriority() != null ? e.getPriority() : 1)
                 .isActive(e.getIsActive() != null ? e.getIsActive() : true)
+                .bypassSteps(e.getBypassSteps() != null ? e.getBypassSteps() : 1)
                 .totalClicks(e.getTotalClicks() != null ? e.getTotalClicks() : 0)
                 .totalCompleted(e.getTotalCompleted() != null ? e.getTotalCompleted() : 0)
                 .conversionRate(rate)

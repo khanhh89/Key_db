@@ -11,6 +11,7 @@ export interface BypassProvider {
   weight?: number;
   priority?: number;
   isActive?: boolean;
+  bypassSteps?: number;
   totalClicks?: number;
   totalCompleted?: number;
   conversionRate?: number;

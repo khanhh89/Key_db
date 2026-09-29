@@ -117,4 +117,7 @@ public class SystemConfigEntity {
 
     @Column(name = "bypass_auto_rotate_enabled")
     private Boolean bypassAutoRotateEnabled;
+
+    @Column(name = "bypass_nested_steps")
+    private Integer bypassNestedSteps;
 }

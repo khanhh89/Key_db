@@ -13,6 +13,7 @@ export interface AppItem {
   platform?: 'android' | 'ios' | 'both';
   allowSellKey?: boolean;
   allowFreeKey?: boolean;
+  requireBypass?: boolean;
   hidden?: boolean;
   freeKey?: string;
   updatedAt?: string;
@@ -58,6 +59,7 @@ export interface SystemConfig {
   geminiApiKey?: string;
   aiModel?: string;
   aiCustomPrompt?: string;
+  bypassNestedSteps?: number;
 }
 
 

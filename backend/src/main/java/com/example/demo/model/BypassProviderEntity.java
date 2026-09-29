@@ -57,6 +57,10 @@ public class BypassProviderEntity {
     @Builder.Default
     private Boolean isActive = true;
 
+    @Column(name = "bypass_steps")
+    @Builder.Default
+    private Integer bypassSteps = 1;
+
     @Column(name = "total_clicks")
     @Builder.Default
     private Integer totalClicks = 0;
@@ -82,6 +86,7 @@ public class BypassProviderEntity {
         if (this.weight == null) this.weight = 1;
         if (this.priority == null) this.priority = 1;
         if (this.isActive == null) this.isActive = true;
+        if (this.bypassSteps == null) this.bypassSteps = 1;
         if (this.totalClicks == null) this.totalClicks = 0;
         if (this.totalCompleted == null) this.totalCompleted = 0;
     }
