@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { AppItem, ServiceItem, SystemConfig, LightboxItem, Language, OrderItem } from '../types';
 import { trackClientEvent, getLocalOrders, saveLocalOrder, getLatestPaidOrder, API_BASE_URL } from '../services/api';
 import { CursorGlow } from '../components/common/CursorGlow';
@@ -63,6 +64,22 @@ export function HomePage({
   const [lookupInitialCode, setLookupInitialCode] = useState<string>('');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isFeedbackHistoryOpen, setIsFeedbackHistoryOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    // Auto-open Free Key modal if redirected from Bypass Verify
+    const openFreeKeyAppId = searchParams.get('open_free_key');
+    if (openFreeKeyAppId && apps.length > 0) {
+      const app = apps.find(a => a.id === openFreeKeyAppId);
+      if (app) {
+        setFreeKeyApp(app);
+        // Remove param to avoid reopening on refresh
+        searchParams.delete('open_free_key');
+        searchParams.delete('unlocked');
+        setSearchParams(searchParams, { replace: true });
+      }
+    }
+  }, [searchParams, apps, setSearchParams]);
 
   useEffect(() => {
     syncDeviceWithBackend();

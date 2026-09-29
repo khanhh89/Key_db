@@ -19,6 +19,10 @@ export function FreeKeyModal({
   showToast
 }: FreeKeyModalProps) {
   const [isCopied, setIsCopied] = useState(false);
+  const [isAlreadyEntitled, setIsAlreadyEntitled] = useState(() => {
+    return localStorage.getItem('modlienquan_bypass_unlocked') === 'true' &&
+           localStorage.getItem('modlienquan_unlocked_app_id') === app.id;
+  });
   const hasKey = Boolean(app.freeKey && app.freeKey.trim());
   const displayKey = hasKey
     ? app.freeKey!.trim()
@@ -67,7 +71,7 @@ export function FreeKeyModal({
 
         {/* FREE KEY DISPLAY BOX OR BYPASS BUTTON */}
         <div style={{ marginTop: '20px' }}>
-          {(app.requireBypass === false) ? (
+          {(app.requireBypass === false || isAlreadyEntitled) ? (
             <div
               style={{
                 padding: '20px',
@@ -156,6 +160,7 @@ export function FreeKeyModal({
                       window.open(res.shortenedUrl, '_blank');
                       onClose();
                     } else if (res.alreadyEntitled) {
+                      setIsAlreadyEntitled(true);
                       showToast(lang === 'vi' ? '🎉 Thiết bị của bạn đã được mở khóa 24h!' : 'Your device is already unlocked 24h!');
                     } else {
                       showToast(`❌ ${res.message || 'Lỗi kết nối cổng link'}`);
