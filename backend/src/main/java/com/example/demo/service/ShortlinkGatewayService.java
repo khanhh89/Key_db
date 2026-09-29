@@ -161,8 +161,15 @@ public class ShortlinkGatewayService {
         int nestedSteps = selectedProvider.getBypassSteps() != null && selectedProvider.getBypassSteps() > 0 ? selectedProvider.getBypassSteps() : 1;
         String currentTargetUrl = callbackUrl;
         for (int i = 0; i < nestedSteps; i++) {
-            String stepUrl = callProviderApiWithFailover(selectedProvider, activeProviders, currentTargetUrl);
-            if (stepUrl != null && !stepUrl.isEmpty() && !stepUrl.equals(currentTargetUrl)) {
+            String urlToShorten = currentTargetUrl;
+            // Trick the shortlink provider by masking the URL with our redirector if i > 0 to avoid same-domain API blocks
+            if (i > 0) {
+                String base64Url = java.util.Base64.getEncoder().encodeToString(currentTargetUrl.getBytes(StandardCharsets.UTF_8));
+                urlToShorten = baseUrl + "/api/gateway/redirect?url=" + base64Url;
+            }
+
+            String stepUrl = callProviderApiWithFailover(selectedProvider, activeProviders, urlToShorten);
+            if (stepUrl != null && !stepUrl.isEmpty() && !stepUrl.equals(urlToShorten)) {
                 currentTargetUrl = stepUrl;
             } else {
                 break; // Dừng lại nếu lỗi hoặc API trả về đúng URL cũ (không tạo được link mới)

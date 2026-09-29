@@ -34,6 +34,16 @@ public class ShortlinkGatewayController {
         }
     }
 
+    @GetMapping("/redirect")
+    public ResponseEntity<Void> nestedRedirect(@RequestParam("url") String base64Url) {
+        try {
+            String decodedUrl = new String(java.util.Base64.getDecoder().decode(base64Url), java.nio.charset.StandardCharsets.UTF_8);
+            return ResponseEntity.status(302).header("Location", decodedUrl).build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @PostMapping("/create-session")
     public ResponseEntity<?> createSession(@RequestBody CreateBypassSessionRequestDTO req, HttpServletRequest httpReq) {
         try {
