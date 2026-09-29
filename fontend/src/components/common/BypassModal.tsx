@@ -30,8 +30,8 @@ export function BypassModal({ isOpen, onClose, app, lang, showToast }: BypassMod
 
       if (res.success && res.shortenedUrl) {
         showToast(lang === 'vi' ? '🚀 Đang chuyển hướng đến trang vượt link...' : '🚀 Redirecting to shortlink page...');
-        window.open(res.shortenedUrl, '_blank');
-        onClose();
+        window.location.href = res.shortenedUrl;
+        // onClose is not needed since the page will navigate away
       } else if (res.alreadyEntitled) {
         showToast(lang === 'vi' ? '🎉 Thiết bị của bạn đã được mở khóa 24h!' : '🎉 Your device is already unlocked!');
         onClose();

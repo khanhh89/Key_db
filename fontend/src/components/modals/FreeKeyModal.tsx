@@ -157,8 +157,8 @@ export function FreeKeyModal({
                     const res = await createBypassSession(deviceId, app.id);
                     if (res.success && res.shortenedUrl) {
                       showToast(lang === 'vi' ? '🚀 Đang chuyển hướng đến trang vượt link...' : 'Redirecting to bypass link...');
-                      window.open(res.shortenedUrl, '_blank');
-                      onClose();
+                      window.location.href = res.shortenedUrl;
+                      // onClose is not needed since the page will navigate away
                     } else if (res.alreadyEntitled) {
                       setIsAlreadyEntitled(true);
                       showToast(lang === 'vi' ? '🎉 Thiết bị của bạn đã được mở khóa 24h!' : 'Your device is already unlocked 24h!');
