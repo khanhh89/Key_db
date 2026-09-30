@@ -60,6 +60,9 @@ export async function saveAppToBackend(app: AppItem, isEditMode: boolean): Promi
     allowSellKey: app.allowSellKey !== undefined ? app.allowSellKey : true,
     allowFreeKey: app.allowFreeKey !== undefined ? app.allowFreeKey : true,
     freeKey: app.freeKey || '',
+    customBypassUrl: app.customBypassUrl || '',
+    requireBypass: app.requireBypass !== undefined ? app.requireBypass : true,
+    hidden: app.hidden !== undefined ? app.hidden : false,
     tags: app.tags && app.tags.length > 0 ? app.tags.join(', ') : '',
     updatedAt: app.updatedAt || new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
   };
@@ -98,7 +101,10 @@ export async function saveAppToBackend(app: AppItem, isEditMode: boolean): Promi
         ...data,
         allowSellKey: data.allowSellKey !== undefined && data.allowSellKey !== null ? Boolean(data.allowSellKey) : app.allowSellKey,
         allowFreeKey: data.allowFreeKey !== undefined && data.allowFreeKey !== null ? Boolean(data.allowFreeKey) : app.allowFreeKey,
+        requireBypass: data.requireBypass !== undefined && data.requireBypass !== null ? Boolean(data.requireBypass) : app.requireBypass,
+        hidden: data.hidden !== undefined && data.hidden !== null ? Boolean(data.hidden) : app.hidden,
         freeKey: data.freeKey || app.freeKey || '',
+        customBypassUrl: data.customBypassUrl || app.customBypassUrl || '',
         tags: data.tags ? data.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : app.tags,
         updatedAt: data.updatedAt || new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
         shots: data.shots ? data.shots.split(',').map((s: string) => s.trim()).filter(Boolean) : null
