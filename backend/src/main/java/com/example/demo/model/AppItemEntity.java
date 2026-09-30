@@ -61,6 +61,10 @@ public class AppItemEntity {
     @JsonProperty("freeKey")
     private String freeKey;
 
+    @Column(name = "custom_bypass_url", columnDefinition = "TEXT")
+    @JsonProperty("customBypassUrl")
+    private String customBypassUrl;
+
     @Column(name = "tags", columnDefinition = "TEXT")
     private String tags;
 

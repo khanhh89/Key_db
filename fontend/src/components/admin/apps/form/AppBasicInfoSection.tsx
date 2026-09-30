@@ -13,6 +13,8 @@ interface AppBasicInfoSectionProps {
   setAppAllowFreeKey: (val: boolean) => void;
   appRequireBypass: boolean;
   setAppRequireBypass: (val: boolean) => void;
+  appCustomBypassUrl: string;
+  setAppCustomBypassUrl: (val: string) => void;
   appHidden: boolean;
   setAppHidden: (val: boolean) => void;
   appNameInputRef: RefObject<HTMLInputElement | null>;
@@ -30,6 +32,8 @@ export function AppBasicInfoSection({
   setAppAllowFreeKey,
   appRequireBypass,
   setAppRequireBypass,
+  appCustomBypassUrl,
+  setAppCustomBypassUrl,
   appHidden,
   setAppHidden,
   appNameInputRef,
@@ -96,17 +100,39 @@ export function AppBasicInfoSection({
         </label>
 
         {appAllowFreeKey && (
-          <label className="flex items-center gap-2.5 cursor-pointer select-none ml-6">
-            <input
-              type="checkbox"
-              checked={appRequireBypass}
-              onChange={(e) => setAppRequireBypass(e.target.checked)}
-              className="w-[18px] h-[18px] accent-[#a855f7] cursor-pointer"
-            />
-            <span className="text-sm font-bold" style={{ color: appRequireBypass ? '#a855f7' : '#94a3b8' }}>
-              ⛓️ {lang === 'vi' ? 'Yêu cầu Vượt Link (Bật = Bắt buộc vượt link để lấy Key Free)' : 'Require Bypass for Free Key'}
-            </span>
-          </label>
+          <div className="flex flex-col gap-3 ml-6">
+            <label className="flex items-center gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={appRequireBypass}
+                onChange={(e) => setAppRequireBypass(e.target.checked)}
+                className="w-[18px] h-[18px] accent-[#a855f7] cursor-pointer"
+              />
+              <span className="text-sm font-bold" style={{ color: appRequireBypass ? '#a855f7' : '#94a3b8' }}>
+                ⛓️ {lang === 'vi' ? 'Yêu cầu Vượt Link (Bật = Bắt buộc vượt link để lấy Key Free)' : 'Require Bypass for Free Key'}
+              </span>
+            </label>
+
+            {appRequireBypass && (
+              <div className="flex flex-col gap-2 pl-7">
+                <label className="text-xs font-bold text-[#94a3b8]">
+                  🔗 {lang === 'vi' ? 'Link Vượt Riêng (Tùy chọn - Mở thẳng trang web bên ngoài):' : 'Custom Bypass URL (Optional - Opens external site):'}
+                </label>
+                <input
+                  className="px-4 py-2.5 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                  type="text"
+                  value={appCustomBypassUrl}
+                  placeholder="https://link4m.co/st?api=..."
+                  onChange={(e) => setAppCustomBypassUrl(e.target.value)}
+                />
+                <span className="text-[11px] text-gray-500">
+                  {lang === 'vi'
+                    ? 'Nếu điền, khách click "Vượt Link" sẽ mở trang này ra tab mới, KHÔNG dùng bộ đếm 24h của web.'
+                    : 'If set, clicking Bypass will open this URL in a new tab without using internal 24h timer.'}
+                </span>
+              </div>
+            )}
+          </div>
         )}
 
         <label className="flex items-center gap-2.5 cursor-pointer select-none">

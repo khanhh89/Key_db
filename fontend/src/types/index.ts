@@ -16,6 +16,7 @@ export interface AppItem {
   requireBypass?: boolean;
   hidden?: boolean;
   freeKey?: string;
+  customBypassUrl?: string;
   updatedAt?: string;
   tags?: string[];
 }

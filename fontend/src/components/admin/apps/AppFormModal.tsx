@@ -40,6 +40,7 @@ export function AppFormModal({
   const [appAllowFreeKey, setAppAllowFreeKey] = useState(true);
   const [appRequireBypass, setAppRequireBypass] = useState(true);
   const [appHidden, setAppHidden] = useState(false);
+  const [appCustomBypassUrl, setAppCustomBypassUrl] = useState('');
   const [appTagsStr, setAppTagsStr] = useState('');
   const [isUploadingIcon, setIsUploadingIcon] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -64,6 +65,7 @@ export function AppFormModal({
         setAppAllowSellKey(editingApp.allowSellKey !== false);
         setAppAllowFreeKey(editingApp.allowFreeKey !== false);
         setAppRequireBypass(editingApp.requireBypass !== false);
+        setAppCustomBypassUrl(editingApp.customBypassUrl || '');
         setAppHidden(Boolean(editingApp.hidden));
       } else {
         setAppName('');
@@ -80,6 +82,7 @@ export function AppFormModal({
         setAppAllowSellKey(true);
         setAppAllowFreeKey(true);
         setAppRequireBypass(true);
+        setAppCustomBypassUrl('');
         setAppHidden(false);
       }
     }
@@ -112,6 +115,7 @@ export function AppFormModal({
       allowSellKey: appAllowSellKey,
       allowFreeKey: appAllowFreeKey,
       requireBypass: appRequireBypass,
+      customBypassUrl: appCustomBypassUrl.trim(),
       hidden: appHidden,
       updatedAt: new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }),
     };
@@ -172,6 +176,8 @@ export function AppFormModal({
               setAppAllowFreeKey={setAppAllowFreeKey}
               appRequireBypass={appRequireBypass}
               setAppRequireBypass={setAppRequireBypass}
+              appCustomBypassUrl={appCustomBypassUrl}
+              setAppCustomBypassUrl={setAppCustomBypassUrl}
               appHidden={appHidden}
               setAppHidden={setAppHidden}
               appNameInputRef={appNameInputRef}

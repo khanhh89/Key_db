@@ -90,6 +90,7 @@ public class AppService {
             app.setHidden(appDetails.getHidden() != null ? appDetails.getHidden() : (app.getHidden() != null ? app.getHidden() : false));
             app.setRequireBypass(appDetails.getRequireBypass() != null ? appDetails.getRequireBypass() : (app.getRequireBypass() != null ? app.getRequireBypass() : true));
             app.setFreeKey(appDetails.getFreeKey());
+            app.setCustomBypassUrl(appDetails.getCustomBypassUrl());
             app.setTags(appDetails.getTags());
             app.setUpdatedAt(appDetails.getUpdatedAt() != null && !appDetails.getUpdatedAt().trim().isEmpty()
                 ? appDetails.getUpdatedAt()

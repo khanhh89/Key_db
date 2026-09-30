@@ -24,6 +24,7 @@ export function FreeKeyModal({
            localStorage.getItem('modlienquan_unlocked_app_id') === app.id;
   });
   const hasKey = Boolean(app.freeKey && app.freeKey.trim());
+  const hasCustomBypass = Boolean(app.customBypassUrl && app.customBypassUrl.trim());
   const displayKey = hasKey
     ? app.freeKey!.trim()
     : (lang === 'vi' ? 'Chưa cập nhật' : 'Not updated yet');
@@ -71,7 +72,7 @@ export function FreeKeyModal({
 
         {/* FREE KEY DISPLAY BOX OR BYPASS BUTTON */}
         <div style={{ marginTop: '20px' }}>
-          {(app.requireBypass === false || isAlreadyEntitled) ? (
+          {(app.requireBypass === false || (isAlreadyEntitled && !hasCustomBypass)) ? (
             <div
               style={{
                 padding: '20px',
@@ -140,12 +141,20 @@ export function FreeKeyModal({
           ) : (
             <div style={{ padding: '10px 0' }}>
               <p style={{ textAlign: 'center', fontSize: '13px', color: '#94a3b8', marginBottom: '14px' }}>
-                {lang === 'vi' ? 'Bạn cần vượt link để nhận mã Key Free 24h.' : 'You need to bypass the link to get your 24h Free Key.'}
+                {hasCustomBypass 
+                  ? (lang === 'vi' ? 'Bạn cần vượt link để nhận Key. Key sẽ hiển thị ở trang web bên ngoài.' : 'You need to bypass the link to get Key. It will be shown on the external site.')
+                  : (lang === 'vi' ? 'Bạn cần vượt link để nhận mã Key Free 24h.' : 'You need to bypass the link to get your 24h Free Key.')}
               </p>
               {/* AUTO BYPASS GATEWAY BUTTON */}
               <button
                 type="button"
                 onClick={async () => {
+                  if (hasCustomBypass) {
+                    showToast(lang === 'vi' ? '🚀 Đang mở link vượt bên ngoài...' : 'Opening external bypass link...');
+                    window.open(app.customBypassUrl, '_blank');
+                    return;
+                  }
+
                   let deviceId = localStorage.getItem('modlienquan_device_id');
                   if (!deviceId) {
                     deviceId = 'dev_' + Math.random().toString(36).substring(2, 12);
@@ -187,7 +196,9 @@ export function FreeKeyModal({
                   gap: '8px'
                 }}
               >
-                🚀 {lang === 'vi' ? 'VƯỢT LINK NHẬN KEY 24H (TỰ ĐỘNG)' : 'BYPASS LINK TO GET 24H KEY'}
+                🚀 {hasCustomBypass 
+                      ? (lang === 'vi' ? 'VƯỢT LINK NHẬN KEY (BÊN NGOÀI)' : 'BYPASS LINK (EXTERNAL)') 
+                      : (lang === 'vi' ? 'VƯỢT LINK NHẬN KEY 24H (TỰ ĐỘNG)' : 'BYPASS LINK TO GET 24H KEY')}
               </button>
             </div>
           )}
