@@ -4,6 +4,8 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.example.demo.service.FirewallService;
 
 import java.io.IOException;
 import java.util.Map;
@@ -16,6 +18,9 @@ public class RateLimitingFilter implements Filter {
 
     private static final int MAX_REQUESTS_PER_MINUTE = 60;
     private final Map<String, ClientRateLimit> rateLimitMap = new ConcurrentHashMap<>();
+
+    @Autowired
+    private FirewallService firewallService;
 
     private static class ClientRateLimit {
         long windowStartTimestamp;
@@ -42,10 +47,21 @@ public class RateLimitingFilter implements Filter {
         httpResponse.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
 
         String path = httpRequest.getRequestURI();
+        String clientIp = getClientIp(httpRequest);
+
+        // Check Firewall IP Blacklist
+        if (!firewallService.isAllowed(clientIp)) {
+            System.err.println(">>> [Firewall] Blocked request from IP: " + clientIp + " to path: " + path);
+            httpResponse.setStatus(403);
+            httpResponse.setContentType("application/json;charset=UTF-8");
+            httpResponse.getWriter().write(
+                "{\"error\":\"Truy cập bị từ chối bởi Tường lửa Hệ thống.\",\"code\":403}"
+            );
+            return;
+        }
 
         // Rate limit public write & lookup APIs (Order Creation, Payment Verification, Key Queries, Auth)
         if (path.startsWith("/api/orders") || path.startsWith("/api/keys") || path.startsWith("/api/auth") || path.startsWith("/api/payos") || path.startsWith("/api/cloudinary")) {
-            String clientIp = getClientIp(httpRequest);
             long currentTimeMs = System.currentTimeMillis();
 
             ClientRateLimit rateLimit = rateLimitMap.compute(clientIp, (ip, existing) -> {
