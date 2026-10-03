@@ -68,13 +68,13 @@ export function AppScreenshotsSection({
   };
 
   return (
-    <div className="bg-[#1e293b]/40 border border-white/10 rounded-[18px] p-5 flex flex-col gap-4">
-      <div className="text-[#38bdf8] font-heading font-bold text-sm tracking-wide flex items-center gap-2">
+    <div className="bg-white border border-white/10 rounded-[18px] p-5 flex flex-col gap-4">
+      <div className="text-[#2563EB] font-heading font-bold text-sm tracking-wide flex items-center gap-2">
         📸 {lang === 'vi' ? '3. Ảnh Menu Preview Ứng Dụng' : '3. Menu Preview Screenshots'}
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="flex justify-between items-center text-xs font-bold text-[#94a3b8]">
+        <label className="flex justify-between items-center text-xs font-bold text-[#64748B]">
           <span>{lang === 'vi' ? 'Ảnh Menu Preview (Up Cloudinary):' : 'Menu Screenshots (Upload to Cloudinary):'}</span>
           <span className="text-[11px] text-[#10b981] font-bold">☁ Cloud CDN Multi-Upload</span>
         </label>
@@ -111,7 +111,7 @@ export function AppScreenshotsSection({
                 ? 'Kéo & thả tệp ảnh Menu vào đây hoặc BẤM ĐỂ CHỌN NHIỀU TỆP'
                 : 'Drag & drop menu images here or CLICK TO SELECT FILES'}
             </div>
-            <small className="text-xs text-white/60 block mt-1">
+            <small className="text-xs text-[#1F2937]/60 block mt-1">
               {lang === 'vi' ? 'Hỗ trợ tải lên cùng lúc nhiều ảnh (PNG, JPG, WEBP)' : 'Supports batch upload (PNG, JPG, WEBP)'}
             </small>
             <input
@@ -152,7 +152,7 @@ export function AppScreenshotsSection({
                 return (
                   <div
                     key={idx}
-                    className="relative bg-[#0f172a]/80 border border-[#00f2fe]/35 rounded-[14px] p-1.5 flex flex-col items-center gap-1.5"
+                    className="relative bg-white border border-[#00f2fe]/35 rounded-[14px] p-1.5 flex flex-col items-center gap-1.5"
                   >
                     {isImg ? (
                       <img
@@ -162,7 +162,7 @@ export function AppScreenshotsSection({
                         onClick={() => window.open(s, '_blank')}
                       />
                     ) : (
-                      <div className="w-full h-[85px] bg-[#38bdf8]/15 text-[#38bdf8] rounded-[10px] grid place-items-center font-bold text-xs p-1 text-center">
+                      <div className="w-full h-[85px] bg-[#2563EB]/15 text-[#2563EB] rounded-[10px] grid place-items-center font-bold text-xs p-1 text-center">
                         🏷️ {s}
                       </div>
                     )}
@@ -171,7 +171,7 @@ export function AppScreenshotsSection({
                         type="button"
                         disabled={idx === 0}
                         onClick={() => moveShotImage(idx, 'left')}
-                        className="bg-white/10 text-white border-0 rounded px-2 py-0.5 text-[11px] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                        className="bg-white/10 text-[#1F2937] border-0 rounded px-2 py-0.5 text-[11px] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                       >
                         ←
                       </button>
@@ -186,7 +186,7 @@ export function AppScreenshotsSection({
                         type="button"
                         disabled={idx === arr.length - 1}
                         onClick={() => moveShotImage(idx, 'right')}
-                        className="bg-white/10 text-white border-0 rounded px-2 py-0.5 text-[11px] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                        className="bg-white/10 text-[#1F2937] border-0 rounded px-2 py-0.5 text-[11px] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                       >
                         →
                       </button>
@@ -197,7 +197,7 @@ export function AppScreenshotsSection({
             </div>
 
             <details className="mt-3">
-              <summary className="cursor-pointer text-xs text-[#38bdf8] font-bold">
+              <summary className="cursor-pointer text-xs text-[#2563EB] font-bold">
                 ✏️ {lang === 'vi' ? 'Xem hoặc sửa trực tiếp danh sách link ảnh' : 'Edit raw URL string'}
               </summary>
               <textarea
@@ -205,7 +205,7 @@ export function AppScreenshotsSection({
                 value={appShotsStr}
                 onChange={(e) => setAppShotsStr(e.target.value)}
                 placeholder="https://..., https://..."
-                className="w-full mt-1.5 p-2 rounded-lg bg-black/50 text-white border border-white/15 text-xs font-mono outline-none"
+                className="w-full mt-1.5 p-2 rounded-lg bg-black/50 text-[#1F2937] border border-white/15 text-xs font-mono outline-none"
               />
             </details>
           </div>

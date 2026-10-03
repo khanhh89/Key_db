@@ -137,12 +137,12 @@ export function AppFormModal({
         onClick={onClose}
       >
         <div
-          className="w-[min(740px,100%)] max-h-[92vh] overflow-y-auto bg-[#0f172a]/95 border border-[#38bdf8]/35 rounded-[28px] p-8 backdrop-blur-[24px] shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_30px_rgba(56,189,248,0.15)] flex flex-col gap-5"
+          className="w-[min(740px,100%)] max-h-[92vh] overflow-y-auto bg-white border border-[#2563EB] rounded-[28px] p-8 backdrop-blur-[24px] shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_30px_rgba(56,189,248,0.15)] flex flex-col gap-5"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex justify-between items-center border-b border-white/10 pb-4">
-            <h4 className="text-lg font-heading font-extrabold text-[#38bdf8] m-0 flex items-center gap-2">
+            <h4 className="text-lg font-heading font-extrabold text-[#2563EB] m-0 flex items-center gap-2">
               📱{' '}
               {editingApp
                 ? lang === 'vi'
@@ -154,7 +154,7 @@ export function AppFormModal({
             </h4>
             <button
               type="button"
-              className="bg-white/10 border border-white/15 text-[#94a3b8] w-9 h-9 rounded-full text-xl grid place-items-center cursor-pointer transition-all duration-200 hover:bg-[#ef4444] hover:text-white hover:border-[#ef4444]"
+              className="bg-white/10 border border-white/15 text-[#64748B] w-9 h-9 rounded-full text-xl grid place-items-center cursor-pointer transition-all duration-200 hover:bg-[#ef4444] hover:text-[#1F2937] hover:border-[#ef4444]"
               onClick={onClose}
             >
               ×
@@ -184,8 +184,8 @@ export function AppFormModal({
             />
 
             {/* Section 2: Icon CDN, Badges, Links & Platform */}
-            <div className="bg-[#1e293b]/40 border border-white/10 rounded-[18px] p-5 flex flex-col gap-4">
-              <div className="text-[#38bdf8] font-heading font-bold text-sm tracking-wide flex items-center gap-2">
+            <div className="bg-white border border-white/10 rounded-[18px] p-5 flex flex-col gap-4">
+              <div className="text-[#2563EB] font-heading font-bold text-sm tracking-wide flex items-center gap-2">
                 ☁ {lang === 'vi' ? '2. Media, Nhãn & Đường Dẫn Tải' : '2. Media, Badges & Download Links'}
               </div>
 
@@ -228,7 +228,7 @@ export function AppFormModal({
             <div className="flex justify-end gap-3 pt-3 border-t border-white/10">
               <button
                 type="button"
-                className="px-5 py-3 rounded-xl border border-[#334155] bg-[#1e293b] text-[#e2e8f0] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]"
+                className="px-5 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1F2937] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]"
                 onClick={onClose}
               >
                 {lang === 'vi' ? 'Hủy Bỏ' : 'Cancel'}
@@ -236,7 +236,7 @@ export function AppFormModal({
               <button
                 type="submit"
                 disabled={isSaving}
-                className="px-6 py-3 rounded-xl border-0 bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)] disabled:opacity-50"
+                className="px-6 py-3 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)] disabled:opacity-50"
               >
                 {isSaving ? (lang === 'vi' ? '⏳ Đang lưu...' : '⏳ Saving...') : `💾 ${lang === 'vi' ? 'Lưu Ứng Dụng' : 'Save Application'}`}
               </button>

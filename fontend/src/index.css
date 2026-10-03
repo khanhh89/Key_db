@@ -7,20 +7,20 @@
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
   --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
-  --bg-dark: #05070b;
-  --bg-dark-card: linear-gradient(160deg, #111824, #080b10);
+  --bg-dark: #F5F7FB;
+  --bg-dark-card: #FFFFFF;
   --bg-light: #f8fafc;
   --bg-light-card: linear-gradient(160deg, #ffffff, #f1f5f9);
-  --text-dark: #eef4ff;
+  --text-dark: #1F2937;
   --text-light: #0f172a;
   --text-muted-dark: #7c899d;
   --text-muted-light: #475569;
-  --border-dark: #273345;
+  --border-dark: #E5E7EB;
   --border-light: #e2e8f0;
-  --primary-gradient: linear-gradient(90deg, #21c8ef, #687dff);
-  --primary-pink: linear-gradient(90deg, #54d7ff, #b87cff, #ff5cba);
+  --primary-gradient: #2563EB;
+  --primary-pink: #2563EB;
   --txt2: #94a3b8;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
@@ -37,7 +37,7 @@ html {
 body {
   margin: 0;
   font-family: var(--font-sans);
-  background: var(--bg-dark);
+  background: #F5F7FB;
   color: var(--text-dark);
   overflow-x: hidden;
   position: relative;
@@ -1807,12 +1807,25 @@ body {
 }
 
 .notice-body {
-  max-height: 84px;
-  overflow-y: auto;
-  white-space: pre-line;
   word-break: break-word;
   overflow-wrap: anywhere;
-  padding-right: 4px;
+  /* styles to handle CKEditor HTML gracefully */
+}
+.notice-body p {
+  margin-bottom: 6px;
+}
+.notice-body p:last-child {
+  margin-bottom: 0;
+}
+.notice-body ul {
+  list-style-type: disc;
+  margin-left: 18px;
+  margin-bottom: 6px;
+}
+.notice-body ol {
+  list-style-type: decimal;
+  margin-left: 18px;
+  margin-bottom: 6px;
 }
 
 /* Custom Scrollbar for notice body */
@@ -4667,3 +4680,10 @@ button:active, a.btn:active, .float-btn:active {
   }
 }
 
+. c k - e d i t o r _ _ e d i t a b l e _ i n l i n e 
+ 
+.ck-editor__editable_inline { min-height: 150px !important; }
+
+/* SAAS LIGHT THEME OVERRIDES */
+.cursor-glow-follower, .noise-overlay, .gradient-glow-orb, .rotating-rings-container { display: none !important; }
+.admin-portal { background: #F5F7FB !important; color: #1F2937 !important; }

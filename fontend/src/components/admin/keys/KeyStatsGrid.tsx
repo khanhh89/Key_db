@@ -19,11 +19,11 @@ export function KeyStatsGrid({
   return (
     <div className="key-stats-grid">
       <div className="key-stat-card">
-        <span>📦 TỔNG KEY CÒN HÀNG</span>
-        <strong>{countTotalAvailable} Key</strong>
+        <span style={{ color: '#2563EB', fontWeight: 'bold' }}>📦 TỔNG KEY CÒN HÀNG</span>
+        <strong style={{ fontSize: '24px', color: '#1E293B', marginTop: '8px', display: 'block' }}>{countTotalAvailable} Key</strong>
         {totalInventoryValue > 0 && (
-          <small style={{ fontSize: '11px', color: '#10b981', fontWeight: 'bold', display: 'block', marginTop: '2px' }}>
-            💰 Tổng trị giá: {totalInventoryValue.toLocaleString()} đ
+          <small style={{ fontSize: '12px', color: '#64748B', fontWeight: '600', display: 'block', marginTop: '8px' }}>
+            💰 Tổng trị giá: <span style={{ color: '#16A34A' }}>{totalInventoryValue.toLocaleString()} đ</span>
           </small>
         )}
       </div>
@@ -55,21 +55,21 @@ export function KeyStatsGrid({
             onClick={() => setFilterDuration(isActiveFilter ? 'ALL' : String(days))}
             style={{
               cursor: 'pointer',
-              border: isActiveFilter ? '1px solid #38bdf8' : undefined,
-              boxShadow: isActiveFilter ? '0 0 16px rgba(56, 189, 248, 0.4)' : undefined
+              border: isActiveFilter ? '1px solid #2563EB' : undefined,
+              boxShadow: isActiveFilter ? '0 0 0 1px #2563EB' : undefined
             }}
             title="Bấm để lọc nhanh gói này"
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>{icon} {title}</span>
-              <span style={{ fontSize: '10px', color: healthColor, fontWeight: 'bold' }}>{healthLabel}</span>
+              <span style={{ color: '#2563EB', fontWeight: 'bold' }}>{icon} {title}</span>
+              <span className={`status-badge ${count === 0 ? 'sold' : count < 5 ? 'badge-warning' : 'available'}`}>{healthLabel}</span>
             </div>
-            <strong style={{ color }}>{count} Key</strong>
-            <div style={{ marginTop: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#10b981', fontWeight: 'bold' }}>
+            <strong style={{ fontSize: '20px', color: '#1E293B', marginTop: '8px', display: 'block' }}>{count} Key</strong>
+            <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: '#64748B', fontWeight: '600' }}>
                 Giá: {currentPkgPrice !== undefined && currentPkgPrice !== null ? `${currentPkgPrice.toLocaleString()} đ` : 'Chưa đặt giá'}
               </span>
-              <small style={{ fontSize: '10px', color: '#94a3b8' }}>{isActiveFilter ? '✓ Đang lọc' : 'Lọc nhanh'}</small>
+              <small style={{ fontSize: '11px', color: isActiveFilter ? '#2563EB' : '#94A3B8', fontWeight: isActiveFilter ? 'bold' : 'normal' }}>{isActiveFilter ? '✓ Đang lọc' : 'Lọc nhanh'}</small>
             </div>
           </div>
         );

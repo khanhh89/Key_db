@@ -39,18 +39,18 @@ export function AppBasicInfoSection({
   appNameInputRef,
 }: AppBasicInfoSectionProps) {
   return (
-    <div className="bg-[#1e293b]/40 border border-white/10 rounded-[18px] p-5 flex flex-col gap-4">
-      <div className="text-[#38bdf8] font-heading font-bold text-sm tracking-wide flex items-center gap-2">
+    <div className="bg-white border border-white/10 rounded-[18px] p-5 flex flex-col gap-4">
+      <div className="text-[#2563EB] font-heading font-bold text-sm tracking-wide flex items-center gap-2">
         📌 {lang === 'vi' ? '1. Thông Tin Cơ Bản App' : '1. Basic App Information'}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-bold text-[#94a3b8]">
+          <label className="text-xs font-bold text-[#64748B]">
             {lang === 'vi' ? 'Tên App (*):' : 'App Name (*):'}
           </label>
           <input
-            className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+            className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
             type="text"
             ref={appNameInputRef}
             value={appName}
@@ -60,11 +60,11 @@ export function AppBasicInfoSection({
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-bold text-[#94a3b8]">
+          <label className="text-xs font-bold text-[#64748B]">
             {lang === 'vi' ? 'Tên Game / Subtitle (*):' : 'Sub Title (*):'}
           </label>
           <input
-            className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+            className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
             type="text"
             value={appSub}
             placeholder={lang === 'vi' ? 'VD: Hack Map + Cam Xa + Skin' : 'e.g. Map Hack + Drone View'}
@@ -115,11 +115,11 @@ export function AppBasicInfoSection({
 
             {appRequireBypass && (
               <div className="flex flex-col gap-2 pl-7">
-                <label className="text-xs font-bold text-[#94a3b8]">
+                <label className="text-xs font-bold text-[#64748B]">
                   🔗 {lang === 'vi' ? 'Link Vượt Riêng (Tùy chọn - Mở thẳng trang web bên ngoài):' : 'Custom Bypass URL (Optional - Opens external site):'}
                 </label>
                 <input
-                  className="px-4 py-2.5 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                  className="px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
                   type="text"
                   value={appCustomBypassUrl}
                   placeholder="https://link4m.co/st?api=..."

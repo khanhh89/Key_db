@@ -95,7 +95,7 @@ export function KeyImportModal({
   return (
     <ModalPortal>
       <div className="fixed inset-0 bg-black/85 backdrop-blur-[14px] flex justify-center items-start z-[999999] p-[20px_16px] overflow-y-auto animate-[fadeIn_0.25s_ease-out]" onClick={onClose}>
-        <div className="w-[min(640px,94vw)] h-auto max-h-[calc(100vh-40px)] m-auto flex flex-col bg-[#0f172a] border border-[#38bdf8]/30 rounded-[28px] p-7 shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="w-[min(640px,94vw)] h-auto max-h-[calc(100vh-40px)] m-auto flex flex-col bg-white border border-[#2563EB] rounded-[28px] p-7 shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden" onClick={e => e.stopPropagation()}>
           <h4>🔑 {editingKey ? (lang === 'vi' ? 'Chỉnh Sửa Thông Tin Key' : 'Edit License Key') : (lang === 'vi' ? 'Nạp Key Mới Phân Loại Theo Gói' : 'Import New Keys By Package')}</h4>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-170px)] pr-1">
 
@@ -134,7 +134,7 @@ export function KeyImportModal({
             ) : (
               <div className="flex flex-col gap-2">
                 <label>{lang === 'vi' ? 'Chọn App Catalog (*):' : 'Select App (*):'}</label>
-                <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15" ref={appIdSelectRef} value={selectedAppId} onChange={e => setSelectedAppId(e.target.value)}>
+                <select className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" ref={appIdSelectRef} value={selectedAppId} onChange={e => setSelectedAppId(e.target.value)}>
                   {apps.map(a => <option key={a.id} value={a.id}>{a.name} ({a.sub})</option>)}
                 </select>
               </div>
@@ -160,11 +160,11 @@ export function KeyImportModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
                   <label>{lang === 'vi' ? 'Số Ngày Thời Hạn (Ngày):' : 'Duration (Days):'}</label>
-                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15" type="number" min="1" value={durationDays || ''} onChange={e => setDurationDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
+                  <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" type="number" min="1" value={durationDays || ''} onChange={e => setDurationDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
                 </div>
                 <div className="flex flex-col gap-2">
                   <label>{lang === 'vi' ? 'Giá Bán Gói (VNĐ - Tối thiểu 2,000đ):' : 'Price (VND - Min 2,000):'}</label>
-                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15" type="number" min="2000" step="1000" value={price || ''} onChange={e => setPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
+                  <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" type="number" min="2000" step="1000" value={price || ''} onChange={e => setPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
                 </div>
               </div>
             )}
@@ -173,7 +173,7 @@ export function KeyImportModal({
             {editingKey && (
               <div className="flex flex-col gap-2">
                 <label>{lang === 'vi' ? 'Trạng Thái Key:' : 'Key Status:'}</label>
-                <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15" value={editingStatus} onChange={e => setEditingStatus(e.target.value as 'AVAILABLE' | 'SOLD')}>
+                <select className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" value={editingStatus} onChange={e => setEditingStatus(e.target.value as 'AVAILABLE' | 'SOLD')}>
                   <option value="AVAILABLE">● CÒN HÀNG (AVAILABLE)</option>
                   <option value="SOLD">✓ ĐÃ BÁN (SOLD)</option>
                 </select>
@@ -184,15 +184,15 @@ export function KeyImportModal({
             <div className="flex flex-col gap-2">
               <label>{editingKey ? (lang === 'vi' ? 'Mã Key Code:' : 'Key Code:') : (lang === 'vi' ? 'Danh sách Mã Key (Mỗi mã 1 dòng để nạp hàng loạt):' : 'Key Codes (One per line for bulk import):')}</label>
               {editingKey ? (
-                <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15" type="text" ref={keyCodeInputRef} value={keyCodeStr} onChange={e => setKeyCodeStr(e.target.value)} />
+                <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" type="text" ref={keyCodeInputRef} value={keyCodeStr} onChange={e => setKeyCodeStr(e.target.value)} />
               ) : (
-                <textarea className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15" rows={5} ref={keyCodeTextareaRef} value={keyCodeStr} onChange={e => setKeyCodeStr(e.target.value)} />
+                <textarea className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" rows={5} ref={keyCodeTextareaRef} value={keyCodeStr} onChange={e => setKeyCodeStr(e.target.value)} />
               )}
             </div>
 
             <div className="flex justify-end gap-3 mt-3.5 pt-3.5 border-t border-white/10 shrink-0">
-              <button type="button" className="px-5 py-3 rounded-xl border border-[#334155] bg-[#1e293b] text-[#e2e8f0] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]" onClick={onClose}>{lang === 'vi' ? 'Hủy' : 'Cancel'}</button>
-              <button type="submit" className="px-6 py-3 rounded-xl border-0 bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)]">
+              <button type="button" className="px-5 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1F2937] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]" onClick={onClose}>{lang === 'vi' ? 'Hủy' : 'Cancel'}</button>
+              <button type="submit" className="px-6 py-3 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)]">
                 {editingKey ? (lang === 'vi' ? '💾 Lưu Thay Đổi' : '💾 Save Changes') : (lang === 'vi' ? '💾 Nạp Vào Kho' : '💾 Import Keys')}
               </button>
             </div>

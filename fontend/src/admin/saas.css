@@ -1,0 +1,149 @@
+/* =========================================
+   ENTERPRISE SAAS ADMIN DASHBOARD OVERRIDES
+   ========================================= */
+:root {
+  --primary-blue: #2563EB;
+  --primary-blue-hover: #1D4ED8;
+  --page-bg: #F5F7FB;
+  --card-bg: #FFFFFF;
+  --sidebar-bg: #FFFFFF;
+  --main-text: #1E293B;
+  --sec-text: #64748B;
+  --muted-text: #94A3B8;
+  --border: #E2E8F0;
+  --light-blue-bg: #EFF6FF;
+  
+  --success: #16A34A;
+  --success-bg: #ECFDF5;
+  --warning: #F59E0B;
+  --warning-bg: #FFFBEB;
+  --danger: #DC2626;
+  --danger-bg: #FEF2F2;
+}
+
+body, .admin-portal, .admin-main, .admin-login-wrapper { 
+    background: var(--page-bg) !important; 
+    color: var(--main-text) !important; 
+}
+.admin-sidebar, .sidebar { 
+    background: var(--sidebar-bg) !important; 
+    border-right: 1px solid var(--border) !important; 
+    box-shadow: none !important; 
+}
+
+/* Sidebar Nav */
+.sidebar-nav-item { 
+    color: var(--sec-text) !important; 
+    border-radius: 8px !important; 
+    transition: all 0.2s ease !important; 
+    margin-bottom: 4px;
+    background: transparent !important;
+    border: none !important;
+}
+.sidebar-nav-item:hover { 
+    background: #F1F5F9 !important; 
+    color: var(--main-text) !important; 
+}
+.sidebar-nav-item.active { 
+    background: var(--light-blue-bg) !important; 
+    color: var(--primary-blue) !important; 
+    font-weight: 600 !important;
+}
+
+/* Header */
+.admin-header { background: var(--card-bg) !important; border-bottom: 1px solid var(--border) !important; }
+
+/* Cards & Containers (FORCING WHITE, NO COLORED CARDS) */
+.admin-content > div, .card, .bg-white, .key-stat-card, [class*="metric-card"], [class*="bg-\[\#"], .dashboard-card { 
+    background: var(--card-bg) !important; 
+    border: 1px solid var(--border) !important; 
+    border-radius: 12px !important; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; 
+    backdrop-filter: none !important;
+    background-image: none !important;
+}
+
+/* Typography Overrides */
+h1, h2, h3, h4, h5, h6, strong, b { color: var(--main-text) !important; -webkit-text-fill-color: initial !important; background: none !important; }
+span, p, div { color: inherit; }
+
+/* Enforce Text Colors */
+.text-\[\#64748B\], .text-xs.text-\[\#94a3b8\], small, .text-muted { color: var(--sec-text) !important; }
+.text-\[\#1F2937\], .text-white { color: var(--main-text) !important; }
+.text-\[\#38bdf8\], .text-\[\#0ea5e9\], .text-blue-400 { color: var(--primary-blue) !important; }
+
+/* Force ALL inline colored text in cards to uniform color unless specifically success/danger */
+.key-stat-card strong, .metric-card strong, .dashboard-card strong { color: var(--main-text) !important; }
+.key-stat-card small, .metric-card p { color: var(--sec-text) !important; }
+/* Icons in cards */
+.key-stat-card span:first-child, .metric-icon { color: var(--primary-blue) !important; }
+
+/* Tables */
+table { border-collapse: separate; border-spacing: 0; width: 100%; border: 1px solid var(--border) !important; border-radius: 8px; overflow: hidden; background: var(--card-bg) !important; }
+table th { background: #F8FAFC !important; color: var(--sec-text) !important; font-weight: 600 !important; border-bottom: 1px solid var(--border) !important; padding: 12px 16px !important; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
+table td { border-bottom: 1px solid var(--border) !important; color: var(--main-text) !important; padding: 14px 16px !important; }
+table tr:last-child td { border-bottom: none !important; }
+table tr:hover td { background: #F8FAFC !important; }
+
+/* Buttons */
+button { transition: all 0.2s ease; }
+.btn-primary, button.bg-\[\#2563EB\], button.bg-gradient-to-r { 
+    background: var(--primary-blue) !important; 
+    color: #FFFFFF !important; 
+    border: none !important; 
+    box-shadow: 0 1px 2px rgba(37,99,235, 0.1) !important;
+    background-image: none !important;
+}
+.btn-primary:hover, button.bg-\[\#2563EB\]:hover, button.bg-gradient-to-r:hover { background: var(--primary-blue-hover) !important; transform: translateY(-1px); }
+
+/* Inputs */
+input, textarea, select { 
+    background: var(--card-bg) !important; 
+    border: 1px solid var(--border) !important; 
+    color: var(--main-text) !important; 
+}
+input:focus, textarea:focus, select:focus { 
+    border-color: var(--primary-blue) !important; 
+    box-shadow: 0 0 0 3px rgba(37,99,235, 0.15) !important; 
+    outline: none !important;
+}
+
+/* Badges / Status */
+.status-badge.available, .badge-success, .text-green-500 { 
+    background: var(--success-bg) !important; 
+    color: var(--success) !important; 
+    border: 1px solid #D1FAE5 !important; 
+}
+.status-badge.sold, .badge-danger, .text-red-500 { 
+    background: var(--danger-bg) !important; 
+    color: var(--danger) !important; 
+    border: 1px solid #FEE2E2 !important; 
+}
+.badge-warning, .text-yellow-500 { 
+    background: var(--warning-bg) !important; 
+    color: var(--warning) !important; 
+    border: 1px solid #FEF3C7 !important; 
+}
+/* Ensure badges have padding and form */
+.status-badge, [class*="badge-"] {
+    padding: 4px 8px !important; 
+    border-radius: 6px !important; 
+    font-size: 11px !important; 
+    font-weight: 600 !important;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Overriding specific span inline styles for stats */
+span[style*="color: #10b981"], span[style*="color: rgb(16, 185, 129)"] { color: var(--success) !important; }
+span[style*="color: #ef4444"], span[style*="color: rgb(239, 68, 68)"] { color: var(--danger) !important; }
+span[style*="color: #f59e0b"], span[style*="color: rgb(245, 158, 11)"] { color: var(--warning) !important; }
+
+/* Modal Backgrounds */
+.modal-overlay, .fixed.inset-0.bg-black\/60 { background: rgba(15, 23, 42, 0.4) !important; backdrop-filter: none !important; }
+.modal-content, .bg-\[\#0f172a\] { background: var(--card-bg) !important; border: 1px solid var(--border) !important; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1) !important; }
+
+/* Remove any remaining gradients/glass/neon */
+.shadow-\[0_0_16px_rgba\(56\,189\,248\,0\.4\)\], [class*="shadow-"] { box-shadow: none !important; }
+.bg-gradient-to-r, .bg-gradient-to-b { background-image: none !important; }
+.glass, .noise-overlay, .cursor-glow-follower { box-shadow: none !important; background-image: none !important; display: none !important; }

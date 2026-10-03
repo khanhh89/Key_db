@@ -87,8 +87,8 @@ export function PricePresetsModal({
   return (
     <ModalPortal>
       <div className="fixed inset-0 bg-black/85 backdrop-blur-[14px] flex justify-center items-start z-[999999] p-[20px_16px] overflow-y-auto animate-[fadeIn_0.25s_ease-out]" onClick={onClose}>
-        <div className="w-[min(640px,94vw)] h-auto max-h-[calc(100vh-40px)] m-auto flex flex-col bg-[#0f172a] border border-[#38bdf8]/30 rounded-[28px] p-7 shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden" onClick={e => e.stopPropagation()} style={{ maxWidth: '580px' }}>
-          <button className="absolute top-5 right-[22px] bg-transparent border-none text-[#94a3b8] text-2xl cursor-pointer z-10 transition-colors duration-200 hover:text-[#f87171]" onClick={onClose}>×</button>
+        <div className="w-[min(640px,94vw)] h-auto max-h-[calc(100vh-40px)] m-auto flex flex-col bg-white border border-[#2563EB] rounded-[28px] p-7 shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden" onClick={e => e.stopPropagation()} style={{ maxWidth: '580px' }}>
+          <button className="absolute top-5 right-[22px] bg-transparent border-none text-[#64748B] text-2xl cursor-pointer z-10 transition-colors duration-200 hover:text-[#f87171]" onClick={onClose}>×</button>
           <h4 style={{ color: '#a855f7', display: 'flex', alignItems: 'center', gap: '8px' }}>⚙️ {lang === 'vi' ? 'Cấu Hình Bảng Giá Key Mẫu' : 'Configure Key Price Presets'}</h4>
           <p style={{ color: '#94a3b8', fontSize: '12.5px', marginBottom: '16px' }}>{lang === 'vi' ? 'Tạo các gói giá & ngày cố định để khi nạp key mới chỉ cần chọn từ danh sách mà không cần nhập lại nhiều lần.' : 'Manage pricing presets for faster key importation.'}</p>
 
@@ -101,18 +101,18 @@ export function PricePresetsModal({
             <div className="grid grid-cols-1 sm:grid-cols-[1.5fr_1fr_1.2fr_auto] gap-3 items-end">
               <div className="flex flex-col gap-1.5">
                 <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Tên Gói:' : 'Name:'}</label>
-                <input ref={newPresetNameInputRef} className="w-full px-3 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20" type="text" placeholder="VD: Gói 7 Ngày" value={newPresetName} onChange={e => setNewPresetName(e.target.value)} />
+                <input ref={newPresetNameInputRef} className="w-full px-3 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-[#1F2937] font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20" type="text" placeholder="VD: Gói 7 Ngày" value={newPresetName} onChange={e => setNewPresetName(e.target.value)} />
               </div>
               <div className="flex flex-col gap-1.5">
                 <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Số Ngày:' : 'Days:'}</label>
-                <input className="w-full px-3 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20" type="number" min="1" value={newPresetDays || ''} onChange={e => setNewPresetDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
+                <input className="w-full px-3 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-[#1F2937] font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20" type="number" min="1" value={newPresetDays || ''} onChange={e => setNewPresetDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
               </div>
               <div className="flex flex-col gap-1.5">
                 <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Giá (VNĐ):' : 'Price:'}</label>
-                <input className="w-full px-3 py-2.5 rounded-lg border border-[#334155] bg-[#0f172a] text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20" type="number" min="2000" step="1000" value={newPresetPrice || ''} onChange={e => setNewPresetPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
+                <input className="w-full px-3 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-[#1F2937] font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20" type="number" min="2000" step="1000" value={newPresetPrice || ''} onChange={e => setNewPresetPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
               </div>
               <div className="flex flex-col gap-1.5">
-                <button type="submit" className="h-[42px] px-4 rounded-lg font-bold text-[13px] text-white cursor-pointer transition-all duration-200 hover:-translate-y-0.5" style={{ background: editingPreset ? 'linear-gradient(135deg, #38bdf8, #0ea5e9)' : 'linear-gradient(135deg, #a855f7, #7e22ce)', border: 'none', boxShadow: editingPreset ? '0 4px 12px rgba(56,189,248,0.4)' : '0 4px 12px rgba(168,85,247,0.4)' }}>
+                <button type="submit" className="h-[42px] px-4 rounded-lg font-bold text-[13px] text-[#1F2937] cursor-pointer transition-all duration-200 hover:-translate-y-0.5" style={{ background: editingPreset ? 'linear-gradient(135deg, #38bdf8, #0ea5e9)' : 'linear-gradient(135deg, #a855f7, #7e22ce)', border: 'none', boxShadow: editingPreset ? '0 4px 12px rgba(56,189,248,0.4)' : '0 4px 12px rgba(168,85,247,0.4)' }}>
                   {editingPreset ? (lang === 'vi' ? '💾 Cập Nhật' : '💾 Update') : ('+ ' + (lang === 'vi' ? 'Lưu' : 'Add'))}
                 </button>
                 {editingPreset && (
@@ -128,18 +128,18 @@ export function PricePresetsModal({
           <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
             <table className="w-full border-collapse text-left text-sm" style={{ width: '100%', fontSize: '12.5px' }}>
               <thead>
-                <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
-                  <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Tên Gói' : 'Name'}</th>
-                  <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Thời Hạn' : 'Duration'}</th>
-                  <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Giá Bán (VNĐ)' : 'Price'}</th>
+                <tr className="hover:bg-[#2563EB]/[0.04] transition-colors group">
+                  <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">{lang === 'vi' ? 'Tên Gói' : 'Name'}</th>
+                  <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">{lang === 'vi' ? 'Thời Hạn' : 'Duration'}</th>
+                  <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">{lang === 'vi' ? 'Giá Bán (VNĐ)' : 'Price'}</th>
                   <th style={{ textAlign: 'center', minWidth: '120px' }}>{lang === 'vi' ? 'Thao tác' : 'Action'}</th>
                 </tr>
               </thead>
               <tbody>
                 {presets.map(p => (
                   <tr key={p.id}>
-                    <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]"><strong>{p.name}</strong></td>
-                    <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">{p.durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</td>
+                    <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]"><strong>{p.name}</strong></td>
+                    <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">{p.durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</td>
                     <td style={{ color: '#10b981', fontWeight: 'bold' }}>{p.price.toLocaleString()} đ</td>
                     <td style={{ textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>

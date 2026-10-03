@@ -78,22 +78,22 @@ export function OrderList({
     <>
       {/* REVENUE OVERVIEW & TOOLBAR */}
       <div className="flex gap-5 mb-2.5 flex-col md:flex-row">
-        <div className="flex-1 bg-[#111827]/70 border border-[#1e293b] p-[16px_20px] rounded-[16px] flex flex-col gap-1">
-          <span className="text-[11px] font-bold text-[#94a3b8]">TỔNG DOANH THU:</span>
+        <div className="flex-1 bg-[#111827]/70 border border-[#E5E7EB] p-[16px_20px] rounded-[16px] flex flex-col gap-1">
+          <span className="text-[11px] font-bold text-[#64748B]">TỔNG DOANH THU:</span>
           <strong className="text-[#10b981] text-[20px] font-bold">{totalRevenue.toLocaleString()} đ</strong>
         </div>
-        <div className="flex-1 bg-[#111827]/70 border border-[#1e293b] p-[16px_20px] rounded-[16px] flex flex-col gap-1">
-          <span className="text-[11px] font-bold text-[#94a3b8]">TỔNG ĐƠN HÀNG:</span>
+        <div className="flex-1 bg-[#111827]/70 border border-[#E5E7EB] p-[16px_20px] rounded-[16px] flex flex-col gap-1">
+          <span className="text-[11px] font-bold text-[#64748B]">TỔNG ĐƠN HÀNG:</span>
           <strong>{orders.length} Đơn</strong>
         </div>
-        <div className="flex-1 bg-[#111827]/70 border border-[#1e293b] p-[16px_20px] rounded-[16px] flex flex-col gap-1">
-          <span className="text-[11px] font-bold text-[#94a3b8]">ĐÃ THANH TOÁN:</span>
-          <strong className="text-[#38bdf8] text-[20px] font-bold">{orders.filter((o) => o.status === 'PAID').length} Đơn</strong>
+        <div className="flex-1 bg-[#111827]/70 border border-[#E5E7EB] p-[16px_20px] rounded-[16px] flex flex-col gap-1">
+          <span className="text-[11px] font-bold text-[#64748B]">ĐÃ THANH TOÁN:</span>
+          <strong className="text-[#2563EB] text-[20px] font-bold">{orders.filter((o) => o.status === 'PAID').length} Đơn</strong>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
           <button
             type="button"
-            className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]"
+            className="bg-[#2563EB] border-0 text-[#1F2937] px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]"
             onClick={exportOrdersCSV}
             style={{ padding: '6px 14px', fontSize: '13px' }}
           >
@@ -102,7 +102,7 @@ export function OrderList({
           {orders.length > 0 && (
             <button
               type="button"
-              className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
+              className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-[#1F2937] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
               onClick={() => setIsClearingAll(true)}
               style={{ padding: '6px 14px', fontSize: '13px' }}
             >
@@ -114,34 +114,34 @@ export function OrderList({
 
       {/* SEARCH & STATUS FILTER TOOLBAR */}
       <div className="flex gap-4 mb-5 items-center flex-wrap">
-        <div className="flex items-center gap-2 bg-[#080c14] border border-[#1e293b] rounded-xl px-4 py-2 flex-1 min-w-[250px]">
-          <span className="text-[11px] font-bold text-[#94a3b8]">🔍</span>
-          <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+        <div className="flex items-center gap-2 bg-[#F5F7FB] border border-[#E5E7EB] rounded-xl px-4 py-2 flex-1 min-w-[250px]">
+          <span className="text-[11px] font-bold text-[#64748B]">🔍</span>
+          <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
             type="text"
             placeholder={lang === 'vi' ? 'Tìm theo Mã Đơn, Tên App, Mã CK, Key...' : 'Search by ID, App, Code, Key...'}
             value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
           />
           {searchTerm && (
-            <button className="bg-transparent border-none text-[#94a3b8] cursor-pointer hover:text-white" onClick={() => setSearchTerm('')}>✕</button>
+            <button className="bg-transparent border-none text-[#64748B] cursor-pointer hover:text-[#1F2937]" onClick={() => setSearchTerm('')}>✕</button>
           )}
         </div>
 
         <div className="flex gap-2 flex-wrap">
           <button
-            className={`px-4 py-2 rounded-[10px] text-[13px] font-bold cursor-pointer transition-all border ${statusFilter === 'all' ? 'border-[#38bdf8] text-[#38bdf8] bg-[#38bdf8]/10' : 'border-[#1e293b] bg-[#111827]/70 text-[#94a3b8] hover:border-[#38bdf8] hover:text-[#38bdf8]'}`}
+            className={`px-4 py-2 rounded-[10px] text-[13px] font-bold cursor-pointer transition-all border ${statusFilter === 'all' ? 'border-[#2563EB] text-[#2563EB] bg-[#2563EB]/10' : 'border-[#E5E7EB] bg-[#111827]/70 text-[#64748B] hover:border-[#2563EB] hover:text-[#2563EB]'}`}
             onClick={() => { setStatusFilter('all'); setCurrentPage(1); }}
           >
             Tất cả ({orders.length})
           </button>
           <button
-            className={`px-4 py-2 rounded-[10px] text-[13px] font-bold cursor-pointer transition-all border ${statusFilter === 'PAID' ? 'border-[#38bdf8] text-[#38bdf8] bg-[#38bdf8]/10' : 'border-[#1e293b] bg-[#111827]/70 text-[#94a3b8] hover:border-[#38bdf8] hover:text-[#38bdf8]'}`}
+            className={`px-4 py-2 rounded-[10px] text-[13px] font-bold cursor-pointer transition-all border ${statusFilter === 'PAID' ? 'border-[#2563EB] text-[#2563EB] bg-[#2563EB]/10' : 'border-[#E5E7EB] bg-[#111827]/70 text-[#64748B] hover:border-[#2563EB] hover:text-[#2563EB]'}`}
             onClick={() => { setStatusFilter('PAID'); setCurrentPage(1); }}
           >
             ✅ Đã Thanh Toán ({orders.filter((o) => o.status === 'PAID').length})
           </button>
           <button
-            className={`px-4 py-2 rounded-[10px] text-[13px] font-bold cursor-pointer transition-all border ${statusFilter === 'PENDING' ? 'border-[#38bdf8] text-[#38bdf8] bg-[#38bdf8]/10' : 'border-[#1e293b] bg-[#111827]/70 text-[#94a3b8] hover:border-[#38bdf8] hover:text-[#38bdf8]'}`}
+            className={`px-4 py-2 rounded-[10px] text-[13px] font-bold cursor-pointer transition-all border ${statusFilter === 'PENDING' ? 'border-[#2563EB] text-[#2563EB] bg-[#2563EB]/10' : 'border-[#E5E7EB] bg-[#111827]/70 text-[#64748B] hover:border-[#2563EB] hover:text-[#2563EB]'}`}
             onClick={() => { setStatusFilter('PENDING'); setCurrentPage(1); }}
           >
             ⏳ Đang Chờ ({orders.filter((o) => o.status !== 'PAID').length})
@@ -150,40 +150,40 @@ export function OrderList({
       </div>
 
       {/* ORDERS TABLE */}
-      <div className="w-full overflow-x-auto rounded-2xl border border-[#1e293b] bg-[#0f172a]/50 backdrop-blur-[10px]">
+      <div className="w-full overflow-x-auto rounded-2xl border border-[#E5E7EB] bg-white backdrop-blur-[10px]">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
-            <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Mã Đơn</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">App Game</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Số Tiền</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Mã Chuyển Khoản</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Trạng Thái</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Thời Gian Thanh Toán</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Key Đã Giao</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Thao Tác</th>
+            <tr className="hover:bg-[#2563EB]/[0.04] transition-colors group">
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Mã Đơn</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">App Game</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Số Tiền</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Mã Chuyển Khoản</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Trạng Thái</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Thời Gian Thanh Toán</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Key Đã Giao</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Thao Tác</th>
             </tr>
           </thead>
           <tbody>
             {filteredOrders.length === 0 ? (
-              <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
-                <td colSpan={8} className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]" style={{ textAlign: 'center', padding: '2.5rem', color: '#94a3b8' }}>
+              <tr className="hover:bg-[#2563EB]/[0.04] transition-colors group">
+                <td colSpan={8} className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]" style={{ textAlign: 'center', padding: '2.5rem', color: '#94a3b8' }}>
                   {lang === 'vi' ? 'Không tìm thấy đơn hàng nào phù hợp' : 'No matching orders found'}
                 </td>
               </tr>
             ) : (
               filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((ord) => (
-                <tr key={ord.id} className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]"><strong>{ord.id}</strong></td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">{ord.appName || ord.appId}</td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]"><strong className="text-[#10b981] text-[20px] font-bold">{ord.amount.toLocaleString()} đ</strong></td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]"><code>{ord.paymentCode}</code></td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                <tr key={ord.id} className="hover:bg-[#2563EB]/[0.04] transition-colors group">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]"><strong>{ord.id}</strong></td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">{ord.appName || ord.appId}</td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]"><strong className="text-[#10b981] text-[20px] font-bold">{ord.amount.toLocaleString()} đ</strong></td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]"><code>{ord.paymentCode}</code></td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
                     <span className={`inline-block px-[10px] py-1 rounded-lg text-[11px] font-extrabold ${ord.status === 'PAID' ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-[#ef4444]/15 text-[#f87171]'}`}>
                       {ord.status === 'PAID' ? '✓ ĐÃ THANH TOÁN' : '⏳ CHỜ CHUYỂN KHOẢN'}
                     </span>
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
                     {ord.status === 'PAID' ? (
                       <div style={{ fontSize: '12px' }}>
                         <span style={{ color: '#4ade80', fontWeight: 600 }}>
@@ -201,10 +201,10 @@ export function OrderList({
                       </span>
                     )}
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
                     {ord.deliveredKey ? (
                       <code
-                        className="bg-[#1e293b] text-[#38bdf8] px-2.5 py-1 rounded-md font-mono text-[13px]"
+                        className="bg-white text-[#2563EB] px-2.5 py-1 rounded-md font-mono text-[13px]"
                         title={lang === 'vi' ? 'Ấn để sao chép Key' : 'Click to copy Key'}
                         style={{ cursor: 'pointer' }}
                         onClick={async () => {
@@ -220,12 +220,12 @@ export function OrderList({
                       <small className="text-[#64748b]">-</small>
                     )}
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
                     <div className="flex items-center gap-2">
                       {ord.status !== 'PAID' && (
                         <button
                           type="button"
-                          className="bg-[#38bdf8]/12 text-[#38bdf8] border border-[#38bdf8]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#38bdf8] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]"
+                          className="bg-[#2563EB]/12 text-[#2563EB] border border-[#2563EB] px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#2563EB] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]"
                           onClick={() => handleManualConfirm(ord.id)}
                         >
                           ⚡ {lang === 'vi' ? 'Xác Nhận' : 'Confirm'}
@@ -233,7 +233,7 @@ export function OrderList({
                       )}
                       <button
                         type="button"
-                        className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
+                        className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-[#1F2937] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
                         onClick={() => setDeletingOrderId(ord.id)}
                       >
                         🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}

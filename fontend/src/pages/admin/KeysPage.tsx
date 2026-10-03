@@ -181,7 +181,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     return keys.filter(k => {
       if (filterAppId !== 'ALL' && !isKeyBelongToApp(k, filterAppId)) return false;
       if (filterStatus !== 'ALL' && k.status !== filterStatus) return false;
-      if (filterDuration !== 'ALL' && String(k.durationDays) !== filterDuration) return false;
+      if (filterDuration !== 'ALL' && String(Number(k.durationDays) || 30) !== filterDuration) return false;
       if (query) {
         const appName = getAppName(k.appId).toLowerCase();
         const keyCode = (k.keyCode || '').toLowerCase();
@@ -194,11 +194,11 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
   const availableKeys = useMemo(() => keys.filter(k => k.status === 'AVAILABLE'), [keys]);
   const countTotalAvailable = availableKeys.length;
   const totalInventoryValue = useMemo(() => availableKeys.reduce((sum, k) => sum + (k.price || 50000), 0), [availableKeys]);
-  const uniqueDurations = useMemo(() => Array.from(new Set(keys.map(k => k.durationDays || 30))).sort((a, b) => a - b), [keys]);
+  const uniqueDurations = useMemo(() => Array.from(new Set(keys.map(k => Number(k.durationDays) || 30))).sort((a, b) => a - b), [keys]);
   const packageStatsMap = useMemo(() => uniqueDurations.map(days => ({
     days,
-    count: keys.filter(k => k.status === 'AVAILABLE' && k.durationDays === days).length,
-    total: keys.filter(k => k.durationDays === days).length
+    count: keys.filter(k => k.status === 'AVAILABLE' && (Number(k.durationDays) || 30) === days).length,
+    total: keys.filter(k => (Number(k.durationDays) || 30) === days).length
   })), [uniqueDurations, keys]);
 
   const renderPackageBadge = (days: number) => {
@@ -213,18 +213,18 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
   const paginatedKeys = useMemo(() => filteredKeys.slice((currentPage - 1) * pageSize, currentPage * pageSize), [filteredKeys, currentPage, pageSize]);
 
   return (
-    <div className="bg-[#0f172a]/60 border border-[#1e293b] rounded-[24px] p-7 flex flex-col gap-6">
+    <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-7 flex flex-col gap-6">
       {/* Header */}
       <div className="flex justify-between items-center flex-wrap gap-4">
         <h2>🔑 {lang === 'vi' ? 'Quản Lý Kho Key Theo Gói' : 'Keys Inventory Manager'}</h2>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <button className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', border: 'none' }} onClick={() => setIsPresetsManagerOpen(true)}>
+          <button className="bg-[#2563EB] border-0 text-[#1F2937] px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={() => setIsPresetsManagerOpen(true)}>
             ⚙️ {lang === 'vi' ? 'Cấu Hình Bảng Giá Mẫu' : 'Price Presets'}
           </button>
-          <button className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" style={{ background: 'linear-gradient(135deg, #0284c7, #2563eb)', border: 'none' }} onClick={exportKeysToCSV}>
+          <button className="bg-[#2563EB] border-0 text-[#1F2937] px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={exportKeysToCSV}>
             📥 {lang === 'vi' ? 'Xuất CSV Kho Key' : 'Export CSV'}
           </button>
-          <button className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={() => { setEditingKey(null); setIsModalOpen(true); }}>
+          <button className="bg-[#2563EB] border-0 text-[#1F2937] px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={() => { setEditingKey(null); setIsModalOpen(true); }}>
             + {lang === 'vi' ? 'Nạp Key Mới Về Kho' : 'Import New Keys'}
           </button>
         </div>
@@ -240,27 +240,27 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
       <KeyFilterBar lang={lang} searchQuery={searchQuery} setSearchQuery={setSearchQuery} filterDuration={filterDuration} setFilterDuration={setFilterDuration} filterAppId={filterAppId} setFilterAppId={setFilterAppId} filterStatus={filterStatus} setFilterStatus={setFilterStatus} apps={apps} keys={keys} uniqueDurations={uniqueDurations} countTotalAvailable={countTotalAvailable} setCurrentPage={setCurrentPage} />
 
       {/* Keys Table */}
-      <div className="w-full overflow-x-auto rounded-2xl border border-[#1e293b] bg-[#0f172a]/50 backdrop-blur-[10px]">
+      <div className="w-full overflow-x-auto rounded-2xl border border-[#E5E7EB] bg-white backdrop-blur-[10px]">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
-            <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
+            <tr className="hover:bg-[#2563EB]/[0.04] transition-colors group">
               <th style={{ width: '40px', textAlign: 'center' }}>
                 <input type="checkbox" checked={selectedKeyIds.length === paginatedKeys.length && paginatedKeys.length > 0} onChange={handleSelectAll} style={{ cursor: 'pointer', width: '16px', height: '16px' }} />
               </th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">App</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Key Code</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Phân Loại Gói' : 'Package'}</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Thời hạn' : 'Duration'}</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Giá bán' : 'Price'}</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Trạng thái' : 'Status'}</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Thao tác' : 'Actions'}</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">App</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Key Code</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">{lang === 'vi' ? 'Phân Loại Gói' : 'Package'}</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">{lang === 'vi' ? 'Thời hạn' : 'Duration'}</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">{lang === 'vi' ? 'Giá bán' : 'Price'}</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">{lang === 'vi' ? 'Trạng thái' : 'Status'}</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">{lang === 'vi' ? 'Thao tác' : 'Actions'}</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               Array.from({ length: 5 }).map((_, idx) => (
                 <tr key={idx} style={{ opacity: 0.6 }}>
-                  <td colSpan={8} className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]" style={{ padding: '16px', textAlign: 'center', color: '#94a3b8' }}>
+                  <td colSpan={8} className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]" style={{ padding: '16px', textAlign: 'center', color: '#94a3b8' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                       <span className="spin-dot">●</span> Đang tải dữ liệu Kho Key...
                     </div>
@@ -268,8 +268,8 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                 </tr>
               ))
             ) : paginatedKeys.length === 0 ? (
-              <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
-                <td colSpan={8} className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]" style={{ textAlign: 'center', padding: '32px', color: '#94a3b8' }}>
+              <tr className="hover:bg-[#2563EB]/[0.04] transition-colors group">
+                <td colSpan={8} className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]" style={{ textAlign: 'center', padding: '32px', color: '#94a3b8' }}>
                   📦 Không tìm thấy Key nào phù hợp với bộ lọc hiện tại.
                 </td>
               </tr>
@@ -279,7 +279,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                   <td style={{ textAlign: 'center' }}>
                     <input type="checkbox" checked={selectedKeyIds.includes(k.id)} onChange={() => toggleSelectKey(k.id)} style={{ cursor: 'pointer', width: '16px', height: '16px' }} />
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
                     {k.groupAppIds && k.groupAppIds.trim() ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(99,102,241,0.2))', border: '1px solid rgba(168,85,247,0.5)', borderRadius: '8px', padding: '2px 8px', fontSize: '11px', fontWeight: 'bold', color: '#c084fc' }}>🔗 NHÓM APP</span>
@@ -291,13 +291,13 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                       </div>
                     ) : <strong>{getAppName(k.appId)}</strong>}
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
-                    <code className="bg-[#1e293b] text-[#38bdf8] px-2.5 py-1 rounded-md font-mono text-[13px]" onClick={() => handleCopyKey(k.keyCode)} style={{ cursor: 'pointer' }} title="Nhấp để sao chép nhanh mã Key">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
+                    <code className="bg-white text-[#2563EB] px-2.5 py-1 rounded-md font-mono text-[13px]" onClick={() => handleCopyKey(k.keyCode)} style={{ cursor: 'pointer' }} title="Nhấp để sao chép nhanh mã Key">
                       {k.keyCode} 📋
                     </code>
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">{renderPackageBadge(k.durationDays)}</td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">{k.durationDays} {lang === 'vi' ? 'ngày' : 'days'}</td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">{renderPackageBadge(k.durationDays)}</td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">{k.durationDays} {lang === 'vi' ? 'ngày' : 'days'}</td>
                   <td style={{ fontWeight: 'bold', color: '#10b981' }}>
                     {(() => {
                       const preset = presets.find(p => p.durationDays === k.durationDays);
@@ -305,15 +305,15 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                       return displayPrice ? displayPrice.toLocaleString() : '50,000';
                     })()} đ
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
                     <span className={`status-badge ${k.status === 'AVAILABLE' ? 'available' : 'sold'}`}>{k.status === 'AVAILABLE' ? '● CÒN HÀNG' : '✓ ĐÃ BÁN'}</span>
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
                     <div className="flex items-center gap-2">
-                      <button className="bg-[#38bdf8]/12 text-[#38bdf8] border border-[#38bdf8]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#38bdf8] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]" onClick={() => { setEditingKey(k); setIsModalOpen(true); }}>
+                      <button className="bg-[#2563EB]/12 text-[#2563EB] border border-[#2563EB] px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#2563EB] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]" onClick={() => { setEditingKey(k); setIsModalOpen(true); }}>
                         ✎ {lang === 'vi' ? 'Sửa' : 'Edit'}
                       </button>
-                      <button className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]" onClick={() => setDeletingKeyId(k.id)}>
+                      <button className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-[#1F2937] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]" onClick={() => setDeletingKeyId(k.id)}>
                         🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
                       </button>
                     </div>

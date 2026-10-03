@@ -121,29 +121,29 @@ export function ServicesPage({
   };
 
   return (
-    <div className="bg-[#0f172a]/60 border border-[#1e293b] rounded-[24px] p-7 flex flex-col gap-6">
+    <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-7 flex flex-col gap-6">
       <div className="flex justify-between items-center flex-wrap gap-4">
         <h2>🌐 {lang === 'vi' ? 'Quản Lý Dịch Vụ & Truyền Thông' : 'Services Catalog Manager'}</h2>
-        <button className="bg-gradient-to-r from-[#38bdf8] to-[#6366f1] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={openNewServiceModal}>
+        <button className="bg-[#2563EB] border-0 text-[#1F2937] px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={openNewServiceModal}>
           + {lang === 'vi' ? 'Thêm Dịch Vụ Mới' : 'Add New Service'}
         </button>
       </div>
 
-      <div className="w-full overflow-x-auto rounded-2xl border border-[#1e293b] bg-[#0f172a]/50 backdrop-blur-[10px]">
+      <div className="w-full overflow-x-auto rounded-2xl border border-[#E5E7EB] bg-white backdrop-blur-[10px]">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
-            <tr className="hover:bg-[#38bdf8]/[0.04] transition-colors group">
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">Icon</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Tiêu đề' : 'Title'}</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Mô tả' : 'Description'}</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">URL</th>
-              <th className="p-[18px_20px] bg-[#1e293b]/80 text-[#94a3b8] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#1e293b]">{lang === 'vi' ? 'Thao tác' : 'Actions'}</th>
+            <tr className="hover:bg-[#2563EB]/[0.04] transition-colors group">
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Icon</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">{lang === 'vi' ? 'Tiêu đề' : 'Title'}</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">{lang === 'vi' ? 'Mô tả' : 'Description'}</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">URL</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">{lang === 'vi' ? 'Thao tác' : 'Actions'}</th>
             </tr>
           </thead>
           <tbody>
             {services.map((srv) => (
               <tr key={srv.id}>
-                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
                   <span className={`service-icon-preview ${srv.cls} inline-flex items-center justify-center min-w-[42px] min-h-[42px] p-1`}>
                     {srv.icon && (srv.icon.startsWith('http://') || srv.icon.startsWith('https://') || srv.icon.startsWith('/') || srv.icon.startsWith('data:')) ? (
                       <img src={srv.icon} alt={srv.title} className="w-[38px] h-[38px] object-contain rounded-lg" />
@@ -152,25 +152,25 @@ export function ServicesPage({
                     )}
                   </span>
                 </td>
-                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
                   <strong>{srv.title}</strong>
                 </td>
                 <td className="note-cell">{srv.text}</td>
-                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
                   <a href={srv.url} target="_blank" rel="noreferrer" className="link-preview">
                     {srv.url}
                   </a>
                 </td>
-                <td className="p-[18px_20px] border-b border-[#1e293b]/60 group-last:border-b-0 align-middle text-[#e2e8f0]">
+                <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
                   <div className="flex items-center gap-2">
                     <button
-                      className="bg-[#38bdf8]/12 text-[#38bdf8] border border-[#38bdf8]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#38bdf8] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]"
+                      className="bg-[#2563EB]/12 text-[#2563EB] border border-[#2563EB] px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#2563EB] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]"
                       onClick={() => openEditServiceModal(srv)}
                     >
                       ✎ {lang === 'vi' ? 'Sửa' : 'Edit'}
                     </button>
                     <button
-                      className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
+                      className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-[#1F2937] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
                       onClick={() => setDeletingService({ id: srv.id, title: srv.title })}
                     >
                       🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
@@ -204,7 +204,7 @@ export function ServicesPage({
             onClick={() => setIsModalOpen(false)}
           >
             <div
-              className="w-[min(620px,95vw)] max-h-[92vh] flex flex-col bg-[#0b1120] border border-[#38bdf8]/35 rounded-[26px] p-6 sm:p-7 shadow-[0_25px_70px_rgba(0,0,0,0.85),0_0_40px_rgba(56,189,248,0.18)] relative overflow-hidden text-slate-100"
+              className="w-[min(620px,95vw)] max-h-[92vh] flex flex-col bg-[#0b1120] border border-[#2563EB] rounded-[26px] p-6 sm:p-7 shadow-[0_25px_70px_rgba(0,0,0,0.85),0_0_40px_rgba(56,189,248,0.18)] relative overflow-hidden text-slate-100"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Top ambient glow gradient decorative bar */}
@@ -214,7 +214,7 @@ export function ServicesPage({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-800/80 border border-slate-700/80 text-slate-400 hover:text-white hover:bg-slate-700 hover:border-slate-500 transition-all flex items-center justify-center text-lg font-bold cursor-pointer"
+                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-800/80 border border-slate-700/80 text-slate-400 hover:text-[#1F2937] hover:bg-slate-700 hover:border-slate-500 transition-all flex items-center justify-center text-lg font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -233,7 +233,7 @@ export function ServicesPage({
               <form onSubmit={handleSaveService} className="flex flex-col gap-4 overflow-y-auto max-h-[calc(88vh-130px)] pr-1 custom-scrollbar">
                 {/* Service Title Input */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#38bdf8] uppercase tracking-wider flex items-center gap-1">
+                  <label className="text-[12px] font-extrabold text-[#2563EB] uppercase tracking-wider flex items-center gap-1">
                     <span>{lang === 'vi' ? 'Tên Dịch Vụ / Kênh (*):' : 'Service Title (*):'}</span>
                   </label>
                   <input
@@ -242,13 +242,13 @@ export function ServicesPage({
                     value={srvTitle}
                     onChange={(e) => setSrvTitle(e.target.value)}
                     placeholder={lang === 'vi' ? 'Ví dụ: Kênh Telegram VIP, Support Zalo...' : 'e.g. Telegram Channel, VIP Support...'}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-[#060a12] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/20 placeholder:text-slate-600"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-[#060a12] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20 placeholder:text-slate-600"
                   />
                 </div>
 
                 {/* Description Input */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#38bdf8] uppercase tracking-wider">
+                  <label className="text-[12px] font-extrabold text-[#2563EB] uppercase tracking-wider">
                     {lang === 'vi' ? 'Mô tả chi tiết:' : 'Description:'}
                   </label>
                   <input
@@ -256,13 +256,13 @@ export function ServicesPage({
                     value={srvText}
                     onChange={(e) => setSrvText(e.target.value)}
                     placeholder={lang === 'vi' ? 'Ví dụ: Hỗ trợ kích hoạt bản quyền 24/7...' : 'e.g. 24/7 Instant VIP Key fulfillment...'}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-[#060a12] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/20 placeholder:text-slate-600"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-[#060a12] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20 placeholder:text-slate-600"
                   />
                 </div>
 
                 {/* Logo Image Upload Box */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#38bdf8] uppercase tracking-wider flex items-center gap-1.5">
+                  <label className="text-[12px] font-extrabold text-[#2563EB] uppercase tracking-wider flex items-center gap-1.5">
                     <span>🖼️ {lang === 'vi' ? 'Logo Ảnh Dịch Vụ (Tải từ máy tính):' : 'Service Logo Image (Upload file):'}</span>
                   </label>
                   <div className="mt-0.5">
@@ -284,7 +284,7 @@ export function ServicesPage({
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <label className="px-3.5 py-2 rounded-xl bg-[#38bdf8]/15 border border-[#38bdf8]/40 text-[#38bdf8] hover:bg-[#38bdf8] hover:text-[#080c14] font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1">
+                          <label className="px-3.5 py-2 rounded-xl bg-[#2563EB]/15 border border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-[#080c14] font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1">
                             {isUploadingIcon ? '⏳' : '🔄'} {isUploadingIcon ? (lang === 'vi' ? 'Đang tải...' : 'Uploading...') : (lang === 'vi' ? 'Đổi ảnh khác' : 'Change')}
                             <input
                               type="file"
@@ -297,18 +297,18 @@ export function ServicesPage({
                           <button
                             type="button"
                             onClick={() => setSrvIcon('')}
-                            className="px-3 py-2 rounded-xl bg-red-500/15 border border-red-500/40 text-red-400 hover:bg-red-500 hover:text-white font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1"
+                            className="px-3 py-2 rounded-xl bg-red-500/15 border border-red-500/40 text-red-400 hover:bg-red-500 hover:text-[#1F2937] font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1"
                           >
                             🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center gap-2 p-5 rounded-2xl border-2 border-dashed border-[#38bdf8]/40 bg-[#070d19]/80 hover:bg-[#0c162b] hover:border-[#00f2fe] transition-all cursor-pointer group text-center">
-                        <div className="w-10 h-10 rounded-full bg-[#38bdf8]/10 border border-[#38bdf8]/30 flex items-center justify-center text-lg text-[#38bdf8] group-hover:scale-110 transition-transform">
+                      <label className="flex flex-col items-center justify-center gap-2 p-5 rounded-2xl border-2 border-dashed border-[#2563EB] bg-[#070d19]/80 hover:bg-[#0c162b] hover:border-[#00f2fe] transition-all cursor-pointer group text-center">
+                        <div className="w-10 h-10 rounded-full bg-[#2563EB]/10 border border-[#2563EB] flex items-center justify-center text-lg text-[#2563EB] group-hover:scale-110 transition-transform">
                           📁
                         </div>
-                        <div className="text-sm font-extrabold text-[#38bdf8]">
+                        <div className="text-sm font-extrabold text-[#2563EB]">
                           {isUploadingIcon ? (lang === 'vi' ? '⏳ Đang tải ảnh từ máy lên Cloudinary...' : '⏳ Uploading image...') : (lang === 'vi' ? 'Tải Ảnh Logo Từ Máy Tính' : 'Upload Logo Image from Computer')}
                         </div>
                         <div className="text-[11.5px] text-slate-400 font-medium">
@@ -330,7 +330,7 @@ export function ServicesPage({
 
                 {/* URL Link Input */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[12px] font-extrabold text-[#38bdf8] uppercase tracking-wider">
+                  <label className="text-[12px] font-extrabold text-[#2563EB] uppercase tracking-wider">
                     URL Link:
                   </label>
                   <input
@@ -338,7 +338,7 @@ export function ServicesPage({
                     value={srvUrl}
                     onChange={(e) => setSrvUrl(e.target.value)}
                     placeholder="https://t.me/..."
-                    className="w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-[#060a12] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/20 placeholder:text-slate-600"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-700/80 bg-[#060a12] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20 placeholder:text-slate-600"
                   />
                 </div>
 
@@ -346,7 +346,7 @@ export function ServicesPage({
                 <div className="flex justify-end items-center gap-3 mt-4 pt-4 border-t border-slate-800/80 shrink-0">
                   <button
                     type="button"
-                    className="px-5 py-3 rounded-xl border border-slate-700 bg-slate-800/80 text-slate-200 font-bold text-sm cursor-pointer transition-all duration-200 hover:bg-slate-700 hover:text-white"
+                    className="px-5 py-3 rounded-xl border border-slate-700 bg-slate-800/80 text-slate-200 font-bold text-sm cursor-pointer transition-all duration-200 hover:bg-slate-700 hover:text-[#1F2937]"
                     onClick={() => setIsModalOpen(false)}
                   >
                     {lang === 'vi' ? 'Hủy' : 'Cancel'}

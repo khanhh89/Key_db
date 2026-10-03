@@ -81,7 +81,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
 
   return (
     <div className="min-h-screen w-screen grid place-items-center bg-[radial-gradient(circle_at_top_right,#1e1b4b,#080c14_60%)] p-5">
-      <div className="w-[min(420px,100%)] bg-[#0f172a]/85 border border-[#38bdf8]/20 rounded-[28px] px-8 py-10 backdrop-blur-[20px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.6)] flex flex-col gap-6">
+      <div className="w-[min(420px,100%)] bg-white border border-[#2563EB] rounded-[28px] px-8 py-10 backdrop-blur-[20px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.6)] flex flex-col gap-6">
         <div className="text-center">
           {config?.faviconUrl ? (
             <img
@@ -92,10 +92,10 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
           ) : (
             <div className="text-[32px] mb-3">🛡️</div>
           )}
-          <h2 className="font-heading text-2xl font-extrabold m-0 mb-1.5 bg-gradient-to-r from-[#38bdf8] to-[#818cf8] bg-clip-text text-transparent">
+          <h2 className="font-heading text-2xl font-extrabold m-0 mb-1.5 bg-[#2563EB] bg-clip-text text-transparent">
             {lang === 'vi' ? 'ĐĂNG NHẬP ADMIN' : 'ADMIN LOGIN'}
           </h2>
-          <p className="text-[#94a3b8] text-[13px] m-0">
+          <p className="text-[#64748B] text-[13px] m-0">
             {lang === 'vi'
               ? `Hệ thống Quản trị & Phân quyền ${config?.brandName || 'MOD LIÊN QUÂN'}`
               : `${config?.brandName || 'MOD LIÊN QUÂN'} System Management & Authorization`}
@@ -108,7 +108,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
               <h3 className="text-[#00f2fe] mb-2.5 text-lg">{lang === 'vi' ? 'BẢO MẬT 2 LỚP (2FA)' : '2-STEP VERIFICATION'}</h3>
               {requiresSetup2FA && (
                 <div className="mb-4 bg-black/30 p-4 rounded-[10px]">
-                  <p className="text-[13px] text-[#94a3b8] mb-2.5 leading-relaxed">
+                  <p className="text-[13px] text-[#64748B] mb-2.5 leading-relaxed">
                     {lang === 'vi' ? 'Quét mã QR này bằng ứng dụng Google Authenticator hoặc Authy:' : 'Scan this QR with Google Authenticator or Authy:'}
                   </p>
                   {qrUrl && <img src={qrUrl} alt="QR Code" className="w-[150px] h-[150px] rounded-lg border-[3px] border-white" />}
@@ -167,7 +167,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
             <>
               {/* USERNAME FIELD WITH VALIDATION STATUS */}
               <div className="flex flex-col gap-2">
-                <label className="flex justify-between items-center text-xs font-bold text-[#cbd5e1] tracking-[0.5px]">
+                <label className="flex justify-between items-center text-xs font-bold text-[#64748B] tracking-[0.5px]">
                   <span>{lang === 'vi' ? 'TÊN ĐĂNG NHẬP:' : 'USERNAME:'}</span>
                   {usernameTouched && (
                     <span style={{ fontSize: '11px', fontWeight: 'bold', color: isUsernameValid ? '#10b981' : '#ef4444' }}>
@@ -176,7 +176,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
                   )}
                 </label>
                 <input
-                  className="px-4 py-3.5 rounded-xl border border-[#1e293b] bg-[#090d16] text-white text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-4 focus:ring-[#38bdf8]/15"
+                  className="px-4 py-3.5 rounded-xl border border-[#E5E7EB] bg-[#090d16] text-[#1F2937] text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/20"
                   type="text"
                   ref={usernameInputRef}
                   value={username}
@@ -206,7 +206,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
 
               {/* PASSWORD FIELD WITH VALIDATION STATUS */}
               <div className="flex flex-col gap-2">
-                <label className="flex justify-between items-center text-xs font-bold text-[#cbd5e1] tracking-[0.5px]">
+                <label className="flex justify-between items-center text-xs font-bold text-[#64748B] tracking-[0.5px]">
                   <span>{lang === 'vi' ? 'MẬT KHẨU:' : 'PASSWORD:'}</span>
                   {passwordTouched && (
                     <span style={{ fontSize: '11px', fontWeight: 'bold', color: isPasswordValid ? '#10b981' : '#ef4444' }}>
@@ -215,7 +215,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
                   )}
                 </label>
                 <input
-                  className="px-4 py-3.5 rounded-xl border border-[#1e293b] bg-[#090d16] text-white text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-4 focus:ring-[#38bdf8]/15"
+                  className="px-4 py-3.5 rounded-xl border border-[#E5E7EB] bg-[#090d16] text-[#1F2937] text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/20"
                   type="password"
                   ref={passwordInputRef}
                   value={password}
@@ -248,7 +248,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
 
           <button
             type="submit"
-            className="p-4 rounded-xl border-0 bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white font-heading font-extrabold text-base cursor-pointer transition-all duration-250 shadow-[0_4px_20px_rgba(56,189,248,0.3)] hover:-translate-y-[2px] hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)] disabled:opacity-70 disabled:cursor-not-allowed"
+            className="p-4 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-heading font-extrabold text-base cursor-pointer transition-all duration-250 shadow-[0_4px_20px_rgba(56,189,248,0.3)] hover:-translate-y-[2px] hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)] disabled:opacity-70 disabled:cursor-not-allowed"
             disabled={isSubmitting || ((requires2FA || requiresSetup2FA) && otpCode.length !== 6)}
           >
             {isSubmitting
@@ -259,7 +259,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
           </button>
         </form>
 
-        <button className="bg-transparent border border-[#1e293b] text-[#94a3b8] p-2.5 rounded-xl text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#1e293b] hover:text-white" onClick={onBackToSite}>
+        <button className="bg-transparent border border-[#E5E7EB] text-[#64748B] p-2.5 rounded-xl text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:bg-white hover:text-[#1F2937]" onClick={onBackToSite}>
           ← {lang === 'vi' ? 'Quay lại Trang Chủ' : 'Back to Public Site'}
         </button>
       </div>

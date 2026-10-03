@@ -28,13 +28,13 @@ export function OrderBankConfig({
   sampleQrUrl, POPULAR_BANKS
 }: OrderBankConfigProps) {
   return (
-    <div className="bg-[#111827]/70 border border-[#1e293b] rounded-[18px] p-5 mb-2.5">
-      <h4 className="m-0 mb-4 font-heading text-[#38bdf8] text-[20px] font-extrabold">🏦 {lang === 'vi' ? 'Cấu Hình Tài Khoản Nhận Tiền VietQR' : 'VietQR Bank Account Config'}</h4>
+    <div className="bg-[#111827]/70 border border-[#E5E7EB] rounded-[18px] p-5 mb-2.5">
+      <h4 className="m-0 mb-4 font-heading text-[#2563EB] text-[20px] font-extrabold">🏦 {lang === 'vi' ? 'Cấu Hình Tài Khoản Nhận Tiền VietQR' : 'VietQR Bank Account Config'}</h4>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <form onSubmit={handleSaveConfig} className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-170px)] pr-1">
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-[#cbd5e1]">{lang === 'vi' ? 'Chọn Ngân Hàng Thụ Hưởng:' : 'Select Destination Bank:'}</label>
-            <select className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15" value={bankId} onChange={(e) => setBankId(e.target.value)}>
+            <label className="text-xs font-bold text-[#64748B]">{lang === 'vi' ? 'Chọn Ngân Hàng Thụ Hưởng:' : 'Select Destination Bank:'}</label>
+            <select className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" value={bankId} onChange={(e) => setBankId(e.target.value)}>
               {POPULAR_BANKS.map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.name} ({b.id})
@@ -44,8 +44,8 @@ export function OrderBankConfig({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-[#cbd5e1]">{lang === 'vi' ? 'Số Tài Khoản Ngân Hàng:' : 'Bank Account Number:'}</label>
-            <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+            <label className="text-xs font-bold text-[#64748B]">{lang === 'vi' ? 'Số Tài Khoản Ngân Hàng:' : 'Bank Account Number:'}</label>
+            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
               type="text"
               value={accNo}
               onChange={(e) => setAccNo(e.target.value)}
@@ -53,8 +53,8 @@ export function OrderBankConfig({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-[#cbd5e1]">{lang === 'vi' ? 'Tên Chủ Tài Khoản (In Hoa Không Dấu):' : 'Account Owner Name:'}</label>
-            <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+            <label className="text-xs font-bold text-[#64748B]">{lang === 'vi' ? 'Tên Chủ Tài Khoản (In Hoa Không Dấu):' : 'Account Owner Name:'}</label>
+            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
               type="text"
               value={accName}
               onChange={(e) => setAccName(e.target.value.toUpperCase())}
@@ -63,7 +63,7 @@ export function OrderBankConfig({
 
           <div className="flex flex-col gap-2" style={{ margin: '12px 0' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
-              <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+              <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
                 type="checkbox"
                 checked={enableStaticQr}
                 onChange={(e) => {
@@ -80,7 +80,7 @@ export function OrderBankConfig({
 
           <button
             type="button"
-            className="px-6 py-3 rounded-xl border-0 bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)] mt-2 w-fit"
+            className="px-6 py-3 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)] mt-2 w-fit"
             disabled={isSaving}
             onClick={() => handleSaveConfig()}
           >
@@ -90,11 +90,11 @@ export function OrderBankConfig({
           </button>
         </form>
 
-        <div className="flex flex-col items-center gap-3 p-5 bg-[#0f172a]/50 rounded-[18px] border border-[#1e293b]">
-          <h5 className="m-0 mb-2 text-[#38bdf8] text-sm">📱 {lang === 'vi' ? 'Xem Trước Mã VietQR Tự Động:' : 'VietQR Preview:'}</h5>
+        <div className="flex flex-col items-center gap-3 p-5 bg-white rounded-[18px] border border-[#E5E7EB]">
+          <h5 className="m-0 mb-2 text-[#2563EB] text-sm">📱 {lang === 'vi' ? 'Xem Trước Mã VietQR Tự Động:' : 'VietQR Preview:'}</h5>
           <img src={sampleQrUrl} alt="VietQR Preview" className="w-full max-w-[250px] rounded-xl shadow-lg border-4 border-white/10" />
-          <div className="text-center flex flex-col text-[13px] text-white">
-            <span className="text-[11px] font-bold text-[#94a3b8]">{bankId} - {accNo}</span>
+          <div className="text-center flex flex-col text-[13px] text-[#1F2937]">
+            <span className="text-[11px] font-bold text-[#64748B]">{bankId} - {accNo}</span>
             <strong>{accName}</strong>
           </div>
         </div>

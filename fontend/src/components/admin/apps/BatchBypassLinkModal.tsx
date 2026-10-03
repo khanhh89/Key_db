@@ -181,31 +181,31 @@ export function BatchBypassLinkModal({
         onClick={onClose}
       >
         <div
-          className="w-[min(640px,94vw)] margin-auto bg-[#0f172a] border border-[#38bdf8]/35 rounded-[24px] p-7 backdrop-blur-[24px] shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_35px_rgba(56,189,248,0.15)] relative flex flex-col gap-4"
+          className="w-[min(640px,94vw)] margin-auto bg-white border border-[#2563EB] rounded-[24px] p-7 backdrop-blur-[24px] shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_35px_rgba(56,189,248,0.15)] relative flex flex-col gap-4"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex justify-between items-center">
-            <h3 className="m-0 text-[#38bdf8] text-lg font-heading font-extrabold flex items-center gap-2">
+            <h3 className="m-0 text-[#2563EB] text-lg font-heading font-extrabold flex items-center gap-2">
               🔗 {lang === 'vi' ? 'Cấu Hình Link Vượt (Bypass Link)' : 'Bypass Link Configuration'}
             </h3>
             <button
               type="button"
-              className="bg-transparent border-0 text-[#94a3b8] text-2xl cursor-pointer hover:text-white transition-colors"
+              className="bg-transparent border-0 text-[#64748B] text-2xl cursor-pointer hover:text-[#1F2937] transition-colors"
               onClick={onClose}
             >
               ×
             </button>
           </div>
 
-          <p className="text-[#94a3b8] text-xs m-0">
+          <p className="text-[#64748B] text-xs m-0">
             {lang === 'vi'
               ? 'Dán 2-3 link vượt để hệ thống tự động đổi link mới mỗi ngày, hoặc dán 1 link cố định.'
               : 'Paste 2-3 bypass links for daily auto-rotation, or set a single static link.'}
           </p>
 
           {/* Mode Switch Tabs */}
-          <div className="grid grid-cols-2 gap-2 bg-[#080c14] p-1 rounded-xl border border-white/[0.06]">
+          <div className="grid grid-cols-2 gap-2 bg-[#F5F7FB] p-1 rounded-xl border border-white/[0.06]">
             <button
               type="button"
               onClick={() => setActiveTab('AUTO_ROTATION')}
@@ -265,7 +265,7 @@ export function BatchBypassLinkModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl border border-[#334155] bg-[#1e293b] text-[#e2e8f0] font-bold text-xs cursor-pointer hover:bg-[#334155] transition-all"
+              className="px-5 py-2.5 rounded-xl border border-[#E5E7EB] bg-white text-[#1F2937] font-bold text-xs cursor-pointer hover:bg-[#334155] transition-all"
             >
               {lang === 'vi' ? 'Hủy' : 'Cancel'}
             </button>
@@ -275,7 +275,7 @@ export function BatchBypassLinkModal({
                 type="button"
                 onClick={handleSaveAutoRotation}
                 disabled={isSyncing || parsedPoolCount === 0}
-                className="px-6 py-2.5 rounded-xl border-0 bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] text-white font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(56,189,248,0.3)] transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(56,189,248,0.3)] transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSyncing ? (lang === 'vi' ? '⏳ Đang lưu...' : '⏳ Saving...') : `💾 ${lang === 'vi' ? 'Lưu & Bật Tự Động Xoay Link' : 'Save & Enable Auto Rotation'}`}
               </button>
@@ -284,7 +284,7 @@ export function BatchBypassLinkModal({
                 type="button"
                 onClick={handleSyncSingleLink}
                 disabled={isSyncing || !bypassLinkUrl.trim()}
-                className="px-6 py-2.5 rounded-xl border-0 bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] text-white font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(56,189,248,0.3)] transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(56,189,248,0.3)] transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSyncing ? (lang === 'vi' ? '⏳ Đang lưu...' : '⏳ Saving...') : `✅ ${lang === 'vi' ? 'Lưu Link Cố Định' : 'Save Static Link'}`}
               </button>

@@ -35,15 +35,15 @@ export function BypassAutoRotationTab({
     <div className="flex flex-col gap-4">
       {/* Active Running Status Card */}
       {rotationStatus && (
-        <div className="bg-[#38bdf8]/[0.07] border border-[#38bdf8]/25 rounded-[14px] p-3.5 flex justify-between items-center flex-wrap gap-2.5">
+        <div className="bg-[#2563EB]/[0.07] border border-[#2563EB] rounded-[14px] p-3.5 flex justify-between items-center flex-wrap gap-2.5">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-block w-2 h-2 rounded-full bg-[#22c55e] shadow-[0_0_8px_#22c55e]" />
-              <span className="text-xs font-extrabold text-[#38bdf8]">
+              <span className="text-xs font-extrabold text-[#2563EB]">
                 {lang === 'vi' ? 'LINK ĐANG CHẠY HÔM NAY' : 'ACTIVE LINK TODAY'}
               </span>
               {rotationStatus.totalLinks > 0 && (
-                <span className="text-[11px] bg-[#38bdf8]/20 text-[#7dd3fc] px-1.5 py-0.5 rounded font-bold">
+                <span className="text-[11px] bg-[#2563EB]/20 text-[#7dd3fc] px-1.5 py-0.5 rounded font-bold">
                   Link {rotationStatus.currentIndex + 1}/{rotationStatus.totalLinks}
                 </span>
               )}
@@ -58,7 +58,7 @@ export function BypassAutoRotationTab({
               type="button"
               onClick={onForceRotateNow}
               disabled={isRotatingNow}
-              className="px-3.5 py-2 rounded-xl border border-[#38bdf8]/40 bg-[#38bdf8]/15 text-[#38bdf8] font-bold text-xs cursor-pointer hover:bg-[#38bdf8]/25 transition-all flex items-center gap-1.5 disabled:opacity-50"
+              className="px-3.5 py-2 rounded-xl border border-[#2563EB] bg-[#2563EB]/15 text-[#2563EB] font-bold text-xs cursor-pointer hover:bg-[#2563EB]/25 transition-all flex items-center gap-1.5 disabled:opacity-50"
               title={lang === 'vi' ? 'Bấm để đổi ngay sang link tiếp theo mà không cần đợi sang ngày mới' : 'Rotate to next link now'}
             >
               {isRotatingNow ? '⏳...' : `⚡ ${lang === 'vi' ? 'Đổi sang link kế tiếp ngay' : 'Rotate Next Now'}`}
@@ -70,7 +70,7 @@ export function BypassAutoRotationTab({
       {/* Textarea for 2-3 links */}
       <div className="flex flex-col gap-1.5">
         <div className="flex justify-between items-center">
-          <label className="text-xs font-bold text-[#e2e8f0]">
+          <label className="text-xs font-bold text-[#1F2937]">
             📝 {lang === 'vi' ? 'Dán danh sách 2 - 3 Link Vượt (Mỗi dòng 1 link):' : 'Paste 2 - 3 Bypass Links (1 per line):'}
           </label>
           <span className="text-[11px] font-bold" style={{ color: parsedPoolCount >= 2 ? '#22c55e' : '#94a3b8' }}>
@@ -83,7 +83,7 @@ export function BypassAutoRotationTab({
           value={linkPoolText}
           onChange={(e) => setLinkPoolText(e.target.value)}
           placeholder={`https://link1s.com/link-1\nhttps://link4m.co/link-2\nhttps://yeumoney.com/link-3`}
-          className="w-full p-3 rounded-xl border border-[#38bdf8]/30 bg-[#080c14] text-white text-xs font-mono leading-relaxed outline-none resize-y"
+          className="w-full p-3 rounded-xl border border-[#2563EB] bg-[#F5F7FB] text-[#1F2937] text-xs font-mono leading-relaxed outline-none resize-y"
         />
         <div className="text-[11px] text-[#64748b]">
           💡 {lang === 'vi'
@@ -93,8 +93,8 @@ export function BypassAutoRotationTab({
       </div>
 
       {/* Rotation Strategy Options */}
-      <div className="bg-[#0b1329] border border-[#1e293b] rounded-[14px] p-3.5 flex flex-col gap-3">
-        <div className="text-xs font-bold text-[#e2e8f0]">
+      <div className="bg-[#0b1329] border border-[#E5E7EB] rounded-[14px] p-3.5 flex flex-col gap-3">
+        <div className="text-xs font-bold text-[#1F2937]">
           ⚙️ {lang === 'vi' ? 'Chế độ xoay link:' : 'Rotation Strategy:'}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -116,7 +116,7 @@ export function BypassAutoRotationTab({
               <div className="text-xs font-bold text-[#f8fafc]">
                 {lang === 'vi' ? 'Tuần tự mỗi ngày' : 'Daily Sequential'}
               </div>
-              <div className="text-[11px] text-[#94a3b8]">
+              <div className="text-[11px] text-[#64748B]">
                 {lang === 'vi' ? 'Link 1 ➔ Link 2 ➔ Link 3' : '1 ➔ 2 ➔ 3 cycle'}
               </div>
             </div>
@@ -140,7 +140,7 @@ export function BypassAutoRotationTab({
               <div className="text-xs font-bold text-[#f8fafc]">
                 {lang === 'vi' ? 'Ngẫu nhiên mỗi ngày' : 'Daily Random'}
               </div>
-              <div className="text-[11px] text-[#94a3b8]">
+              <div className="text-[11px] text-[#64748B]">
                 {lang === 'vi' ? 'Chọn ngẫu nhiên 1 link khác' : 'Random different link'}
               </div>
             </div>
@@ -148,7 +148,7 @@ export function BypassAutoRotationTab({
         </div>
 
         <div className="pt-2.5 border-t border-white/[0.06] flex items-center justify-between">
-          <span className="text-xs text-[#cbd5e1] font-semibold">
+          <span className="text-xs text-[#64748B] font-semibold">
             ⏰ {lang === 'vi' ? 'Tự động kích hoạt đổi link lúc 00:00 mỗi đêm' : 'Auto trigger rotation at 00:00 every midnight'}
           </span>
           <input

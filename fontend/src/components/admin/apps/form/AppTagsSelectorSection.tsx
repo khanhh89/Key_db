@@ -33,11 +33,11 @@ export function AppTagsSelectorSection({
 
   return (
     <div className="flex flex-col gap-2 mt-2">
-      <label className="text-xs font-bold text-[#94a3b8]">
+      <label className="text-xs font-bold text-[#64748B]">
         {lang === 'vi' ? '🏷️ Thẻ Nhãn Nổi Bật (Badges):' : '🏷️ Custom App Badges / Tags:'}
       </label>
       <input
-        className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+        className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
         type="text"
         value={appTagsStr}
         placeholder={lang === 'vi' ? 'VD: Hack Map Liên Quân, 🎮 Delta Roblox' : 'e.g. Hack Map, Delta Roblox'}

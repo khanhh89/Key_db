@@ -145,16 +145,16 @@ export function DashboardPage({
   return (
     <div className="flex flex-col gap-6 w-full animate-fade-in-up">
       {/* Top Welcome Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] border border-[#334155]/60 rounded-3xl p-8 flex flex-col md:flex-row justify-between md:items-center gap-6 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] border border-[#E5E7EB] rounded-3xl p-8 flex flex-col md:flex-row justify-between md:items-center gap-6 shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
         {/* Glow effect in background */}
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-[#38bdf8] rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-[#2563EB] rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-[#818cf8] rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
         
         <div className="flex flex-col gap-2 z-10">
           <h2 className="m-0 text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-[#cbd5e1] flex items-center gap-3">
             ⚡ {lang === 'vi' ? 'Xin chào, Administrator!' : 'Welcome, Administrator!'}
           </h2>
-          <p className="m-0 text-sm text-[#94a3b8] font-medium tracking-wide">
+          <p className="m-0 text-sm text-[#64748B] font-medium tracking-wide">
             {lang === 'vi'
               ? `Hệ thống quản trị PayOS & VietQR tự động 24/7 cho thương hiệu ${config.brandName || 'MOD VIP STORE'}`
               : `PayOS & VietQR Automated Dashboard for ${config.brandName || 'MOD VIP STORE'}`}
@@ -162,7 +162,7 @@ export function DashboardPage({
         </div>
         <div className="flex gap-4 items-center flex-wrap z-10">
           <button 
-            className="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm cursor-pointer transition-all duration-300 flex items-center gap-2 hover:-translate-y-1 hover:shadow-lg backdrop-blur-md" 
+            className="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[#1F2937] font-semibold text-sm cursor-pointer transition-all duration-300 flex items-center gap-2 hover:-translate-y-1 hover:shadow-lg backdrop-blur-md" 
             onClick={exportDashboardCSV}
           >
             📊 {lang === 'vi' ? 'Xuất Báo Cáo CSV' : 'Export CSV Report'}
@@ -175,8 +175,8 @@ export function DashboardPage({
       </div>
 
       {/* Date Filter Bar */}
-      <div className="flex flex-col md:flex-row md:items-center gap-4 bg-[#0f172a]/60 border border-[#1e293b] rounded-2xl p-4 backdrop-blur-md">
-        <span className="text-sm font-bold text-[#e2e8f0] px-2 whitespace-nowrap">🗓️ {lang === 'vi' ? 'Thời gian thống kê:' : 'Stats Filter:'}</span>
+      <div className="flex flex-col md:flex-row md:items-center gap-4 bg-white border border-[#E5E7EB] rounded-2xl p-4 backdrop-blur-md">
+        <span className="text-sm font-bold text-[#1F2937] px-2 whitespace-nowrap">🗓️ {lang === 'vi' ? 'Thời gian thống kê:' : 'Stats Filter:'}</span>
         <div className="flex flex-wrap gap-2">
           {['ALL', 'TODAY', '7DAYS', '30DAYS'].map((filter) => {
             const labels: any = { ALL: 'Tất cả', TODAY: 'Hôm nay (24h)', '7DAYS': '7 ngày qua', '30DAYS': '30 ngày qua' };
@@ -187,8 +187,8 @@ export function DashboardPage({
                 key={filter}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${
                   isActive 
-                  ? 'bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white shadow-[0_4px_12px_rgba(56,189,248,0.4)] border-0' 
-                  : 'bg-[#1e293b]/50 text-[#94a3b8] border border-[#334155] hover:bg-[#1e293b] hover:text-[#cbd5e1]'
+                  ? 'bg-[#2563EB] text-[#1F2937] shadow-[0_4px_12px_rgba(56,189,248,0.4)] border-0' 
+                  : 'bg-white text-[#64748B] border border-[#E5E7EB] hover:bg-white hover:text-[#64748B]'
                 }`}
                 onClick={() => setDateFilter(filter as DateFilterMode)}
               >
@@ -227,14 +227,14 @@ export function DashboardPage({
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <h3 className="m-0 text-base md:text-lg font-bold text-white">
+              <h3 className="m-0 text-base md:text-lg font-bold text-[#1F2937]">
                 {lang === 'vi' ? 'AI UX Intelligence & Phân Tích Khó Khăn Người Dùng' : 'AI UX Intelligence & Friction Analytics'}
               </h3>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30">
                 ACTIVE
               </span>
             </div>
-            <p className="m-0 text-xs text-[#94a3b8]">
+            <p className="m-0 text-xs text-[#64748B]">
               {lang === 'vi'
                 ? 'Hệ thống AI tự động theo dõi các điểm nghẽn trải nghiệm, tỉ lệ bỏ dở thanh toán và đề xuất giải pháp cải tiến.'
                 : 'Automated AI telemetry tracking customer friction, checkout drop-offs, and strategic improvements.'}
@@ -244,7 +244,7 @@ export function DashboardPage({
 
         <button
           onClick={() => navigate('/admin/ai-analytics')}
-          className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#8b5cf6] to-[#6366f1] hover:from-[#7c3aed] hover:to-[#4f46e5] text-white font-bold text-xs tracking-wide cursor-pointer transition-all duration-300 shadow-[0_4px_15px_rgba(139,92,246,0.3)] flex items-center gap-2 shrink-0 z-10 hover:-translate-y-0.5"
+          className="px-5 py-3 rounded-xl bg-[#2563EB] hover:from-[#7c3aed] hover:to-[#4f46e5] text-[#1F2937] font-bold text-xs tracking-wide cursor-pointer transition-all duration-300 shadow-[0_4px_15px_rgba(139,92,246,0.3)] flex items-center gap-2 shrink-0 z-10 hover:-translate-y-0.5"
         >
           <span>🚀</span>
           <span>{lang === 'vi' ? 'Mở Trung Tâm AI Phân Tích' : 'Open AI Analytics Center'}</span>
@@ -271,23 +271,23 @@ export function DashboardPage({
           {/* Quick Operations Button Grid */}
           <div className="grid grid-cols-2 gap-4 shrink-0">
             <button 
-              className="group bg-gradient-to-br from-[#1e293b] to-[#0f172a] border border-[#334155] hover:border-[#38bdf8]/50 p-4 rounded-2xl flex items-center gap-4 text-left cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg" 
+              className="group bg-gradient-to-br from-[#1e293b] to-[#0f172a] border border-[#E5E7EB] hover:border-[#2563EB] p-4 rounded-2xl flex items-center gap-4 text-left cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg" 
               onClick={() => navigate('/admin/apps')}
             >
-              <span className="w-10 h-10 rounded-xl bg-[#38bdf8]/10 text-[#38bdf8] flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">📱</span>
+              <span className="w-10 h-10 rounded-xl bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">📱</span>
               <div className="flex flex-col">
-                <strong className="text-sm text-white">{lang === 'vi' ? 'Catalog Apps' : 'Catalog Apps'}</strong>
-                <small className="text-[11px] text-[#94a3b8] mt-0.5">{lang === 'vi' ? 'Quản lý App & Link' : 'Edit Apps & Links'}</small>
+                <strong className="text-sm text-[#1F2937]">{lang === 'vi' ? 'Catalog Apps' : 'Catalog Apps'}</strong>
+                <small className="text-[11px] text-[#64748B] mt-0.5">{lang === 'vi' ? 'Quản lý App & Link' : 'Edit Apps & Links'}</small>
               </div>
             </button>
             <button 
-              className="group bg-gradient-to-br from-[#1e293b] to-[#0f172a] border border-[#334155] hover:border-[#a855f7]/50 p-4 rounded-2xl flex items-center gap-4 text-left cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg" 
+              className="group bg-gradient-to-br from-[#1e293b] to-[#0f172a] border border-[#E5E7EB] hover:border-[#a855f7]/50 p-4 rounded-2xl flex items-center gap-4 text-left cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg" 
               onClick={() => navigate('/admin/keys')}
             >
               <span className="w-10 h-10 rounded-xl bg-[#a855f7]/10 text-[#a855f7] flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">🔑</span>
               <div className="flex flex-col">
-                <strong className="text-sm text-white">{lang === 'vi' ? 'Kho Key VIP' : 'VIP Keys'}</strong>
-                <small className="text-[11px] text-[#94a3b8] mt-0.5">{lang === 'vi' ? 'Nhập Key hàng loạt' : 'Bulk Import Keys'}</small>
+                <strong className="text-sm text-[#1F2937]">{lang === 'vi' ? 'Kho Key VIP' : 'VIP Keys'}</strong>
+                <small className="text-[11px] text-[#64748B] mt-0.5">{lang === 'vi' ? 'Nhập Key hàng loạt' : 'Bulk Import Keys'}</small>
               </div>
             </button>
           </div>

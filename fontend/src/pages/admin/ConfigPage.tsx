@@ -218,7 +218,7 @@ export function ConfigPage({
   };
 
   return (
-    <div className="bg-[#0f172a]/60 border border-[#1e293b] rounded-[24px] p-7 flex flex-col gap-6">
+    <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-7 flex flex-col gap-6">
       <div className="flex justify-between items-center flex-wrap gap-4">
         <h2>⚙️ {lang === 'vi' ? 'Cấu Hình Thông Tin Hệ Thống' : 'System Information Config'}</h2>
       </div>
@@ -227,7 +227,7 @@ export function ConfigPage({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
             <label>{lang === 'vi' ? 'Tên Admin / Brand:' : 'Brand Name:'}</label>
-            <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
               type="text"
               value={cfgBrand}
               onChange={(e) => setCfgBrand(e.target.value)}
@@ -236,7 +236,7 @@ export function ConfigPage({
 
           <div className="flex flex-col gap-2">
             <label>{lang === 'vi' ? 'Tên miền Domain:' : 'Domain Name:'}</label>
-            <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
               type="text"
               value={cfgDomain}
               onChange={(e) => setCfgDomain(e.target.value)}
@@ -247,7 +247,7 @@ export function ConfigPage({
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f8fafc', fontWeight: 600 }}>
               <span>🎬 {lang === 'vi' ? 'Link Video YouTube Hướng Dẫn Kích Hoạt (Hiển thị ở FAQ & Hướng dẫn):' : 'YouTube Tutorial Video Link (Displayed in FAQ section):'}</span>
             </label>
-            <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
               type="text"
               value={cfgGuideYoutubeUrl}
               onChange={(e) => setCfgGuideYoutubeUrl(e.target.value)}
@@ -260,14 +260,14 @@ export function ConfigPage({
 
           <div className="flex flex-col gap-2">
             <label>{lang === 'vi' ? 'Số lần Vượt Chồng Link (Nested Bypass):' : 'Nested Bypass Steps:'}</label>
-            <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
               type="number"
               min="1"
               max="10"
               value={cfgBypassNestedSteps}
               onChange={(e) => setCfgBypassNestedSteps(Number(e.target.value))}
             />
-            <span className="text-[11px] text-[#94a3b8]">
+            <span className="text-[11px] text-[#64748B]">
               {lang === 'vi' ? 'Số lần người dùng phải vượt link (VD: 2 lần)' : 'Number of times a user must bypass links (e.g., 2 times)'}
             </span>
           </div>
@@ -309,7 +309,7 @@ export function ConfigPage({
                     <span style={{ fontSize: '12px', fontWeight: 700, color: '#38bdf8', width: '24px' }}>#{idx + 1}</span>
                     <div style={{ flex: 1 }}>
                       <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '3px' }}>{lang === 'vi' ? 'Tên hiển thị:' : 'Name:'}</label>
-                      <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                      <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
                         type="text"
                         value={chan.name}
                         onChange={(e) => handleUpdateChannel(chan.id, 'name', e.target.value)}
@@ -321,7 +321,7 @@ export function ConfigPage({
 
                   <div style={{ flex: 2, minWidth: '240px' }}>
                     <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '3px' }}>{lang === 'vi' ? 'Đường link URL:' : 'Link URL:'}</label>
-                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                    <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
                       type="text"
                       value={chan.url}
                       onChange={(e) => handleUpdateChannel(chan.id, 'url', e.target.value)}
@@ -336,7 +336,7 @@ export function ConfigPage({
                         <img src={chan.logoUrl} alt={chan.name} className="w-9 h-9 object-contain rounded-md border border-[#00f2fe]" />
                         <label style={{ padding: '6px 10px', borderRadius: '6px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontSize: '12px', cursor: 'pointer' }}>
                           🔄 Đổi logo
-                          <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                          <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
                             type="file"
                             accept="image/*"
                             style={{ display: 'none' }}
@@ -351,7 +351,7 @@ export function ConfigPage({
                     ) : (
                       <label style={{ padding: '8px 12px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.15)', border: '1px dashed rgba(56, 189, 248, 0.4)', color: '#38bdf8', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         📁 Up logo từ máy
-                        <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                        <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
                           type="file"
                           accept="image/*"
                           style={{ display: 'none' }}
@@ -391,7 +391,7 @@ export function ConfigPage({
                   </div>
                   <label className="upload-btn-cloud" style={{ margin: 0, padding: '8px 14px', cursor: 'pointer', fontSize: '12px' }}>
                     {isUploadingFavicon ? '⏳ Đang tải...' : '🔄 Đổi logo khác'}
-                    <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                    <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
                       type="file"
                       accept="image/*"
                       style={{ display: 'none' }}
@@ -410,7 +410,7 @@ export function ConfigPage({
               ) : (
                 <label className="upload-btn-cloud" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px', borderRadius: '12px', border: '2px dashed rgba(56, 189, 248, 0.4)', background: 'rgba(15, 23, 42, 0.4)', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: '#38bdf8' }}>
                   {isUploadingFavicon ? '⏳ Đang tải logo lên...' : '📁 Tải Logo Trang Web / Favicon Từ Máy Tính'}
-                  <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+                  <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
                     type="file"
                     accept="image/*"
                     style={{ display: 'none' }}
@@ -504,7 +504,7 @@ export function ConfigPage({
 
         <div className="flex flex-col gap-2" style={{ marginTop: '20px' }}>
           <label>{lang === 'vi' ? 'Các từ khóa Specialty (phân cách bằng dấu phẩy):' : 'Specialties (comma separated):'}</label>
-          <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+          <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
             type="text"
             value={cfgSpecialtiesStr}
             onChange={(e) => setCfgSpecialtiesStr(e.target.value)}
@@ -512,7 +512,7 @@ export function ConfigPage({
         </div>
 
         <div className="submit-btn-row" style={{ marginTop: '24px' }}>
-          <button type="submit" className="px-6 py-3 rounded-xl border-0 bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)]" disabled={isSaving}>
+          <button type="submit" className="px-6 py-3 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)]" disabled={isSaving}>
             {isSaving ? (lang === 'vi' ? '⏳ Đang Lưu...' : 'Saving...') : (lang === 'vi' ? '💾 Lưu Cấu Hình Hệ Thống' : 'Save Config')}
           </button>
         </div>

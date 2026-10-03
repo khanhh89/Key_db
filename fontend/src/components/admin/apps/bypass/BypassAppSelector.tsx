@@ -25,9 +25,9 @@ export function BypassAppSelector({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-between items-center">
-        <label className="text-xs font-bold text-[#e2e8f0] flex items-center gap-2">
+        <label className="text-xs font-bold text-[#1F2937] flex items-center gap-2">
           📱 {lang === 'vi' ? 'Chọn App áp dụng link:' : 'Select Apps to apply link:'}
-          <span className="bg-[#38bdf8]/20 text-[#38bdf8] px-2 py-0.5 rounded text-xs font-extrabold">
+          <span className="bg-[#2563EB]/20 text-[#2563EB] px-2 py-0.5 rounded text-xs font-extrabold">
             {selectedAppIds.length}/{apps.length}
           </span>
         </label>
@@ -35,7 +35,7 @@ export function BypassAppSelector({
           <button
             type="button"
             onClick={handleSelectAll}
-            className="text-[11px] px-2.5 py-1 rounded-lg border border-[#38bdf8]/40 bg-[#38bdf8]/10 text-[#38bdf8] cursor-pointer font-bold hover:bg-[#38bdf8]/20 transition-all"
+            className="text-[11px] px-2.5 py-1 rounded-lg border border-[#2563EB] bg-[#2563EB]/10 text-[#2563EB] cursor-pointer font-bold hover:bg-[#2563EB]/20 transition-all"
           >
             {lang === 'vi' ? '✓ Chọn tất cả' : '✓ Select all'}
           </button>
@@ -49,7 +49,7 @@ export function BypassAppSelector({
         </div>
       </div>
 
-      <div className="max-h-[170px] overflow-y-auto flex flex-col gap-1 p-1 bg-[#080c14] rounded-xl border border-[#1e293b]">
+      <div className="max-h-[170px] overflow-y-auto flex flex-col gap-1 p-1 bg-[#F5F7FB] rounded-xl border border-[#E5E7EB]">
         {apps.map((a) => (
           <label
             key={a.id}

@@ -83,7 +83,7 @@ export function LogsPage({ lang, showToast }: LogsPageProps) {
           <h2 className="m-0 text-[22px] font-extrabold text-[#f8fafc] flex items-center gap-2.5">
             📜 {lang === 'vi' ? 'Nhật Ký Hoạt Động Hệ Thống' : 'System Activity Audit Logs'}
           </h2>
-          <p className="mt-1 text-[13px] text-[#94a3b8]">
+          <p className="mt-1 text-[13px] text-[#64748B]">
             {lang === 'vi' ? 'Theo dõi thời gian thực các thao tác người dùng, địa chỉ IP và hành động đăng nhập Admin.' : 'Real-time audit log of user actions, client IP addresses, and Admin activities.'}
           </p>
         </div>
@@ -166,7 +166,7 @@ export function LogsPage({ lang, showToast }: LogsPageProps) {
 
       {/* Search Input Bar */}
       <div className="mb-5">
-        <input className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
+        <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -185,20 +185,20 @@ export function LogsPage({ lang, showToast }: LogsPageProps) {
       </div>
 
       {/* Logs Data Table */}
-      <div className="bg-[#0f172a]/60 backdrop-blur-md border border-[#1e293b] rounded-2xl overflow-hidden">
+      <div className="bg-white backdrop-blur-md border border-[#E5E7EB] rounded-2xl overflow-hidden">
         {loading ? (
-          <div className="p-10 text-center text-[#94a3b8]">
+          <div className="p-10 text-center text-[#64748B]">
             ⏳ {lang === 'vi' ? 'Đang tải nhật ký hoạt động hệ thống...' : 'Loading system logs...'}
           </div>
         ) : filteredLogs.length === 0 ? (
-          <div className="p-10 text-center text-[#94a3b8]">
+          <div className="p-10 text-center text-[#64748B]">
             📭 {lang === 'vi' ? 'Chưa có nhật ký hoạt động nào ghi nhận.' : 'No activity logs found.'}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-[13px]">
               <thead>
-                <tr className="bg-[#1e293b]/80 border-b border-[#334155] text-[#94a3b8]">
+                <tr className="bg-white border-b border-[#E5E7EB] text-[#64748B]">
                   <th className="p-[14px_16px] w-[160px]">{lang === 'vi' ? 'Thời Gian' : 'Timestamp'}</th>
                   <th className="p-[14px_16px] w-[140px]">{lang === 'vi' ? 'Địa Chỉ IP' : 'Client IP'}</th>
                   <th className="p-[14px_16px] w-[180px]">{lang === 'vi' ? 'Hành Động' : 'Action'}</th>
@@ -207,8 +207,8 @@ export function LogsPage({ lang, showToast }: LogsPageProps) {
               </thead>
               <tbody>
                 {filteredLogs.map((log) => (
-                  <tr key={log.id} className="border-b border-[#1e293b]/50 transition-colors duration-200">
-                    <td className="p-[14px_16px] text-[#cbd5e1] whitespace-nowrap font-semibold">
+                  <tr key={log.id} className="border-b border-[#E5E7EB] transition-colors duration-200">
+                    <td className="p-[14px_16px] text-[#64748B] whitespace-nowrap font-semibold">
                       {formatDateTime(log.createdAt)}
                     </td>
                     <td className="p-[14px_16px] text-[#00f2fe] font-mono font-bold">

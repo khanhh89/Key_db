@@ -979,10 +979,11 @@ export function FreeNoteFormModal({
                 </div>
               </div>
 
-              <div className="rounded-xl overflow-hidden border border-[#1e293b] focus-within:border-[#38bdf8] focus-within:ring-[3px] focus-within:ring-[#38bdf8]/15 text-black">
+              <div className="rounded-xl overflow-hidden border border-[#E5E7EB] focus-within:border-[#2563EB] focus-within:ring-[3px] focus-within:ring-[#38bdf8]/15 text-black">
                 <CKEditor
                   editor={ClassicEditor}
                   config={{
+                    licenseKey: 'GPL',
                     plugins: [Essentials, Bold, Italic, Paragraph, List, Link],
                     toolbar: ['undo', 'redo', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', '|', 'link']
                   }}

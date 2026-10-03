@@ -137,7 +137,7 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
   const sampleQrUrl = `https://img.vietqr.io/image/${bankId}-${accNo}-compact2.png?amount=50000&addInfo=MKDEMO&accountName=${encodeURIComponent(accName)}`;
 
   return (
-    <div className="bg-[#0f172a]/60 border border-[#1e293b] rounded-[24px] p-7 flex flex-col gap-6">
+    <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-7 flex flex-col gap-6">
       <div className="flex justify-between items-center flex-wrap gap-4">
         <h2 className="m-0 font-heading text-[22px] font-extrabold">💳 {lang === 'vi' ? 'Quản Lý Đơn Hàng & Cổng Thanh Toán PayOS Auto' : 'Orders & PayOS Payment Gateway'}</h2>
       </div>
@@ -146,7 +146,7 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
       <div className="flex gap-2.5 mb-5 flex-wrap">
         <button
           type="button"
-          className={`px-5 py-3 rounded-[14px] font-heading font-bold text-[13px] cursor-pointer transition-all duration-200 ${activeTab === 'orders' ? 'bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white border-0 shadow-[0_4px_14px_rgba(56,189,248,0.3)]' : 'border border-[#1e293b] bg-[#111827]/70 text-[#94a3b8] hover:text-[#38bdf8] hover:border-[#38bdf8]'}`}
+          className={`px-5 py-3 rounded-[14px] font-heading font-bold text-[13px] cursor-pointer transition-all duration-200 ${activeTab === 'orders' ? 'bg-[#2563EB] text-[#1F2937] border-0 shadow-[0_4px_14px_rgba(56,189,248,0.3)]' : 'border border-[#E5E7EB] bg-[#111827]/70 text-[#64748B] hover:text-[#2563EB] hover:border-[#2563EB]'}`}
           onClick={() => handleTabChange('orders')}
         >
           📋 {lang === 'vi' ? 'Danh Sách Đơn Hàng' : 'Orders List'} ({orders.length})
@@ -154,7 +154,7 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
 
         <button
           type="button"
-          className={`px-5 py-3 rounded-[14px] font-heading font-bold text-[13px] cursor-pointer transition-all duration-200 ${activeTab === 'payos' ? 'bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white border-0 shadow-[0_4px_14px_rgba(56,189,248,0.3)]' : 'border border-[#1e293b] bg-[#111827]/70 text-[#94a3b8] hover:text-[#38bdf8] hover:border-[#38bdf8]'}`}
+          className={`px-5 py-3 rounded-[14px] font-heading font-bold text-[13px] cursor-pointer transition-all duration-200 ${activeTab === 'payos' ? 'bg-[#2563EB] text-[#1F2937] border-0 shadow-[0_4px_14px_rgba(56,189,248,0.3)]' : 'border border-[#E5E7EB] bg-[#111827]/70 text-[#64748B] hover:text-[#2563EB] hover:border-[#2563EB]'}`}
           onClick={() => handleTabChange('payos')}
         >
           ⚡ {lang === 'vi' ? 'Cấu Hình PayOS Gateway' : 'PayOS Gateway Config'}
@@ -162,7 +162,7 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
 
         <button
           type="button"
-          className={`px-5 py-3 rounded-[14px] font-heading font-bold text-[13px] cursor-pointer transition-all duration-200 ${activeTab === 'bank' ? 'bg-gradient-to-r from-[#38bdf8] to-[#6366f1] text-white border-0 shadow-[0_4px_14px_rgba(56,189,248,0.3)]' : 'border border-[#1e293b] bg-[#111827]/70 text-[#94a3b8] hover:text-[#38bdf8] hover:border-[#38bdf8]'}`}
+          className={`px-5 py-3 rounded-[14px] font-heading font-bold text-[13px] cursor-pointer transition-all duration-200 ${activeTab === 'bank' ? 'bg-[#2563EB] text-[#1F2937] border-0 shadow-[0_4px_14px_rgba(56,189,248,0.3)]' : 'border border-[#E5E7EB] bg-[#111827]/70 text-[#64748B] hover:text-[#2563EB] hover:border-[#2563EB]'}`}
           onClick={() => handleTabChange('bank')}
         >
           🏦 {lang === 'vi' ? 'Tài Khoản VietQR' : 'VietQR Bank Account'}
