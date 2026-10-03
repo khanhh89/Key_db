@@ -1,5 +1,7 @@
 import type { Language } from '../../../../types';
-
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import { ClassicEditor, Essentials, Bold, Italic, Paragraph, List, Link } from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
 interface AppLinksSectionProps {
   lang: Language;
   appDownloadUrl: string;
@@ -55,13 +57,20 @@ export function AppLinksSection({
         <label className="text-xs font-bold text-[#94a3b8]">
           📝 {lang === 'vi' ? 'Ghi chú / Lưu ý khi tải:' : 'Notice / Download Note:'}
         </label>
-        <input
-          className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#080c14] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#38bdf8] focus:ring-[3px] focus:ring-[#38bdf8]/15"
-          type="text"
-          value={appNote}
-          placeholder={lang === 'vi' ? 'VD: Cần xóa bản gốc trước khi cài đặt...' : 'e.g. Uninstall official app first...'}
-          onChange={(e) => setAppNote(e.target.value)}
-        />
+        <div className="rounded-xl overflow-hidden border border-[#1e293b] focus-within:border-[#38bdf8] focus-within:ring-[3px] focus-within:ring-[#38bdf8]/15 text-black">
+          <CKEditor
+            editor={ClassicEditor}
+            config={{
+              plugins: [Essentials, Bold, Italic, Paragraph, List, Link],
+              toolbar: ['undo', 'redo', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', '|', 'link']
+            }}
+            data={appNote}
+            onChange={(_event, editor) => {
+              const data = editor.getData();
+              setAppNote(data);
+            }}
+          />
+        </div>
       </div>
     </div>
   );

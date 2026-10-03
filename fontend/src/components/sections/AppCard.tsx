@@ -117,7 +117,7 @@ export function AppCard({
           <div className="notice-header">
             <b>⚠ {lang === 'vi' ? 'Lưu ý hệ thống:' : 'System Notice:'}</b>
           </div>
-          <div className="notice-body">{app.note}</div>
+          <div className="notice-body" dangerouslySetInnerHTML={{ __html: app.note }}></div>
         </div>
       ) : null}
 

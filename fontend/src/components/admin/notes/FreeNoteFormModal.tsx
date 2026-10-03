@@ -2,6 +2,9 @@ import { useState, useRef } from 'react';
 import type { FreeKeyNoteItem, AppItem, Language, SystemConfig } from '../../../types';
 import { ModalPortal } from '../../common/ModalPortal';
 import { saveAdminNoteToBackend } from '../../../services/api';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import { ClassicEditor, Essentials, Bold, Italic, Paragraph, List, Link } from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
 
 interface FreeNoteFormModalProps {
   isOpen: boolean;
@@ -94,7 +97,7 @@ export function FreeNoteFormModal({
         setSelectedAppIds([]);
         setKeysContent('');
         setDescription(
-          `💡 Hướng dẫn kích hoạt Key:\n1. Mở ứng dụng và chọn mục Đăng nhập/Kích hoạt Bản quyền.\n2. Dán mã Key được cấp ở trên vào ô tương ứng.\n3. Nhấn Xác nhận để bắt đầu sử dụng.\n\n⚠️ Lưu ý: Mỗi mã Key chỉ kích hoạt trên 1 thiết bị.`
+          `<p>💡 <b>Hướng dẫn kích hoạt Key:</b></p><ol><li>Mở ứng dụng và chọn mục Đăng nhập/Kích hoạt Bản quyền.</li><li>Dán mã Key được cấp ở trên vào ô tương ứng.</li><li>Nhấn Xác nhận để bắt đầu sử dụng.</li></ol><p><br>⚠️ <b>Lưu ý:</b> Mỗi mã Key chỉ kích hoạt trên 1 thiết bị.</p>`
         );
         setPassword('');
         setMaxViews('');
@@ -182,11 +185,11 @@ export function FreeNoteFormModal({
   const handleInsertTemplate = (type: 'guide' | 'warning') => {
     if (type === 'guide') {
       setDescription(
-        `💡 Hướng dẫn kích hoạt Key:\n1. Mở ứng dụng và vào mục Cài đặt -> Nhập Mã Key.\n2. Dán mã Key ở trên và bấm Kích Hoạt.\n3. Nếu gặp lỗi, vui lòng liên hệ Admin qua kênh hỗ trợ.`
+        `<p>💡 <b>Hướng dẫn kích hoạt Key:</b></p><ol><li>Mở ứng dụng và vào mục Cài đặt -&gt; Nhập Mã Key.</li><li>Dán mã Key ở trên và bấm Kích Hoạt.</li><li>Nếu gặp lỗi, vui lòng liên hệ Admin qua kênh hỗ trợ.</li></ol>`
       );
     } else {
       setDescription(
-        `⚠️ Lưu ý quan trọng:\n- Key Free có giới hạn thời gian trải nghiệm.\n- Nghiêm cấm chia sẻ hoặc bán lại key này.\n- Để sử dụng ổn định không giới hạn, hãy nâng cấp lên gói Key VIP Bản Quyền.`
+        `<p>⚠️ <b>Lưu ý quan trọng:</b></p><ul><li>Key Free có giới hạn thời gian trải nghiệm.</li><li>Nghiêm cấm chia sẻ hoặc bán lại key này.</li><li>Để sử dụng ổn định không giới hạn, hãy nâng cấp lên gói Key VIP Bản Quyền.</li></ul>`
       );
     }
     showToast(lang === 'vi' ? '📝 Đã chèn mẫu hướng dẫn!' : '📝 Inserted template!');
@@ -976,25 +979,20 @@ export function FreeNoteFormModal({
                 </div>
               </div>
 
-              <textarea
-                rows={3}
-                placeholder={lang === 'vi' ? 'Nhập nội dung hướng dẫn cho khách hàng xem...' : 'Enter usage guide for users...'}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px 14px',
-                  borderRadius: '12px',
-                  border: '1px solid #1e293b',
-                  background: '#080c14',
-                  color: '#cbd5e1',
-                  fontSize: '13px',
-                  lineHeight: '1.5',
-                  outline: 'none',
-                  resize: 'vertical',
-                  boxSizing: 'border-box'
-                }}
-              />
+              <div className="rounded-xl overflow-hidden border border-[#1e293b] focus-within:border-[#38bdf8] focus-within:ring-[3px] focus-within:ring-[#38bdf8]/15 text-black">
+                <CKEditor
+                  editor={ClassicEditor}
+                  config={{
+                    plugins: [Essentials, Bold, Italic, Paragraph, List, Link],
+                    toolbar: ['undo', 'redo', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', '|', 'link']
+                  }}
+                  data={description}
+                  onChange={(_event, editor) => {
+                    const data = editor.getData();
+                    setDescription(data);
+                  }}
+                />
+              </div>
             </div>
 
             {/* SECTION 4: HẠN DÙNG, GIỚI HẠN LƯỢT XEM & MẬT KHẨU */}

@@ -880,8 +880,11 @@ export function FreeKeyNotePage({
                   <span>💡</span>
                   <span>{lang === 'vi' ? 'HƯỚNG DẪN & LƯU Ý TỪ ADMIN:' : 'INSTRUCTIONS & NOTES:'}</span>
                 </div>
-                <div style={{ whiteSpace: 'pre-line', color: dark ? '#cbd5e1' : '#475569' }}>
-                  {note.description}
+                <div 
+                  className="ck-content"
+                  style={{ whiteSpace: 'normal', color: dark ? '#cbd5e1' : '#475569' }}
+                  dangerouslySetInnerHTML={{ __html: note.description }}
+                >
                 </div>
               </div>
             )}
