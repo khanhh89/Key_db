@@ -14,7 +14,7 @@
 /* ⚪ ULTRA CLEAN LIGHT WHITE THEME FOR ADMIN PORTAL */
 .admin-portal.light {
   background: #f8fafc;
-  color: #1F2937FFF;
+  color: #1F2937;
 }
 
 /* LOGIN SCREEN */
@@ -29,7 +29,7 @@
 
 .login-card {
   width: min(420px, 100%);
-  background: #1F2937FFF;
+  background: #1F2937;
   border: 1px solid #E5E7EB;
   border-radius: 28px;
   padding: 40px 32px;
@@ -89,7 +89,7 @@
   padding: 14px 16px;
   border-radius: 14px;
   border: 1px solid #E5E7EB;
-  background: #1F2937FFF;
+  background: #1F2937;
   color: #1F2937;
   font-size: 14px;
   outline: none;
@@ -221,7 +221,7 @@
 }
 
 .admin-portal.light .sidebar-brand h3 {
-  color: #1F2937FFF;
+  color: #1F2937;
 }
 
 .sidebar-brand span {
@@ -280,7 +280,7 @@
 }
 
 .sidebar-nav-item.active {
-  background: #2563EB, rgba(99, 102, 241, 0.18));
+  background: rgba(37, 99, 235, 0.18);
   color: #2563EB;
   border-left: 3px solid #2563EB;
   font-weight: 700;
@@ -288,7 +288,7 @@
 }
 
 .admin-portal.light .sidebar-nav-item.active {
-  background: #2563EB, rgba(99, 102, 241, 0.1));
+  background: rgba(37, 99, 235, 0.1);
   color: #0284c7;
   border-left: 3px solid #0284c7;
 }
@@ -359,7 +359,7 @@
 }
 
 .admin-portal.light .trigger-name {
-  color: #1F2937FFF;
+  color: #1F2937;
 }
 
 .trigger-status {
@@ -445,7 +445,7 @@
 }
 
 .admin-portal.light .dropdown-user-details strong {
-  color: #1F2937FFF;
+  color: #1F2937;
 }
 
 .dropdown-user-details small {
@@ -545,7 +545,7 @@
 }
 
 .admin-portal.light .user-info h4 {
-  color: #1F2937FFF;
+  color: #1F2937;
 }
 
 .user-info span {
@@ -644,7 +644,7 @@
 }
 
 .admin-portal.light .topbar-title h1 {
-  color: #1F2937FFF;
+  color: #1F2937;
 }
 
 .topbar-right {
@@ -1017,7 +1017,7 @@
 .admin-portal.light .key-filter-bar select {
   background: #1F2937 !important;
   border-color: #64748B !important;
-  color: #1F2937FFF !important;
+  color: #1F2937 !important;
 }
 
 .admin-portal.light .preset-btn {
@@ -1104,7 +1104,7 @@
   padding: 6px 12px;
   border-radius: 10px;
   border: 1px solid #E5E7EB;
-  background: #1F2937FFF;
+  background: #1F2937;
   color: #2563EB;
   font-size: 12px;
   font-weight: 700;
@@ -1146,7 +1146,7 @@
   height: 32px;
   border-radius: 10px;
   border: 1px solid #E5E7EB;
-  background: #1F2937FFF;
+  background: #1F2937;
   color: #64748B;
   font-size: 13px;
   font-weight: 700;
@@ -1352,7 +1352,7 @@
 
 /* DASHBOARD WELCOME BANNER */
 .dash-welcome-banner {
-  background: #2563EB, rgba(15, 23, 42, 0.9));
+  background: rgba(15, 23, 42, 0.9);
   border: 1px solid #E5E7EB;
   border-radius: 20px;
   padding: 24px 28px;
@@ -1379,7 +1379,7 @@
 }
 
 .admin-portal.light .welcome-text h2 {
-  color: #1F2937FFF;
+  color: #1F2937;
 }
 
 .welcome-text p {
@@ -1542,7 +1542,7 @@
 }
 
 .admin-portal.light .order-item-id {
-  color: #1F2937FFF;
+  color: #1F2937;
 }
 
 .order-item-app {
@@ -1642,7 +1642,7 @@
   margin-bottom: 24px;
   padding: 18px;
   border-radius: 20px;
-  background: #F5F7FB, rgba(15, 23, 42, 0.7));
+  background: rgba(15, 23, 42, 0.7);
   border: 1px solid #E5E7EB;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
@@ -1736,7 +1736,7 @@
   padding: 5px 10px;
   border-radius: 8px;
   background: #2563EB;
-  color: #1F2937FFF;
+  color: #1F2937;
   border: none;
   font-weight: 800;
   font-size: 11px;
@@ -1864,7 +1864,7 @@
   justify-content: space-between;
   padding: 24px 28px;
   border-radius: 24px;
-  background: #F5F7FB, #1F2937FFF);
+  background: #F5F7FB;
   border: 1px solid #E5E7EB;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   
@@ -2057,13 +2057,13 @@
 
 /* ⚪ LIGHT MODE OVERRIDES FOR DASHBOARD */
 .admin-portal.light .dash-welcome-banner {
-  background: #F5F7FB, #1F2937);
+  background: #F5F7FB;
   border-color: #1F2937;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .admin-portal.light .welcome-text h2 {
-  color: #1F2937FFF;
+  color: #1F2937;
   background: none;
   -webkit-background-clip: unset;
   background-clip: unset;
@@ -2080,7 +2080,7 @@
 .admin-portal.light .analytic-app-info strong,
 .admin-portal.light .order-item-id,
 .admin-portal.light .dash-quick-btn .btn-text strong {
-  color: #1F2937FFF;
+  color: #1F2937;
 }
 
 .admin-portal.light .dash-quick-btn,
@@ -2114,7 +2114,7 @@
 
 .chart-toggle-btn.active {
   background: #2563EB;
-  color: #1F2937FFF;
+  color: #1F2937;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
@@ -2207,7 +2207,7 @@
 .bar-tooltip {
   position: absolute;
   top: -50px;
-  background: #1F2937FFF;
+  background: #1F2937;
   border: 1px solid #2563EB;
   padding: 4px 10px;
   border-radius: 8px;
@@ -2263,7 +2263,7 @@
 }
 
 .admin-portal.light .bar-tooltip strong {
-  color: #1F2937FFF;
+  color: #1F2937;
 }
 
 /* ==========================================================================
@@ -2271,7 +2271,7 @@
    ========================================================================== */
 .stock-alert-widget {
   margin-bottom: 24px;
-  background: #2563EB 0%, rgba(15, 23, 42, 0.9) 100%);
+  background: linear-gradient(135deg, #2563EB 0%, rgba(15, 23, 42, 0.9) 100%);
   border: 1px solid #E5E7EB;
   border-radius: 20px;
   padding: 20px 24px;
@@ -2376,12 +2376,12 @@
 
 .stock-alert-card.out {
   border-color: rgba(239, 68, 68, 0.4);
-  background: #2563EB 0%, #1F2937FFF 100%);
+  background: linear-gradient(135deg, #2563EB 0%, #1F2937 100%);
 }
 
 .stock-alert-card.low {
   border-color: rgba(245, 158, 11, 0.4);
-  background: #2563EB 0%, #1F2937FFF 100%);
+  background: linear-gradient(135deg, #2563EB 0%, #1F2937 100%);
 }
 
 .stock-alert-card:hover {
@@ -2489,17 +2489,17 @@
 }
 
 .admin-portal.light .stock-alert-card.out {
-  background: #1F29371f2;
+  background: #fff1f2;
   border-color: #fecdd3;
 }
 
 .admin-portal.light .stock-alert-card.low {
-  background: #1F2937beb;
+  background: #fffbeb;
   border-color: #fef3c7;
 }
 
 .admin-portal.light .alert-app-info strong {
-  color: #1F2937FFF;
+  color: #1F2937;
 }
 
 .admin-portal.light .alert-app-sub {
@@ -2567,7 +2567,7 @@
 .admin-portal.light .otp-box {
   background: #1F2937;
   border-color: rgba(2, 132, 199, 0.3);
-  color: #1F2937FFF;
+  color: #1F2937;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 

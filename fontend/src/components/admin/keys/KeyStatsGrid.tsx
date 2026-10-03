@@ -44,9 +44,8 @@ export function KeyStatsGrid({
         const isActiveFilter = filterDuration === String(days);
 
         let healthLabel = '🟢 Còn hàng';
-        let healthColor = '#10b981';
-        if (count === 0) { healthLabel = '🔴 Hết hàng'; healthColor = '#ef4444'; }
-        else if (count < 5) { healthLabel = '🟡 Sắp hết'; healthColor = '#f59e0b'; }
+        if (count === 0) { healthLabel = '🔴 Hết hàng'; }
+        else if (count < 5) { healthLabel = '🟡 Sắp hết'; }
 
         return (
           <div
@@ -61,7 +60,7 @@ export function KeyStatsGrid({
             title="Bấm để lọc nhanh gói này"
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#2563EB', fontWeight: 'bold' }}>{icon} {title}</span>
+              <span style={{ color: color, fontWeight: 'bold' }}>{icon} {title}</span>
               <span className={`status-badge ${count === 0 ? 'sold' : count < 5 ? 'badge-warning' : 'available'}`}>{healthLabel}</span>
             </div>
             <strong style={{ fontSize: '20px', color: '#1E293B', marginTop: '8px', display: 'block' }}>{count} Key</strong>
