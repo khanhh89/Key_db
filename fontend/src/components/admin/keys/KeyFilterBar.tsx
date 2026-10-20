@@ -48,7 +48,7 @@ export function KeyFilterBar({
           <option value="ALL">Tất Cả Các Gói ({keys.length} Key)</option>
           {uniqueDurations.map((days) => {
             const label = days >= 365 ? '👑 Gói Vĩnh Viễn' : (days === 1 ? '⚡ Gói 1 Ngày' : (days === 7 ? '🔥 Gói 7 Ngày' : (days === 30 ? '💎 Gói 30 Ngày' : `⏱️ Gói ${days} Ngày`)));
-            const count = keys.filter((k) => k.durationDays === days).length;
+            const count = keys.filter((k) => (Number(k.durationDays) || 30) === days).length;
             return <option key={days} value={String(days)}>{label} ({count} Key)</option>;
           })}
         </select>

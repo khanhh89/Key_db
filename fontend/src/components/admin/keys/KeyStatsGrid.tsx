@@ -54,10 +54,12 @@ export function KeyStatsGrid({
             onClick={() => setFilterDuration(isActiveFilter ? 'ALL' : String(days))}
             style={{
               cursor: 'pointer',
-              border: isActiveFilter ? '1px solid #2563EB' : undefined,
-              boxShadow: isActiveFilter ? '0 0 0 1px #2563EB' : undefined
+              border: isActiveFilter ? '2px solid #2563EB' : '1px solid #E5E7EB',
+              boxShadow: isActiveFilter ? '0 4px 14px rgba(37, 99, 235, 0.2)' : undefined,
+              background: isActiveFilter ? 'rgba(37, 99, 235, 0.05)' : '#ffffff',
+              transition: 'all 0.2s ease'
             }}
-            title="Bấm để lọc nhanh gói này"
+            title={isActiveFilter ? 'Bấm để hủy lọc gói này' : 'Bấm để lọc nhanh gói này'}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: color, fontWeight: 'bold' }}>{icon} {title}</span>
@@ -68,7 +70,16 @@ export function KeyStatsGrid({
               <span style={{ fontSize: '12px', color: '#64748B', fontWeight: '600' }}>
                 Giá: {currentPkgPrice !== undefined && currentPkgPrice !== null ? `${currentPkgPrice.toLocaleString()} đ` : 'Chưa đặt giá'}
               </span>
-              <small style={{ fontSize: '11px', color: isActiveFilter ? '#2563EB' : '#94A3B8', fontWeight: isActiveFilter ? 'bold' : 'normal' }}>{isActiveFilter ? '✓ Đang lọc' : 'Lọc nhanh'}</small>
+              <small style={{
+                fontSize: '11px',
+                color: isActiveFilter ? '#ffffff' : '#64748B',
+                background: isActiveFilter ? '#2563EB' : '#F1F5F9',
+                padding: '2px 8px',
+                borderRadius: '6px',
+                fontWeight: isActiveFilter ? 'bold' : 'normal'
+              }}>
+                {isActiveFilter ? '✕ Đang lọc (Click để bỏ)' : 'Lọc nhanh'}
+              </small>
             </div>
           </div>
         );

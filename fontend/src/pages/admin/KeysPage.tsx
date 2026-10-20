@@ -161,10 +161,18 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     const effectiveGroupAppIds = isGroupMode ? selectedGroupAppIds.join(',') : '';
 
     if (editingKey) {
-      await updateKeyInBackend(editingKey.id, { appId: effectiveAppId, keyCode: keyCodeStr.trim(), durationDays, price, status: editingStatus, groupAppIds: effectiveGroupAppIds || undefined });
+      await updateKeyInBackend(editingKey.id, {
+        appId: effectiveAppId,
+        keyCode: keyCodeStr.trim(),
+        durationDays,
+        price,
+        status: editingStatus,
+        groupAppIds: isGroupMode ? effectiveGroupAppIds : ''
+      });
       showToast(lang === 'vi' ? '🎉 Đã cập nhật thông tin Key thành công!' : 'Updated Key details!');
     } else {
-      const lines = keyCodeStr.split('\n').map(l => l.trim()).filter(Boolean);
+      // Tự động lọc trùng các mã key trùng lặp trong cùng đợt nạp
+      const lines = Array.from(new Set(keyCodeStr.split('\n').map(l => l.trim()).filter(Boolean)));
       for (const code of lines) {
         await saveKeyToBackend({ appId: effectiveAppId, keyCode: code, durationDays, price, status: 'AVAILABLE', groupAppIds: effectiveGroupAppIds || undefined });
       }
@@ -175,21 +183,28 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     setIsModalOpen(false);
   };
 
-  // Memoized computations
+  // Memoized computations - CHÍNH XÁC HÓA BỘ LỌC KEY: Hỗ trợ tìm kiếm cả Key Nhóm & Thời Hạn chuẩn
   const filteredKeys = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return keys.filter(k => {
       if (filterAppId !== 'ALL' && !isKeyBelongToApp(k, filterAppId)) return false;
       if (filterStatus !== 'ALL' && k.status !== filterStatus) return false;
-      if (filterDuration !== 'ALL' && String(Number(k.durationDays) || 30) !== filterDuration) return false;
+      const keyDays = Number(k.durationDays) || 30;
+      if (filterDuration !== 'ALL' && String(keyDays) !== filterDuration) return false;
       if (query) {
         const appName = getAppName(k.appId).toLowerCase();
         const keyCode = (k.keyCode || '').toLowerCase();
-        if (!keyCode.includes(query) && !appName.includes(query)) return false;
+        // Kiểm tra cả tên của tất cả app trong nhóm
+        let matchesGroupApp = false;
+        if (k.groupAppIds && k.groupAppIds.trim()) {
+          const groupNames = getGroupAppNames(k.groupAppIds).map(n => n.toLowerCase());
+          matchesGroupApp = groupNames.some(name => name.includes(query));
+        }
+        if (!keyCode.includes(query) && !appName.includes(query) && !matchesGroupApp) return false;
       }
       return true;
     });
-  }, [keys, filterAppId, filterStatus, filterDuration, searchQuery, getAppName]);
+  }, [keys, filterAppId, filterStatus, filterDuration, searchQuery, getAppName, getGroupAppNames]);
 
   const availableKeys = useMemo(() => keys.filter(k => k.status === 'AVAILABLE'), [keys]);
   const countTotalAvailable = availableKeys.length;
@@ -208,6 +223,8 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     if (days >= 365) return <span className="package-badge lifetime">👑 Gói Vĩnh Viễn</span>;
     return <span className="package-badge day30">⏱️ Gói {days} Ngày</span>;
   };
+
+  const isAnyFilterActive = filterDuration !== 'ALL' || filterAppId !== 'ALL' || filterStatus !== 'ALL' || Boolean(searchQuery.trim());
 
   const totalPages = useMemo(() => Math.ceil(filteredKeys.length / pageSize) || 1, [filteredKeys.length, pageSize]);
   const paginatedKeys = useMemo(() => filteredKeys.slice((currentPage - 1) * pageSize, currentPage * pageSize), [filteredKeys, currentPage, pageSize]);
@@ -238,6 +255,26 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
 
       {/* Filter Bar */}
       <KeyFilterBar lang={lang} searchQuery={searchQuery} setSearchQuery={setSearchQuery} filterDuration={filterDuration} setFilterDuration={setFilterDuration} filterAppId={filterAppId} setFilterAppId={setFilterAppId} filterStatus={filterStatus} setFilterStatus={setFilterStatus} apps={apps} keys={keys} uniqueDurations={uniqueDurations} countTotalAvailable={countTotalAvailable} setCurrentPage={setCurrentPage} />
+
+      {/* Active Filter Notification Bar */}
+      {isAnyFilterActive && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: 'rgba(37, 99, 235, 0.08)', border: '1px solid rgba(37, 99, 235, 0.3)', borderRadius: '12px', fontSize: '13px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1d4ed8', fontWeight: 600 }}>
+            <span>🔍 Đang áp dụng bộ lọc:</span>
+            <span>Hiển thị <strong>{filteredKeys.length}</strong> / <strong>{keys.length}</strong> Key trong hệ thống</span>
+            {filterDuration !== 'ALL' && <span style={{ background: '#dbeafe', padding: '2px 8px', borderRadius: '6px', fontSize: '11px' }}>Gói: {filterDuration} ngày</span>}
+            {filterAppId !== 'ALL' && <span style={{ background: '#dbeafe', padding: '2px 8px', borderRadius: '6px', fontSize: '11px' }}>App: {getAppName(filterAppId)}</span>}
+            {filterStatus !== 'ALL' && <span style={{ background: '#dbeafe', padding: '2px 8px', borderRadius: '6px', fontSize: '11px' }}>Trạng thái: {filterStatus === 'AVAILABLE' ? 'Còn hàng' : 'Đã bán'}</span>}
+            {searchQuery && <span style={{ background: '#dbeafe', padding: '2px 8px', borderRadius: '6px', fontSize: '11px' }}>Từ khóa: "{searchQuery}"</span>}
+          </div>
+          <button
+            onClick={() => { setFilterDuration('ALL'); setFilterAppId('ALL'); setFilterStatus('ALL'); setSearchQuery(''); setCurrentPage(1); }}
+            style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}
+          >
+            ✕ Xóa bộ lọc (Xem tất cả)
+          </button>
+        </div>
+      )}
 
       {/* Keys Table */}
       <div className="w-full overflow-x-auto rounded-2xl border border-[#E5E7EB] bg-white backdrop-blur-[10px]">

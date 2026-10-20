@@ -198,16 +198,12 @@ public class OrderService {
             Boolean isPayosEnabled = bankConfig != null && bankConfig.getPayosEnabled() != null ? bankConfig.getPayosEnabled() : true;
 
             if (Boolean.TRUE.equals(isPayosEnabled) && activeClientId != null && !activeClientId.isBlank() && activeApiKey != null && !activeApiKey.isBlank()) {
-                long numericOrderCode;
-                if (order.getPayosOrderCode() != null && order.getPayosOrderCode() > 0) {
-                    numericOrderCode = order.getPayosOrderCode();
-                } else {
-                    try {
-                        numericOrderCode = Long.parseLong(order.getPaymentCode().replaceAll("[^0-9]", ""));
-                    } catch (Exception e) {
-                        numericOrderCode = System.currentTimeMillis() % 1000000;
-                    }
+                // BẢO VỆ CHỐNG NUỐT KEY: Chỉ query PayOS khi đơn hàng có payosOrderCode hợp lệ (> 0).
+                // Tuyệt đối không fallback lấy số ngẫu nhiên từ paymentCode vì sẽ query nhầm vào đơn cũ đã thanh toán trên PayOS!
+                if (order.getPayosOrderCode() == null || order.getPayosOrderCode() <= 0) {
+                    return false;
                 }
+                long numericOrderCode = order.getPayosOrderCode();
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("x-client-id", activeClientId);
@@ -239,6 +235,11 @@ public class OrderService {
         return false;
     }
 
+    /**
+     * BẢO VỆ CHỐNG LỌC SAI KEY & NUỐT KEY:
+     * Bắt buộc phải khớp đúng appId VÀ durationDays (thời hạn gói).
+     * Tuyệt đối không fallback theo giá hoặc lấy key nhóm bất kỳ (groupAny) không đúng thời hạn!
+     */
     public static Optional<LicenseKeyEntity> findMatchingKeyForOrder(
             LicenseKeyRepository licenseKeyRepository,
             String appId,
@@ -249,46 +250,36 @@ public class OrderService {
             return Optional.empty();
         }
 
-        if (durationDays != null && amount != null && amount > 0) {
+        int targetDuration = durationDays != null ? durationDays : 30;
+
+        // 1. Ưu tiên cao nhất: Key đơn đúng appId, đúng thời hạn durationDays, đúng giá
+        if (amount != null && amount > 0) {
             Optional<LicenseKeyEntity> exactMatch = licenseKeyRepository
-                    .findFirstByAppIdAndDurationDaysAndPriceAndStatus(appId, durationDays, amount, "AVAILABLE");
+                    .findFirstByAppIdAndDurationDaysAndPriceAndStatus(appId, targetDuration, amount, "AVAILABLE");
             if (exactMatch.isPresent()) {
+                System.out.println(">>> [KeyMatch] Khớp chính xác key đơn (appId=" + appId + ", duration=" + targetDuration + "d, price=" + amount + ")");
                 return exactMatch;
             }
         }
 
-        if (durationDays != null) {
-            Optional<LicenseKeyEntity> durationMatch = licenseKeyRepository
-                    .findFirstByAppIdAndDurationDaysAndStatus(appId, durationDays, "AVAILABLE");
-            if (durationMatch.isPresent()) {
-                return durationMatch;
-            }
+        // 2. Ưu tiên 2: Key đơn đúng appId, đúng thời hạn durationDays (bất kể giá điều chỉnh/coupon)
+        Optional<LicenseKeyEntity> durationMatch = licenseKeyRepository
+                .findFirstByAppIdAndDurationDaysAndStatus(appId, targetDuration, "AVAILABLE");
+        if (durationMatch.isPresent()) {
+            System.out.println(">>> [KeyMatch] Khớp key đơn theo thời hạn (appId=" + appId + ", duration=" + targetDuration + "d)");
+            return durationMatch;
         }
 
-        if (amount != null && amount > 0) {
-            Optional<LicenseKeyEntity> priceMatch = licenseKeyRepository
-                    .findFirstByAppIdAndPriceAndStatus(appId, amount, "AVAILABLE");
-            if (priceMatch.isPresent()) {
-                return priceMatch;
-            }
+        // 3. Ưu tiên 3: Key nhóm (Multi-App) có chứa appId VÀ PHẢI ĐÚNG THỜI HẠN durationDays
+        List<LicenseKeyEntity> groupByDuration = licenseKeyRepository
+                .findByGroupContainingAppIdAndDurationDaysAndStatus(appId, targetDuration, "AVAILABLE");
+        if (!groupByDuration.isEmpty()) {
+            System.out.println(">>> [KeyMatch] Khớp key nhóm đúng thời hạn (appId=" + appId + ", duration=" + targetDuration + "d) → key=" + groupByDuration.get(0).getId());
+            return Optional.of(groupByDuration.get(0));
         }
 
-        if (durationDays != null) {
-            List<LicenseKeyEntity> groupByDuration = licenseKeyRepository
-                    .findByGroupContainingAppIdAndDurationDaysAndStatus(appId, durationDays, "AVAILABLE");
-            if (!groupByDuration.isEmpty()) {
-                System.out.println(">>> [GroupKey] Found group key for appId=" + appId + " durationDays=" + durationDays + " → key=" + groupByDuration.get(0).getId());
-                return Optional.of(groupByDuration.get(0));
-            }
-        }
-
-        List<LicenseKeyEntity> groupAny = licenseKeyRepository
-                .findByGroupContainingAppIdAndStatus(appId, "AVAILABLE");
-        if (!groupAny.isEmpty()) {
-            System.out.println(">>> [GroupKey] Found group key (any duration) for appId=" + appId + " → key=" + groupAny.get(0).getId());
-            return Optional.of(groupAny.get(0));
-        }
-
+        // Tuyệt đối KHÔNG fallback lấy key sai thời hạn (ví dụ gói 365 ngày cho đơn 1 ngày)!
+        System.out.println(">>> [KeyMatch] Không tìm thấy key AVAILABLE đúng thời hạn " + targetDuration + " ngày cho app [" + appId + "]. Sẽ sinh key dự phòng an toàn.");
         return Optional.empty();
     }
 

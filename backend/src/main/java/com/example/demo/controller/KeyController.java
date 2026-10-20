@@ -72,17 +72,30 @@ public class KeyController {
             return ResponseEntity.status(403).body("Security Error: Only authenticated Admin can import keys.");
         }
 
+        if (key.getKeyCode() == null || key.getKeyCode().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Mã Key không được để trống!");
+        }
+
+        // BẢO VỆ CHỐNG TRÙNG ID: Dùng full UUID để không bao giờ bị ghi đè key cũ trong DB
         if (key.getId() == null || key.getId().trim().isEmpty()) {
-            key.setId("key-" + UUID.randomUUID().toString().substring(0, 8));
+            key.setId("key-" + UUID.randomUUID().toString().replace("-", ""));
         }
         if (key.getStatus() == null) {
             key.setStatus("AVAILABLE");
         }
-        // Nếu là key nhóm (groupAppIds có giá trị), appId sẽ là app đầu tiên trong nhóm
+        // Chuẩn hóa groupAppIds: loại bỏ khoảng trắng thừa giữa các dấu phẩy ("app1, app2" -> "app1,app2")
         if (key.getGroupAppIds() != null && !key.getGroupAppIds().trim().isEmpty()) {
-            String firstAppId = key.getGroupAppIds().split(",")[0].trim();
-            if (key.getAppId() == null || key.getAppId().trim().isEmpty()) {
-                key.setAppId(firstAppId);
+            String cleanedGroup = java.util.Arrays.stream(key.getGroupAppIds().split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.joining(","));
+            key.setGroupAppIds(cleanedGroup.isEmpty() ? null : cleanedGroup);
+
+            if (key.getGroupAppIds() != null) {
+                String firstAppId = key.getGroupAppIds().split(",")[0].trim();
+                if (key.getAppId() == null || key.getAppId().trim().isEmpty()) {
+                    key.setAppId(firstAppId);
+                }
             }
         }
         return ResponseEntity.ok(licenseKeyRepository.save(key));
@@ -98,14 +111,19 @@ public class KeyController {
         }
 
         return licenseKeyRepository.findById(id).map(existingKey -> {
-            if (keyReq.getAppId() != null) existingKey.setAppId(keyReq.getAppId());
-            if (keyReq.getKeyCode() != null) existingKey.setKeyCode(keyReq.getKeyCode());
+            if (keyReq.getAppId() != null) existingKey.setAppId(keyReq.getAppId().trim());
+            if (keyReq.getKeyCode() != null) existingKey.setKeyCode(keyReq.getKeyCode().trim());
             if (keyReq.getDurationDays() != null) existingKey.setDurationDays(keyReq.getDurationDays());
             if (keyReq.getPrice() != null) existingKey.setPrice(keyReq.getPrice());
             if (keyReq.getStatus() != null) existingKey.setStatus(keyReq.getStatus());
-            // Cập nhật groupAppIds (truyền chuỗi rỗng để xóa nhóm, null để không thay đổi)
+            // Cập nhật groupAppIds (chuẩn hóa loại bỏ khoảng trắng thừa)
             if (keyReq.getGroupAppIds() != null) {
-                existingKey.setGroupAppIds(keyReq.getGroupAppIds().trim().isEmpty() ? null : keyReq.getGroupAppIds().trim());
+                String cleanedGroup = java.util.Arrays.stream(keyReq.getGroupAppIds().split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.joining(","));
+                existingKey.setGroupAppIds(cleanedGroup.isEmpty() ? null : cleanedGroup);
+
                 // Đồng bộ appId với app đầu tiên trong nhóm nếu là key nhóm
                 if (existingKey.getGroupAppIds() != null) {
                     String firstAppId = existingKey.getGroupAppIds().split(",")[0].trim();

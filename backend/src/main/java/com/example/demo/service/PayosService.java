@@ -261,16 +261,15 @@ public class PayosService {
             return ResponseEntity.ok(response);
         }
 
-        long numericOrderCode;
-        if (order.getPayosOrderCode() != null && order.getPayosOrderCode() > 0) {
-            numericOrderCode = order.getPayosOrderCode();
-        } else {
-            try {
-                numericOrderCode = Long.parseLong(order.getPaymentCode().replaceAll("[^0-9]", ""));
-            } catch (Exception e) {
-                numericOrderCode = System.currentTimeMillis() % 1000000;
-            }
+        // BẢO VỆ CHỐNG NUỐT KEY: Chỉ query PayOS khi đơn hàng có payosOrderCode hợp lệ (> 0).
+        if (order.getPayosOrderCode() == null || order.getPayosOrderCode() <= 0) {
+            response.put("error", 0);
+            response.put("paid", false);
+            response.put("message", "Đơn hàng chưa tạo giao dịch PayOS hợp lệ.");
+            return ResponseEntity.ok(response);
         }
+
+        long numericOrderCode = order.getPayosOrderCode();
 
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -366,10 +365,14 @@ public class PayosService {
 
                 final Long finalWebhookCode = webhookOrderCode;
 
+                // Khớp chính xác order: qua payosOrderCode, paymentCode hoặc orderId (tránh .contains() match nhầm)
                 Optional<OrderEntity> matchedOrder = orderRepository.findAll().stream()
                         .filter(o -> (finalWebhookCode != null && finalWebhookCode.equals(o.getPayosOrderCode()))
-                                || o.getPaymentCode().contains(orderCodeStr)
-                                || o.getId().contains(orderCodeStr))
+                                || (orderCodeStr != null && !orderCodeStr.isBlank() && (
+                                        orderCodeStr.equalsIgnoreCase(o.getPaymentCode())
+                                        || ("MK" + orderCodeStr).equalsIgnoreCase(o.getPaymentCode())
+                                        || orderCodeStr.equalsIgnoreCase(o.getId())
+                                )))
                         .findFirst();
 
                 if (matchedOrder.isPresent()) {
