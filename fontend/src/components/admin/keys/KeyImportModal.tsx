@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import type { LicenseKeyItem, AppItem, KeyPricePreset, Language } from '../../../types';
 import { ModalPortal } from '../../common/ModalPortal';
 
@@ -85,9 +85,43 @@ export function KeyImportModal({
 
   const getAppName = (id: string) => apps.find(a => a.id === id)?.name || id;
 
+  // Smart Parser: Nhận diện theo xuống dòng, dấu phẩy, dấu chấm phẩy
+  const parsedKeyStats = useMemo(() => {
+    if (editingKey || !keyCodeStr.trim()) return null;
+    const rawTokens = keyCodeStr
+      .split(/[\n,;]+/)
+      .map(t => t.trim())
+      .filter(Boolean);
+    const uniqueTokens = Array.from(new Set(rawTokens));
+    const duplicatesCount = rawTokens.length - uniqueTokens.length;
+    return {
+      total: rawTokens.length,
+      unique: uniqueTokens.length,
+      duplicates: duplicatesCount,
+      sample: uniqueTokens.slice(0, 3)
+    };
+  }, [keyCodeStr, editingKey]);
+
+  const handlePasteFromClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setKeyCodeStr(prev => prev ? prev + '\n' + text : text);
+      }
+    } catch (e) {
+      console.warn('Cannot read clipboard', e);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSave({ isGroupMode, selectedAppId, selectedGroupAppIds, keyCodeStr, durationDays, price, editingStatus });
+    let sanitizedCode = keyCodeStr;
+    if (!editingKey) {
+      // Chuẩn hóa và loại bỏ trùng lặp
+      const tokens = Array.from(new Set(keyCodeStr.split(/[\n,;]+/).map(t => t.trim()).filter(Boolean)));
+      sanitizedCode = tokens.join('\n');
+    }
+    await onSave({ isGroupMode, selectedAppId, selectedGroupAppIds, keyCodeStr: sanitizedCode, durationDays, price, editingStatus });
   };
 
   if (!isOpen) return null;
@@ -96,61 +130,70 @@ export function KeyImportModal({
     <ModalPortal>
       <div className="fixed inset-0 bg-black/85 backdrop-blur-[14px] flex justify-center items-start z-[999999] p-[20px_16px] overflow-y-auto animate-[fadeIn_0.25s_ease-out]" onClick={onClose}>
         <div className="w-[min(640px,94vw)] h-auto max-h-[calc(100vh-40px)] m-auto flex flex-col bg-white border border-[#2563EB] rounded-[28px] p-7 shadow-[0_25px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden" onClick={e => e.stopPropagation()}>
-          <h4>🔑 {editingKey ? (lang === 'vi' ? 'Chỉnh Sửa Thông Tin Key' : 'Edit License Key') : (lang === 'vi' ? 'Nạp Key Mới Phân Loại Theo Gói' : 'Import New Keys By Package')}</h4>
+          <h4 className="m-0 text-xl font-heading font-extrabold text-[#1E293B] mb-4">
+            🔑 {editingKey ? (lang === 'vi' ? 'Chỉnh Sửa Thông Tin Key' : 'Edit License Key') : (lang === 'vi' ? 'Nạp Key Mới Phân Loại Theo Gói' : 'Import New Keys By Package')}
+          </h4>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-170px)] pr-1">
 
             {/* Toggle: Group mode */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: isGroupMode ? 'rgba(168,85,247,0.12)' : 'rgba(30,41,59,0.6)', border: isGroupMode ? '1px solid rgba(168,85,247,0.5)' : '1px solid rgba(51,65,85,0.8)', borderRadius: '12px', padding: '10px 14px', cursor: 'pointer', transition: 'all 0.2s ease' }}
-              onClick={() => { setIsGroupMode(!isGroupMode); setSelectedGroupAppIds([]); if (!isGroupMode && apps.length >= 2) setSelectedGroupAppIds([apps[0].id, apps[1].id]); }}>
-              <div style={{ width: '38px', height: '21px', borderRadius: '11px', position: 'relative', background: isGroupMode ? 'linear-gradient(135deg, #a855f7, #7c3aed)' : 'rgba(51,65,85,0.8)', border: isGroupMode ? '1px solid #a855f7' : '1px solid #475569', transition: 'all 0.25s ease', flexShrink: 0 }}>
-                <div style={{ position: 'absolute', top: '2px', left: isGroupMode ? '18px' : '2px', width: '15px', height: '15px', borderRadius: '50%', background: isGroupMode ? '#fff' : '#94a3b8', transition: 'left 0.25s ease' }} />
+            <div
+              style={{
+                display: 'flex', alignItems: 'center', gap: '12px',
+                background: isGroupMode ? 'rgba(168,85,247,0.08)' : '#F8FAFC',
+                border: isGroupMode ? '1.5px solid #A855F7' : '1px solid #E2E8F0',
+                borderRadius: '14px', padding: '12px 16px', cursor: 'pointer', transition: 'all 0.2s ease'
+              }}
+              onClick={() => { setIsGroupMode(!isGroupMode); setSelectedGroupAppIds([]); if (!isGroupMode && apps.length >= 2) setSelectedGroupAppIds([apps[0].id, apps[1].id]); }}
+            >
+              <div style={{ width: '40px', height: '22px', borderRadius: '11px', position: 'relative', background: isGroupMode ? '#A855F7' : '#CBD5E1', transition: 'all 0.25s ease', flexShrink: 0 }}>
+                <div style={{ position: 'absolute', top: '2px', left: isGroupMode ? '20px' : '2px', width: '18px', height: '18px', borderRadius: '50%', background: '#fff', transition: 'left 0.25s ease', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
               </div>
               <div>
-                <div style={{ fontSize: '13px', fontWeight: 'bold', color: isGroupMode ? '#c084fc' : '#94a3b8' }}>🔗 {lang === 'vi' ? 'Key Nhóm Ứng Dụng (Multi-App)' : 'Multi-App Group Key'}</div>
-                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>{lang === 'vi' ? 'Key được dùng chung cho nhiều app — mua từ app nào cũng được' : 'Key shared across multiple apps — purchasable from any app in the group'}</div>
+                <div style={{ fontSize: '13.5px', fontWeight: 'bold', color: isGroupMode ? '#7E22CE' : '#334155' }}>🔗 {lang === 'vi' ? 'Key Nhóm Ứng Dụng (Multi-App Key)' : 'Multi-App Group Key'}</div>
+                <div style={{ fontSize: '11.5px', color: '#64748B', marginTop: '1px' }}>{lang === 'vi' ? 'Key dùng chung cho nhiều app — khách mua app nào trong nhóm cũng nhận được' : 'Key shared across multiple apps — valid for all selected apps'}</div>
               </div>
             </div>
 
             {/* App selection */}
             {isGroupMode ? (
               <div className="flex flex-col gap-2">
-                <label style={{ color: '#c084fc', fontWeight: 'bold', fontSize: '13px' }}>🔗 {lang === 'vi' ? 'Chọn các App trong Nhóm (* ít nhất 2 app):' : 'Select Apps in Group (* min 2):'}</label>
-                <div style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.35)', borderRadius: '12px', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '180px', overflowY: 'auto' }}>
+                <label style={{ color: '#7E22CE', fontWeight: 'bold', fontSize: '13px' }}>🔗 {lang === 'vi' ? 'Chọn các App trong Nhóm (* ít nhất 2 app):' : 'Select Apps in Group (* min 2):'}</label>
+                <div style={{ background: '#FAF5FF', border: '1px solid #E9D5FF', borderRadius: '14px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '180px', overflowY: 'auto' }}>
                   {apps.map(a => (
-                    <label key={a.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 8px', borderRadius: '8px', cursor: 'pointer', background: selectedGroupAppIds.includes(a.id) ? 'rgba(168,85,247,0.15)' : 'transparent', border: selectedGroupAppIds.includes(a.id) ? '1px solid rgba(168,85,247,0.4)' : '1px solid transparent', transition: 'all 0.15s ease' }}>
-                      <input type="checkbox" checked={selectedGroupAppIds.includes(a.id)} onChange={() => toggleGroupApp(a.id)} style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#a855f7' }} />
-                      <span style={{ fontSize: '13px', color: selectedGroupAppIds.includes(a.id) ? '#c084fc' : '#cbd5e1', fontWeight: selectedGroupAppIds.includes(a.id) ? 'bold' : 'normal' }}>
-                        {a.name} <span style={{ color: '#64748b', fontSize: '11px' }}>({a.sub})</span>
+                    <label key={a.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 10px', borderRadius: '10px', cursor: 'pointer', background: selectedGroupAppIds.includes(a.id) ? '#F3E8FF' : 'transparent', border: selectedGroupAppIds.includes(a.id) ? '1px solid #D8B4FE' : '1px solid transparent', transition: 'all 0.15s ease' }}>
+                      <input type="checkbox" checked={selectedGroupAppIds.includes(a.id)} onChange={() => toggleGroupApp(a.id)} style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#9333ea' }} />
+                      <span style={{ fontSize: '13px', color: selectedGroupAppIds.includes(a.id) ? '#6B21A8' : '#334155', fontWeight: selectedGroupAppIds.includes(a.id) ? 'bold' : 'normal' }}>
+                        {a.name} <span style={{ color: '#94A3B8', fontSize: '11.5px' }}>({a.sub})</span>
                       </span>
                     </label>
                   ))}
                 </div>
                 {selectedGroupAppIds.length > 0 && (
-                  <div style={{ fontSize: '11.5px', color: '#a855f7', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                    ✓ Đã chọn: {selectedGroupAppIds.map((id, i) => <span key={i} style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.4)', borderRadius: '6px', padding: '1px 7px' }}>{getAppName(id)}</span>)}
+                  <div style={{ fontSize: '12px', color: '#7E22CE', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    ✓ Đã chọn: {selectedGroupAppIds.map((id, i) => <span key={i} style={{ background: '#F3E8FF', border: '1px solid #D8B4FE', borderRadius: '6px', padding: '1px 8px' }}>{getAppName(id)}</span>)}
                   </div>
                 )}
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                <label>{lang === 'vi' ? 'Chọn App Catalog (*):' : 'Select App (*):'}</label>
-                <select className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" ref={appIdSelectRef} value={selectedAppId} onChange={e => setSelectedAppId(e.target.value)}>
+                <label className="text-xs font-bold text-[#475569]">{lang === 'vi' ? 'Chọn App Catalog (*):' : 'Select App (*):'}</label>
+                <select className="px-4 py-3 rounded-xl border border-[#CBD5E1] bg-white text-[#1E293B] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15" ref={appIdSelectRef} value={selectedAppId} onChange={e => setSelectedAppId(e.target.value)}>
                   {apps.map(a => <option key={a.id} value={a.id}>{a.name} ({a.sub})</option>)}
                 </select>
               </div>
             )}
 
             {/* Preset selector */}
-            <div className="flex flex-col gap-2" style={{ background: 'rgba(99, 102, 241, 0.12)', padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.4)', marginBottom: '14px' }}>
-              <label style={{ color: '#a5b4fc', fontWeight: 'bold', fontSize: '13px', display: 'block', marginBottom: '6px' }}>💎 {lang === 'vi' ? 'Chọn Gói Giá Có Sẵn (*):' : 'Select Pre-set Package (*):'}</label>
-              <select value={selectedPresetId} onChange={e => handleSelectPreset(e.target.value)} style={{ fontWeight: 800, color: '#38bdf8', background: '#0f172a', border: '1px solid #38bdf8', padding: '9px 12px', borderRadius: '8px', width: '100%', fontSize: '13.5px' }}>
+            <div className="flex flex-col gap-2" style={{ background: '#EFF6FF', padding: '14px', borderRadius: '14px', border: '1px solid #BFDBFE' }}>
+              <label style={{ color: '#1E40AF', fontWeight: 'bold', fontSize: '13px', display: 'block', marginBottom: '4px' }}>💎 {lang === 'vi' ? 'Chọn Gói Giá Phân Loại (*):' : 'Select Package (*):'}</label>
+              <select value={selectedPresetId} onChange={e => handleSelectPreset(e.target.value)} style={{ fontWeight: 700, color: '#1E3A8A', background: '#FFFFFF', border: '1.5px solid #3B82F6', padding: '9px 12px', borderRadius: '10px', width: '100%', fontSize: '13.5px', outline: 'none' }}>
                 {presets.map(p => <option key={p.id} value={p.id}>{p.name} — {p.durationDays} Ngày — {p.price.toLocaleString()} VNĐ</option>)}
                 <option value="custom">✏️ {lang === 'vi' ? 'Tự nhập ngày & giá thủ công...' : 'Enter custom days & price...'}</option>
               </select>
               {selectedPresetId !== 'custom' && (
-                <div style={{ display: 'flex', gap: '14px', marginTop: '10px', padding: '8px 12px', background: 'rgba(15, 23, 42, 0.8)', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.2)', fontSize: '12.5px' }}>
-                  <span style={{ color: '#38bdf8', fontWeight: 'bold' }}>⏱️ {lang === 'vi' ? 'Hạn dùng:' : 'Duration:'} {durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</span>
-                  <span style={{ color: '#4ade80', fontWeight: 'bold' }}>💰 {lang === 'vi' ? 'Giá bán:' : 'Price:'} {price.toLocaleString()} đ</span>
+                <div style={{ display: 'flex', gap: '14px', marginTop: '8px', padding: '8px 12px', background: '#FFFFFF', borderRadius: '8px', border: '1px solid #DBEAFE', fontSize: '12.5px' }}>
+                  <span style={{ color: '#2563EB', fontWeight: 'bold' }}>⏱️ {lang === 'vi' ? 'Hạn dùng:' : 'Duration:'} {durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</span>
+                  <span style={{ color: '#059669', fontWeight: 'bold' }}>💰 {lang === 'vi' ? 'Giá bán:' : 'Price:'} {price.toLocaleString()} đ</span>
                 </div>
               )}
             </div>
@@ -159,12 +202,12 @@ export function KeyImportModal({
             {selectedPresetId === 'custom' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
-                  <label>{lang === 'vi' ? 'Số Ngày Thời Hạn (Ngày):' : 'Duration (Days):'}</label>
-                  <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" type="number" min="1" value={durationDays || ''} onChange={e => setDurationDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
+                  <label className="text-xs font-bold text-[#475569]">{lang === 'vi' ? 'Số Ngày Thời Hạn (Ngày):' : 'Duration (Days):'}</label>
+                  <input className="px-4 py-3 rounded-xl border border-[#CBD5E1] bg-white text-[#1E293B] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15" type="number" min="1" value={durationDays || ''} onChange={e => setDurationDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label>{lang === 'vi' ? 'Giá Bán Gói (VNĐ - Tối thiểu 2,000đ):' : 'Price (VND - Min 2,000):'}</label>
-                  <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" type="number" min="2000" step="1000" value={price || ''} onChange={e => setPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
+                  <label className="text-xs font-bold text-[#475569]">{lang === 'vi' ? 'Giá Bán Gói (VNĐ - Tối thiểu 2,000đ):' : 'Price (VND - Min 2,000):'}</label>
+                  <input className="px-4 py-3 rounded-xl border border-[#CBD5E1] bg-white text-[#1E293B] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15" type="number" min="2000" step="1000" value={price || ''} onChange={e => setPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
                 </div>
               </div>
             )}
@@ -172,8 +215,8 @@ export function KeyImportModal({
             {/* Status (edit only) */}
             {editingKey && (
               <div className="flex flex-col gap-2">
-                <label>{lang === 'vi' ? 'Trạng Thái Key:' : 'Key Status:'}</label>
-                <select className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" value={editingStatus} onChange={e => setEditingStatus(e.target.value as 'AVAILABLE' | 'SOLD')}>
+                <label className="text-xs font-bold text-[#475569]">{lang === 'vi' ? 'Trạng Thái Key:' : 'Key Status:'}</label>
+                <select className="px-4 py-3 rounded-xl border border-[#CBD5E1] bg-white text-[#1E293B] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15" value={editingStatus} onChange={e => setEditingStatus(e.target.value as 'AVAILABLE' | 'SOLD')}>
                   <option value="AVAILABLE">● CÒN HÀNG (AVAILABLE)</option>
                   <option value="SOLD">✓ ĐÃ BÁN (SOLD)</option>
                 </select>
@@ -182,18 +225,73 @@ export function KeyImportModal({
 
             {/* Key code input */}
             <div className="flex flex-col gap-2">
-              <label>{editingKey ? (lang === 'vi' ? 'Mã Key Code:' : 'Key Code:') : (lang === 'vi' ? 'Danh sách Mã Key (Mỗi mã 1 dòng để nạp hàng loạt):' : 'Key Codes (One per line for bulk import):')}</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-[#475569]">
+                  {editingKey ? (lang === 'vi' ? 'Mã Key Code (*):' : 'Key Code (*):') : (lang === 'vi' ? 'Danh sách Mã Key (* Mỗi mã 1 dòng hoặc cách nhau bởi dấu phẩy):' : 'Key Codes (*):')}
+                </label>
+                {!editingKey && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handlePasteFromClipboard}
+                      className="text-xs font-bold text-[#2563EB] bg-[#EFF6FF] border border-[#BFDBFE] px-2.5 py-1 rounded-lg cursor-pointer hover:bg-[#DBEAFE] transition-colors"
+                      title="Dán từ Clipboard"
+                    >
+                      📋 Dán nhanh
+                    </button>
+                    {keyCodeStr && (
+                      <button
+                        type="button"
+                        onClick={() => setKeyCodeStr('')}
+                        className="text-xs font-bold text-[#DC2626] bg-[#FEF2F2] border border-[#FECACA] px-2 py-1 rounded-lg cursor-pointer hover:bg-[#FEE2E2] transition-colors"
+                        title="Xóa hết"
+                      >
+                        ✕ Xóa
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {editingKey ? (
-                <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" type="text" ref={keyCodeInputRef} value={keyCodeStr} onChange={e => setKeyCodeStr(e.target.value)} />
+                <input className="px-4 py-3 rounded-xl border border-[#CBD5E1] bg-white text-[#1E293B] font-mono text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15" type="text" ref={keyCodeInputRef} value={keyCodeStr} onChange={e => setKeyCodeStr(e.target.value)} />
               ) : (
-                <textarea className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20" rows={5} ref={keyCodeTextareaRef} value={keyCodeStr} onChange={e => setKeyCodeStr(e.target.value)} />
+                <textarea
+                  className="px-4 py-3 rounded-xl border border-[#CBD5E1] bg-white text-[#1E293B] font-mono text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15"
+                  rows={6}
+                  ref={keyCodeTextareaRef}
+                  value={keyCodeStr}
+                  onChange={e => setKeyCodeStr(e.target.value)}
+                  placeholder="VIP-ABC-123456&#10;VIP-XYZ-987654&#10;KEY-2026-PREMIUM"
+                />
+              )}
+
+              {/* Live Preview Stats for Bulk Import */}
+              {parsedKeyStats && (
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl flex flex-col gap-1.5 text-xs">
+                  <div className="flex items-center gap-3 font-semibold">
+                    <span className="text-[#059669]">✓ Sẽ nạp: <strong>{parsedKeyStats.unique}</strong> key hợp lệ</span>
+                    {parsedKeyStats.duplicates > 0 && (
+                      <span className="text-[#D97706]">⚠️ Tự lọc bỏ: <strong>{parsedKeyStats.duplicates}</strong> mã trùng lặp</span>
+                    )}
+                  </div>
+                  {parsedKeyStats.sample.length > 0 && (
+                    <div className="text-[#64748B] flex items-center gap-1.5 truncate">
+                      <span>Mẫu nhận diện:</span>
+                      {parsedKeyStats.sample.map((k, i) => (
+                        <code key={i} className="bg-white px-2 py-0.5 rounded border border-[#E2E8F0] font-mono text-[11px] text-[#2563EB]">{k}</code>
+                      ))}
+                      {parsedKeyStats.unique > 3 && <span className="text-[11px]">...và {parsedKeyStats.unique - 3} key khác</span>}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
-            <div className="flex justify-end gap-3 mt-3.5 pt-3.5 border-t border-white/10 shrink-0">
-              <button type="button" className="px-5 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1F2937] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]" onClick={onClose}>{lang === 'vi' ? 'Hủy' : 'Cancel'}</button>
-              <button type="submit" className="px-6 py-3 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)]">
-                {editingKey ? (lang === 'vi' ? '💾 Lưu Thay Đổi' : '💾 Save Changes') : (lang === 'vi' ? '💾 Nạp Vào Kho' : '💾 Import Keys')}
+            <div className="flex justify-end gap-3 mt-2 pt-3 border-t border-[#E2E8F0] shrink-0">
+              <button type="button" className="px-5 py-2.5 rounded-xl border border-[#CBD5E1] bg-white text-[#475569] font-bold cursor-pointer transition-all duration-200 hover:bg-[#F1F5F9]" onClick={onClose}>{lang === 'vi' ? 'Hủy' : 'Cancel'}</button>
+              <button type="submit" className="px-6 py-2.5 rounded-xl border-0 bg-[#2563EB] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 shadow-[0_4px_14px_rgba(37,99,235,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(37,99,235,0.4)]">
+                {editingKey ? (lang === 'vi' ? '💾 Lưu Thay Đổi' : '💾 Save Changes') : (lang === 'vi' ? `💾 Nạp Vào Kho ${parsedKeyStats ? `(${parsedKeyStats.unique} Key)` : ''}` : '💾 Import Keys')}
               </button>
             </div>
           </form>
