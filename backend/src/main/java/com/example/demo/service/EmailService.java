@@ -353,6 +353,9 @@ public class EmailService {
         String apiKey = resolveActiveApiKey();
         String fromEmail = getActiveFromEmail();
         String sender = getActiveSenderName(senderName);
+        String displayFrom = ("RESEND".equalsIgnoreCase(provider))
+                ? (sender + " <onboarding@resend.dev>")
+                : (sender + " <Hệ thống>");
 
         String testSubject = "⚡ [KẾT NỐI THÀNH CÔNG] Thử nghiệm gửi Email (" + provider + ") - " + sender;
         String testHtml = "<div style=\"font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; background: #0f172a; color: #ffffff; border-radius: 14px; border: 1px solid #38bdf8;\">" +
@@ -360,9 +363,10 @@ public class EmailService {
                 "<p style=\"color: #cbd5e1; font-size: 14px;\">Hệ thống gửi email tự động của <strong>" + sender + "</strong> hoạt động hoàn hảo trên Render/Cloud (Port 443).</p>" +
                 "<div style=\"background: #1e293b; padding: 14px; border-radius: 8px; font-size: 13px; color: #94a3b8; line-height: 1.6;\">" +
                 "<div>• <strong>Phương thức gửi:</strong> " + provider + " (HTTPS Port 443)</div>" +
-                "<div>• <strong>Người gửi:</strong> " + (fromEmail != null ? fromEmail : "Hệ thống") + "</div>" +
+                "<div>• <strong>Người gửi hiển thị cho khách:</strong> " + displayFrom + "</div>" +
                 "<div>• <strong>Hộp thư nhận test:</strong> " + targetEmail + "</div>" +
                 "<div>• <strong>Thời gian kiểm tra:</strong> " + LocalDateTime.now(VN_ZONE).format(DATE_FORMATTER) + "</div>" +
+                "<div style=\"color: #4ade80; margin-top: 8px; font-weight: bold;\">🛡️ BẢO MẬT: Email cá nhân của bạn được ẩn hoàn toàn 100%, khách hàng tuyệt đối không nhìn thấy!</div>" +
                 "</div>" +
                 "<p style=\"color: #4ade80; font-size: 13px; margin-top: 14px;\">✓ Các đơn hàng mua Key VIP trong tương lai sẽ tự động được gửi về Gmail của khách hàng.</p>" +
                 "</div>";

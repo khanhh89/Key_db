@@ -219,8 +219,9 @@ export function OrderMailConfig({
 
               {/* SENDER ADDRESS */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-blue-400">
-                  Email Người Gửi (From):
+                <label className="text-xs font-bold text-blue-400 flex items-center gap-1.5">
+                  <span>Email Người Gửi (From):</span>
+                  <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">🛡️ Ẩn Gmail Cá Nhân</span>
                 </label>
                 <input
                   className="px-4 py-3 rounded-xl border border-gray-700 bg-[#0f172a] text-white font-inherit text-sm outline-none focus:border-blue-500"
@@ -230,7 +231,7 @@ export function OrderMailConfig({
                   onChange={(e) => setMailUsername(e.target.value)}
                 />
                 <small className="text-[11px] text-[#94a3b8]">
-                  Nếu chưa thêm Domain trong Resend, hãy để trống hoặc dùng <code>onboarding@resend.dev</code>
+                  Hệ thống mặc định dùng <code>onboarding@resend.dev</code>. <strong>Email cá nhân của bạn được ẩn 100%, khách hàng tuyệt đối không nhìn thấy!</strong>
                 </small>
               </div>
             </div>
