@@ -108,7 +108,22 @@ export function HomePage({
           if (realOrder) {
             saveLocalOrder(realOrder); // Sync local storage with DB state
             if (realOrder.status === 'PAID') {
-              setPendingDraftOrder(null); // Hide banner if order is PAID!
+              setPendingDraftOrder(null); // Hide draft banner
+              if (realOrder.deliveredKey) {
+                localStorage.setItem('modlienquan_active_paid_order', JSON.stringify(realOrder));
+                const targetApp = apps.find((a) => a.id === realOrder.appId) || {
+                  id: realOrder.appId,
+                  name: realOrder.appName || 'MOD VIP KEY',
+                  sub: 'Bản quyền VIP',
+                  icon: '⚡',
+                  cls: 'vip-app',
+                  note: '',
+                  shots: null
+                };
+                setInitialOrderForModal(realOrder);
+                setBuyApp(targetApp);
+                showToast(lang === 'vi' ? '🎉 Đơn hàng đã thanh toán thành công! Dưới đây là Key VIP của bạn.' : 'Order paid successfully! Here is your VIP Key.');
+              }
             } else {
               setPendingDraftOrder(realOrder);
             }
@@ -119,12 +134,33 @@ export function HomePage({
         });
     }
 
+    // Auto reopen unclosed paid order modal on refresh
+    const savedActivePaidStr = localStorage.getItem('modlienquan_active_paid_order');
+    if (savedActivePaidStr && !buyApp) {
+      try {
+        const savedOrder: OrderItem = JSON.parse(savedActivePaidStr);
+        if (savedOrder && savedOrder.status === 'PAID' && savedOrder.deliveredKey) {
+          const matchedApp = apps.find((a) => a.id === savedOrder.appId) || {
+            id: savedOrder.appId,
+            name: savedOrder.appName || 'MOD VIP KEY',
+            sub: 'Bản quyền VIP',
+            icon: '⚡',
+            cls: 'vip-app',
+            note: '',
+            shots: null
+          };
+          setInitialOrderForModal(savedOrder);
+          setBuyApp(matchedApp);
+        }
+      } catch (ignored) {}
+    }
+
     // Check for recent paid order
     const latestPaid = getLatestPaidOrder();
     if (latestPaid) {
       setRecentPaidOrder(latestPaid);
     }
-  }, []);
+  }, [apps, buyApp, lang, showToast, setBuyApp, setInitialOrderForModal]);
 
   const handleResumePendingOrder = async () => {
     if (!pendingDraftOrder) return;
@@ -136,8 +172,22 @@ export function HomePage({
         saveLocalOrder(realOrder);
         if (realOrder.status === 'PAID') {
           setPendingDraftOrder(null);
-          showToast(lang === 'vi' ? '🎉 Đơn hàng này đã được thanh toán thành công!' : 'Order is already PAID!');
-          return;
+          if (realOrder.deliveredKey) {
+            localStorage.setItem('modlienquan_active_paid_order', JSON.stringify(realOrder));
+            const targetApp = apps.find((a) => a.id === realOrder.appId) || {
+              id: realOrder.appId,
+              name: realOrder.appName || 'MOD VIP KEY',
+              sub: 'Bản quyền VIP',
+              icon: '⚡',
+              cls: 'vip-app',
+              note: '',
+              shots: null
+            };
+            setInitialOrderForModal(realOrder);
+            setBuyApp(targetApp);
+            showToast(lang === 'vi' ? '🎉 Đơn hàng này đã được thanh toán thành công! Dưới đây là Key VIP.' : 'Order is already PAID! Here is your VIP Key.');
+            return;
+          }
         }
       }
     } catch (ignored) {}
@@ -317,6 +367,7 @@ export function HomePage({
             lang={lang}
             initialOrder={initialOrderForModal}
             onClose={() => {
+              localStorage.removeItem('modlienquan_active_paid_order');
               setBuyApp(null);
               setInitialOrderForModal(null);
               setRecentPaidOrder(getLatestPaidOrder());

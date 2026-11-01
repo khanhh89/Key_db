@@ -176,7 +176,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
                   )}
                 </label>
                 <input
-                  className="px-4 py-3.5 rounded-xl border border-[#E5E7EB] bg-[#090d16] text-[#1F2937] text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/20"
+                  className="px-4 py-3.5 rounded-xl border border-slate-700 bg-[#090d16] text-white text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/20 placeholder:text-slate-500"
                   type="text"
                   ref={usernameInputRef}
                   value={username}
@@ -215,7 +215,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
                   )}
                 </label>
                 <input
-                  className="px-4 py-3.5 rounded-xl border border-[#E5E7EB] bg-[#090d16] text-[#1F2937] text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/20"
+                  className="px-4 py-3.5 rounded-xl border border-slate-700 bg-[#090d16] text-white text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/20 placeholder:text-slate-500"
                   type="password"
                   ref={passwordInputRef}
                   value={password}
@@ -248,7 +248,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
 
           <button
             type="submit"
-            className="p-4 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-heading font-extrabold text-base cursor-pointer transition-all duration-250 shadow-[0_4px_20px_rgba(56,189,248,0.3)] hover:-translate-y-[2px] hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)] disabled:opacity-70 disabled:cursor-not-allowed"
+            className="p-4 rounded-xl border-0 bg-[#2563EB] text-white font-heading font-extrabold text-base cursor-pointer transition-all duration-250 shadow-[0_4px_20px_rgba(56,189,248,0.3)] hover:-translate-y-[2px] hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)] disabled:opacity-70 disabled:cursor-not-allowed"
             disabled={isSubmitting || ((requires2FA || requiresSetup2FA) && otpCode.length !== 6)}
           >
             {isSubmitting
@@ -259,7 +259,7 @@ export function LoginPage({ lang, config, onLogin, onBackToSite }: LoginPageProp
           </button>
         </form>
 
-        <button className="bg-transparent border border-[#E5E7EB] text-[#64748B] p-2.5 rounded-xl text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:bg-white hover:text-[#1F2937]" onClick={onBackToSite}>
+        <button className="bg-transparent border border-slate-700 text-[#94a3b8] p-2.5 rounded-xl text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:bg-slate-800 hover:text-white" onClick={onBackToSite}>
           ← {lang === 'vi' ? 'Quay lại Trang Chủ' : 'Back to Public Site'}
         </button>
       </div>

@@ -38,9 +38,42 @@ export default function App() {
     return local ? JSON.parse(local) : initialConfig;
   });
 
-  // Modals & UI States
-  const [buyApp, setBuyApp] = useState<AppItem | null>(null);
-  const [initialOrderForModal, setInitialOrderForModal] = useState<OrderItem | null>(null);
+  // Modals & UI States (Auto restore unclosed purchased VIP key modal on page load/reload)
+  const [buyApp, setBuyApp] = useState<AppItem | null>(() => {
+    try {
+      const savedPaid = localStorage.getItem('modlienquan_active_paid_order');
+      if (savedPaid) {
+        const orderData: OrderItem = JSON.parse(savedPaid);
+        if (orderData && orderData.status === 'PAID' && orderData.deliveredKey) {
+          const localApps = localStorage.getItem('modlienquan_apps');
+          const appList: AppItem[] = localApps ? JSON.parse(localApps) : initialApps;
+          return appList.find((a) => a.id === orderData.appId) || {
+            id: orderData.appId || 'app-vip',
+            name: orderData.appName || 'MOD VIP KEY',
+            sub: 'Bản quyền VIP',
+            icon: '⚡',
+            cls: 'vip-app',
+            note: '',
+            shots: null
+          };
+        }
+      }
+    } catch (e) {}
+    return null;
+  });
+
+  const [initialOrderForModal, setInitialOrderForModal] = useState<OrderItem | null>(() => {
+    try {
+      const savedPaid = localStorage.getItem('modlienquan_active_paid_order');
+      if (savedPaid) {
+        const orderData: OrderItem = JSON.parse(savedPaid);
+        if (orderData && orderData.status === 'PAID' && orderData.deliveredKey) {
+          return orderData;
+        }
+      }
+    } catch (e) {}
+    return null;
+  });
   const [lightbox, setLightbox] = useState<LightboxItem | null>(null);
   const [isLookupOpen, setIsLookupOpen] = useState<boolean>(false);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
@@ -81,7 +114,17 @@ export default function App() {
           fetchServicesFromBackend(),
           fetchConfigFromBackend()
         ]);
-        if (backendApps) setApps(backendApps);
+        if (backendApps && backendApps.length > 0) {
+          setApps(backendApps);
+          // If a purchased key modal is currently open, enrich buyApp with full backend details
+          setBuyApp((current) => {
+            if (current) {
+              const matched = backendApps.find((a) => a.id === current.id);
+              return matched || current;
+            }
+            return null;
+          });
+        }
         if (backendServices) setServices(backendServices);
         if (backendConfig) setConfig(backendConfig);
       } catch (err) {
@@ -166,6 +209,8 @@ export default function App() {
       showToast(lang === 'vi' ? `App ${app.name} hiện chưa hỗ trợ bán Key VIP!` : `VIP Key purchase is disabled for ${app.name}!`);
       return;
     }
+    // Clear previous unclosed paid order if user explicitly selects to buy a new key
+    localStorage.removeItem('modlienquan_active_paid_order');
     setInitialOrderForModal(null);
     setBuyApp(app);
   };

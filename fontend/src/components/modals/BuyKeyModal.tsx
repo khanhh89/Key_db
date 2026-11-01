@@ -154,6 +154,8 @@ export function BuyKeyModal({
       await releaseCouponInBackend(appliedCoupon.code, order?.id);
       setAppliedCoupon(null);
     }
+    // Khi người dùng chủ động đóng modal key đã mua (qua nút x hoặc nút hoàn thành):
+    localStorage.removeItem('modlienquan_active_paid_order');
     onClose();
   };
 
@@ -605,10 +607,39 @@ Chính sách: Bảo hành 100% trọn đời gói. Tuyệt đối không chia s�
     return `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
   };
 
+  // Sync initialOrder if updated from outside (e.g. reload or PayOS callback)
+  useEffect(() => {
+    if (initialOrder) {
+      setOrder(initialOrder);
+      if (initialOrder.status === 'PAID' && initialOrder.deliveredKey) {
+        localStorage.setItem('modlienquan_active_paid_order', JSON.stringify(initialOrder));
+      }
+    }
+  }, [initialOrder]);
+
+  // Safety net: if order is PAID but deliveredKey is not populated yet, fetch immediately
+  useEffect(() => {
+    if (order && order.status === 'PAID' && !order.deliveredKey) {
+      fetch(`${API_BASE_URL}/orders/${order.id}/status`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data: OrderItem | null) => {
+          if (data && data.deliveredKey) {
+            setOrder(data);
+            saveLocalOrder(data);
+            localStorage.setItem('modlienquan_active_paid_order', JSON.stringify(data));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [order?.id, order?.status, order?.deliveredKey]);
+
   // Auto save order to local storage whenever order is created or status updates
   useEffect(() => {
     if (order) {
       saveLocalOrder(order);
+      if (order.status === 'PAID' && order.deliveredKey) {
+        localStorage.setItem('modlienquan_active_paid_order', JSON.stringify(order));
+      }
     }
   }, [order]);
 
@@ -630,6 +661,7 @@ Chính sách: Bảo hành 100% trọn đời gói. Tuyệt đối không chia s�
           if (updatedOrder && updatedOrder.status === 'PAID' && updatedOrder.deliveredKey) {
             setOrder(updatedOrder);
             saveLocalOrder(updatedOrder);
+            localStorage.setItem('modlienquan_active_paid_order', JSON.stringify(updatedOrder));
             clearInterval(interval);
             playSuccessChime();
             showToast(
@@ -665,6 +697,7 @@ Chính sách: Bảo hành 100% trọn đời gói. Tuyệt đối không chia s�
       if (res.success && res.data && res.data.status === 'PAID' && res.data.deliveredKey) {
         setOrder(res.data);
         saveLocalOrder(res.data);
+        localStorage.setItem('modlienquan_active_paid_order', JSON.stringify(res.data));
         playSuccessChime();
         showToast(lang === 'vi' ? '🎉 Thanh toán thành công! Đã nhận Key VIP.' : 'Payment verified! Key delivered.');
       } else {
@@ -739,6 +772,7 @@ Chính sách: Bảo hành 100% trọn đời gói. Tuyệt đối không chia s�
   const handleOverlayClick = () => {
     // Prevent closing modal when clicking outside if key payment is completed
     if (order && order.status === 'PAID') {
+      showToast(lang === 'vi' ? '💡 Vui lòng bấm nút × ở góc trên để đóng cửa sổ Key VIP' : 'Please click × button to close VIP Key modal');
       return;
     }
     handleCloseModal();
@@ -809,7 +843,11 @@ Chính sách: Bảo hành 100% trọn đời gói. Tuyệt đối không chia s�
           </button>
 
           <div className="buy-key-header">
-            <h3>🛒 {t.title} {app.name}</h3>
+            <h3>
+              {order && order.status === 'PAID' && order.deliveredKey
+                ? `🔑 ${lang === 'vi' ? 'BẢN QUYỀN VIP CỦA BẠN' : 'YOUR VIP LICENSE KEY'} • ${app.name}`
+                : `🛒 ${t.title} ${app.name}`}
+            </h3>
           </div>
 
         {!order ? (
@@ -1323,7 +1361,7 @@ Chính sách: Bảo hành 100% trọn đời gói. Tuyệt đối không chia s�
 
             <button
               className="finish-btn"
-              onClick={onClose}
+              onClick={handleCloseModal}
               style={{
                 width: '100%',
                 marginTop: '16px',

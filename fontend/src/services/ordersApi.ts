@@ -47,6 +47,9 @@ export function saveLocalOrder(order: OrderItem) {
 
     if (order.status === 'PAID') {
       localStorage.setItem('modlienquan_last_paid_order', JSON.stringify(order));
+      if (order.deliveredKey) {
+        localStorage.setItem('modlienquan_active_paid_order', JSON.stringify(order));
+      }
     }
   } catch (e) {
     console.error('Failed to save order to localStorage', e);

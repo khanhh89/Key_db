@@ -7,15 +7,15 @@
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
   --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
-  --bg-dark: #F5F7FB;
-  --bg-dark-card: #FFFFFF;
+  --bg-dark: #05070b;
+  --bg-dark-card: #0f172a;
   --bg-light: #f8fafc;
   --bg-light-card: linear-gradient(160deg, #ffffff, #f1f5f9);
-  --text-dark: #1F2937;
+  --text-dark: #f8fafc;
   --text-light: #0f172a;
   --text-muted-dark: #7c899d;
   --text-muted-light: #475569;
-  --border-dark: #E5E7EB;
+  --border-dark: rgba(255, 255, 255, 0.1);
   --border-light: #e2e8f0;
   --primary-gradient: #2563EB;
   --primary-pink: #2563EB;
@@ -2586,7 +2586,7 @@ footer {
   border-radius: 14px;
   border: 1px solid #273345;
   background: rgba(15, 23, 42, 0.7);
-  color: var(--text-dark);
+  color: #ffffff;
   font-family: var(--font-sans);
   font-size: 14px;
   outline: none;
@@ -2640,7 +2640,7 @@ footer {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid #273345;
-  color: var(--text-dark);
+  color: #ffffff;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;

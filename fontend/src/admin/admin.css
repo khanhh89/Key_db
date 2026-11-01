@@ -3,7 +3,7 @@
 .admin-portal {
   min-height: 100vh;
   background: #F5F7FB;
-  color: #1F2937;
+  color: #F8FAFC;
   font-family: var(--font-sans, 'Inter', sans-serif);
   display: flex;
   position: relative;
@@ -14,7 +14,7 @@
 /* ⚪ ULTRA CLEAN LIGHT WHITE THEME FOR ADMIN PORTAL */
 .admin-portal.light {
   background: #f8fafc;
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 /* LOGIN SCREEN */
@@ -29,12 +29,12 @@
 
 .login-card {
   width: min(420px, 100%);
-  background: #1F2937;
-  border: 1px solid #E5E7EB;
+  background: #0F172A;
+  border: 1px solid #334155;
   border-radius: 28px;
   padding: 40px 32px;
-  
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  color: #F8FAFC;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -57,7 +57,7 @@
   background: #2563EB;
   
   
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .login-header p {
@@ -88,9 +88,9 @@
 .form-field input {
   padding: 14px 16px;
   border-radius: 14px;
-  border: 1px solid #E5E7EB;
-  background: #1F2937;
-  color: #1F2937;
+  border: 1px solid #334155;
+  background: #0B0F19;
+  color: #F8FAFC;
   font-size: 14px;
   outline: none;
   transition: all 0.2s ease;
@@ -116,7 +116,7 @@
   border-radius: 14px;
   border: 0;
   background: #2563EB;
-  color: #1F2937;
+  color: #F8FAFC;
   font-family: var(--font-heading, 'Outfit', sans-serif);
   font-weight: 800;
   font-size: 16px;
@@ -157,7 +157,7 @@
 
 .back-to-site-btn:hover {
   background: #E5E7EB;
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 /* SIDEBAR LAYOUT - FIX CỨNG ĐỨNG YÊN (PERMANENTLY FIXED SIDEBAR) */
@@ -179,8 +179,8 @@
 }
 
 .admin-portal.light .admin-sidebar {
-  background: #1F2937;
-  border-right-color: #1F2937;
+  background: #0F172A;
+  border-right-color: #F8FAFC;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
@@ -193,7 +193,7 @@
 }
 
 .admin-portal.light .sidebar-brand {
-  border-bottom-color: #1F2937;
+  border-bottom-color: #F8FAFC;
 }
 
 .sidebar-brand-icon {
@@ -205,7 +205,7 @@
   place-items: center;
   font-size: 20px;
   font-weight: 900;
-  color: #1F2937;
+  color: #F8FAFC;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
@@ -221,7 +221,7 @@
 }
 
 .admin-portal.light .sidebar-brand h3 {
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .sidebar-brand span {
@@ -301,7 +301,7 @@
 }
 
 .admin-portal.light .sidebar-footer {
-  border-top-color: #1F2937;
+  border-top-color: #F8FAFC;
 }
 
 /* COMBINED AVATAR DROPDOWN MENU */
@@ -326,8 +326,8 @@
 }
 
 .admin-portal.light .admin-avatar-trigger {
-  background: #1F2937;
-  border-color: #1F2937;
+  background: #0F172A;
+  border-color: #F8FAFC;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
@@ -359,7 +359,7 @@
 }
 
 .admin-portal.light .trigger-name {
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .trigger-status {
@@ -398,7 +398,7 @@
 }
 
 .admin-portal.light .admin-avatar-dropdown-menu {
-  background: #1F2937;
+  background: #0F172A;
   border-color: #64748B;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
@@ -426,7 +426,7 @@
   height: 38px;
   border-radius: 12px;
   background: #2563EB;
-  color: #1F2937;
+  color: #F8FAFC;
   display: grid;
   place-items: center;
   font-weight: 900;
@@ -441,11 +441,11 @@
 
 .dropdown-user-details strong {
   font-size: 13px;
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .admin-portal.light .dropdown-user-details strong {
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .dropdown-user-details small {
@@ -461,7 +461,7 @@
 }
 
 .admin-portal.light .dropdown-divider {
-  background: #1F2937;
+  background: #0F172A;
 }
 
 .dropdown-item {
@@ -473,7 +473,7 @@
   border-radius: 12px;
   border: 0;
   background: transparent;
-  color: #1F2937;
+  color: #F8FAFC;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -518,7 +518,7 @@
 
 .admin-portal.light .user-badge-card {
   background: #f8fafc;
-  border-color: #1F2937;
+  border-color: #F8FAFC;
 }
 
 .user-avatar {
@@ -535,7 +535,7 @@
 
 .admin-portal.light .user-avatar {
   background: #0284c7;
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .user-info h4 {
@@ -545,7 +545,7 @@
 }
 
 .admin-portal.light .user-info h4 {
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .user-info span {
@@ -570,7 +570,7 @@
 
 .view-site-btn {
   background: #E5E7EB;
-  color: #1F2937;
+  color: #F8FAFC;
   border: 1px solid #E5E7EB;
 }
 
@@ -586,7 +586,7 @@
 }
 
 .admin-portal.light .view-site-btn:hover {
-  background: #1F2937;
+  background: #0F172A;
   color: #0284c7;
 }
 
@@ -598,7 +598,7 @@
 
 .logout-btn:hover {
   background: #ef4444;
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 /* MAIN ADMIN CONTENT AREA */
@@ -632,7 +632,7 @@
 
 .admin-portal.light .admin-topbar {
   background: rgba(255, 255, 255, 0.9);
-  border-bottom-color: #1F2937;
+  border-bottom-color: #F8FAFC;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
@@ -644,7 +644,7 @@
 }
 
 .admin-portal.light .topbar-title h1 {
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .topbar-right {
@@ -667,7 +667,7 @@
 }
 
 .admin-portal.light .admin-theme-btn {
-  background: #1F2937;
+  background: #0F172A;
   color: #0284c7;
   border-color: #64748B;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
@@ -818,7 +818,7 @@
 
 .upload-btn-cloud {
   background: #2563EB !important;
-  color: #1F2937 !important;
+  color: #FFFFFF !important;
   border: 0 !important;
   padding: 10px 18px !important;
   border-radius: 12px !important;
@@ -995,14 +995,14 @@
 
 /* ⚪ LIGHT MODE SUPPORT FOR KEY STATS & FILTER BARS */
 .admin-portal.light .key-filter-bar {
-  background: #1F2937;
-  border-color: #1F2937;
+  background: #0F172A;
+  border-color: #F8FAFC;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .admin-portal.light .key-stat-card {
-  background: #1F2937;
-  border-color: #1F2937;
+  background: #0F172A;
+  border-color: #F8FAFC;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
@@ -1015,9 +1015,9 @@
 }
 
 .admin-portal.light .key-filter-bar select {
-  background: #1F2937 !important;
+  background: #0F172A !important;
   border-color: #64748B !important;
-  color: #1F2937 !important;
+  color: #FFFFFF !important;
 }
 
 .admin-portal.light .preset-btn {
@@ -1079,8 +1079,8 @@
 }
 
 .admin-portal.light .admin-pagination-bar {
-  background: #1F2937;
-  border-color: #1F2937;
+  background: #0F172A;
+  border-color: #F8FAFC;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
@@ -1104,7 +1104,7 @@
   padding: 6px 12px;
   border-radius: 10px;
   border: 1px solid #E5E7EB;
-  background: #1F2937;
+  background: #0F172A;
   color: #2563EB;
   font-size: 12px;
   font-weight: 700;
@@ -1133,7 +1133,7 @@
 .pagination-btn:hover:not(:disabled) {
   background: #2563EB;
   border-color: #2563EB;
-  color: #000;
+  color: #FFFFFF;
 }
 
 .pagination-btn:disabled {
@@ -1146,7 +1146,7 @@
   height: 32px;
   border-radius: 10px;
   border: 1px solid #E5E7EB;
-  background: #1F2937;
+  background: #0F172A;
   color: #64748B;
   font-size: 13px;
   font-weight: 700;
@@ -1159,19 +1159,19 @@
 .pagination-num-btn.active {
   background: #2563EB;
   border-color: #2563EB;
-  color: #1F2937;
+  color: #F8FAFC;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .admin-portal.light .pagination-num-btn {
-  background: #1F2937;
+  background: #0F172A;
   border-color: #64748B;
   color: #475569;
 }
 
 .admin-portal.light .pagination-num-btn.active {
   background: #2563EB;
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 /* ==========================================================================
@@ -1375,11 +1375,11 @@
   font-size: 22px;
   font-weight: 900;
   margin: 0 0 6px;
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .admin-portal.light .welcome-text h2 {
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .welcome-text p {
@@ -1447,7 +1447,7 @@
   border-radius: 16px;
   border: 1px solid #E5E7EB;
   background: rgba(15, 23, 42, 0.6);
-  color: #1F2937;
+  color: #F8FAFC;
   cursor: pointer;
   text-align: left;
   transition: all 0.25s ease;
@@ -1455,7 +1455,7 @@
 
 .admin-portal.light .dash-quick-btn {
   background: #f8fafc;
-  border-color: #1F2937;
+  border-color: #F8FAFC;
   color: #E5E7EB;
 }
 
@@ -1510,7 +1510,7 @@
 
 .admin-portal.light .recent-order-item {
   background: #f8fafc;
-  border-color: #1F2937;
+  border-color: #F8FAFC;
 }
 
 .recent-order-item:hover {
@@ -1538,11 +1538,11 @@
   display: block;
   font-family: monospace;
   font-size: 13px;
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .admin-portal.light .order-item-id {
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .order-item-app {
@@ -1575,7 +1575,7 @@
   padding: 10px 18px;
   border-radius: 12px;
   background: #2563EB;
-  color: #1F2937;
+  color: #F8FAFC;
   border: none;
   font-weight: 700;
   font-size: 13px;
@@ -1632,7 +1632,7 @@
 .filter-pill:hover,
 .filter-pill.active {
   background: #2563EB;
-  color: #1F2937;
+  color: #F8FAFC;
   border-color: #2563EB;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
@@ -1736,7 +1736,7 @@
   padding: 5px 10px;
   border-radius: 8px;
   background: #2563EB;
-  color: #1F2937;
+  color: #F8FAFC;
   border: none;
   font-weight: 800;
   font-size: 11px;
@@ -1779,7 +1779,7 @@
 
 .analytic-app-info strong {
   font-size: 13.5px;
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .analytic-stats-right {
@@ -1880,7 +1880,7 @@
   background: #2563EB;
   
   
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .welcome-text p {
@@ -2028,7 +2028,7 @@
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid #E5E7EB;
-  color: #1F2937;
+  color: #F8FAFC;
   cursor: pointer;
   transition: all 0.25s ease;
   text-align: left;
@@ -2058,12 +2058,12 @@
 /* ⚪ LIGHT MODE OVERRIDES FOR DASHBOARD */
 .admin-portal.light .dash-welcome-banner {
   background: #F5F7FB;
-  border-color: #1F2937;
+  border-color: #F8FAFC;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .admin-portal.light .welcome-text h2 {
-  color: #1F2937;
+  color: #F8FAFC;
   background: none;
   -webkit-background-clip: unset;
   background-clip: unset;
@@ -2071,8 +2071,8 @@
 
 .admin-portal.light .stock-alert-card,
 .admin-portal.light .dash-filter-bar {
-  background: #1F2937;
-  border-color: #1F2937;
+  background: #0F172A;
+  border-color: #F8FAFC;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
@@ -2080,14 +2080,14 @@
 .admin-portal.light .analytic-app-info strong,
 .admin-portal.light .order-item-id,
 .admin-portal.light .dash-quick-btn .btn-text strong {
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .admin-portal.light .dash-quick-btn,
 .admin-portal.light .recent-order-item,
 .admin-portal.light .app-analytic-row {
   background: #f8fafc;
-  border-color: #1F2937;
+  border-color: #F8FAFC;
 }
 
 /* 📊 REVENUE VISUAL BAR CHART */
@@ -2114,7 +2114,7 @@
 
 .chart-toggle-btn.active {
   background: #2563EB;
-  color: #1F2937;
+  color: #F8FAFC;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
@@ -2207,7 +2207,7 @@
 .bar-tooltip {
   position: absolute;
   top: -50px;
-  background: #1F2937;
+  background: #0F172A;
   border: 1px solid #2563EB;
   padding: 4px 10px;
   border-radius: 8px;
@@ -2244,12 +2244,12 @@
 
 /* Light mode overrides for Visual Chart */
 .admin-portal.light .revenue-visual-chart {
-  background: #1F2937;
+  background: #0F172A;
   border-color: #64748B;
 }
 
 .admin-portal.light .chart-bars-container {
-  border-bottom-color: #1F2937;
+  border-bottom-color: #F8FAFC;
 }
 
 .admin-portal.light .column-app-name {
@@ -2257,13 +2257,13 @@
 }
 
 .admin-portal.light .bar-tooltip {
-  background: #1F2937;
+  background: #0F172A;
   border-color: #0284c7;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .admin-portal.light .bar-tooltip strong {
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 /* ==========================================================================
@@ -2327,7 +2327,7 @@
 
 .alert-count-badge {
   background: #ef4444;
-  color: #1F2937;
+  color: #F8FAFC;
   font-size: 11px;
   font-weight: 800;
   padding: 2px 8px;
@@ -2337,7 +2337,7 @@
 
 .add-keys-nav-btn {
   background: #2563EB;
-  color: #1F2937;
+  color: #F8FAFC;
   border: none;
   padding: 8px 18px;
   border-radius: 12px;
@@ -2459,7 +2459,7 @@
 
 .mini-action-btn {
   background: #2563EB;
-  color: #1F2937;
+  color: #F8FAFC;
   border: none;
   padding: 6px 14px;
   border-radius: 8px;
@@ -2499,7 +2499,7 @@
 }
 
 .admin-portal.light .alert-app-info strong {
-  color: #1F2937;
+  color: #F8FAFC;
 }
 
 .admin-portal.light .alert-app-sub {
@@ -2555,7 +2555,7 @@
   border-radius: 12px;
   background: rgba(15, 23, 42, 0.6);
   border: 2px solid #E5E7EB;
-  color: #1F2937;
+  color: #F8FAFC;
   font-size: 24px;
   font-weight: 800;
   text-align: center;
@@ -2565,9 +2565,9 @@
 }
 
 .admin-portal.light .otp-box {
-  background: #1F2937;
+  background: #0F172A;
   border-color: rgba(2, 132, 199, 0.3);
-  color: #1F2937;
+  color: #F8FAFC;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
