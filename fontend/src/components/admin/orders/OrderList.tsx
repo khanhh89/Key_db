@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Language, OrderItem } from '../../../types';
 import { Pagination } from '../../common/Pagination';
-import { formatDateTime } from '../../../services/api';
+import { formatDateTime, resendOrderEmailInBackend } from '../../../services/api';
 import { copyTextToClipboard } from '../../../utils/clipboard';
 
 interface OrderListProps {
@@ -52,9 +52,11 @@ export function OrderList({
       showToast(lang === 'vi' ? 'Không có đơn hàng nào để xuất!' : 'No orders to export!');
       return;
     }
-    const headers = ['Mã Đơn', 'App Game', 'Số Tiền (VNĐ)', 'Mã CK', 'Trạng Thái', 'Thời Gian', 'Key Đã Giao'];
+    const headers = ['Mã Đơn', 'Email Khách', 'Gửi Mail', 'App Game', 'Số Tiền (VNĐ)', 'Mã CK', 'Trạng Thái', 'Thời Gian', 'Key Đã Giao'];
     const rows = filteredOrders.map((o) => [
       o.id,
+      `"${o.customerEmail || ''}"`,
+      o.emailSent ? 'Đã gửi' : 'Chưa gửi',
       `"${o.appName || o.appId}"`,
       o.amount,
       o.paymentCode || '',
@@ -155,6 +157,7 @@ export function OrderList({
           <thead>
             <tr className="hover:bg-[#2563EB]/[0.04] transition-colors group">
               <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Mã Đơn</th>
+              <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Gmail Khách</th>
               <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">App Game</th>
               <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Số Tiền</th>
               <th className="p-[18px_20px] bg-white text-[#64748B] font-heading font-extrabold text-xs tracking-[1px] uppercase border-b border-[#E5E7EB]">Mã Chuyển Khoản</th>
@@ -167,7 +170,7 @@ export function OrderList({
           <tbody>
             {filteredOrders.length === 0 ? (
               <tr className="hover:bg-[#2563EB]/[0.04] transition-colors group">
-                <td colSpan={8} className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]" style={{ textAlign: 'center', padding: '2.5rem', color: '#94a3b8' }}>
+                <td colSpan={9} className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]" style={{ textAlign: 'center', padding: '2.5rem', color: '#94a3b8' }}>
                   {lang === 'vi' ? 'Không tìm thấy đơn hàng nào phù hợp' : 'No matching orders found'}
                 </td>
               </tr>
@@ -175,6 +178,24 @@ export function OrderList({
               filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((ord) => (
                 <tr key={ord.id} className="hover:bg-[#2563EB]/[0.04] transition-colors group">
                   <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]"><strong>{ord.id}</strong></td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
+                    {ord.customerEmail ? (
+                      <div>
+                        <span className="font-mono text-xs font-semibold text-[#2563EB]">{ord.customerEmail}</span>
+                        <div className="mt-0.5">
+                          {ord.emailSent ? (
+                            <span className="text-[10.5px] font-bold text-[#10b981]">✓ Đã gửi mail</span>
+                          ) : ord.status === 'PAID' ? (
+                            <span className="text-[10.5px] font-bold text-[#f59e0b]">⏳ Chưa gửi</span>
+                          ) : (
+                            <span className="text-[10.5px] text-[#94a3b8]">Chờ thanh toán</span>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <small className="text-[#94a3b8]">-</small>
+                    )}
+                  </td>
                   <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">{ord.appName || ord.appId}</td>
                   <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]"><strong className="text-[#10b981] text-[20px] font-bold">{ord.amount.toLocaleString()} đ</strong></td>
                   <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]"><code>{ord.paymentCode}</code></td>
@@ -222,6 +243,20 @@ export function OrderList({
                   </td>
                   <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
                     <div className="flex items-center gap-2">
+                      {ord.status === 'PAID' && (
+                        <button
+                          type="button"
+                          className="bg-[#10b981]/12 text-[#10b981] border border-[#10b981]/30 px-3 py-2 rounded-[10px] font-inherit font-bold text-[12px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[4px] whitespace-nowrap hover:bg-[#10b981] hover:text-[#ffffff] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(16,185,129,0.35)]"
+                          title={lang === 'vi' ? 'Gửi lại mã Key về Gmail khách hàng' : 'Resend Key Email to customer'}
+                          onClick={async () => {
+                            showToast(lang === 'vi' ? '⚡ Đang gửi lại email cho khách...' : 'Resending email...');
+                            const res = await resendOrderEmailInBackend(ord.id);
+                            showToast(res.message);
+                          }}
+                        >
+                          ✉️ {lang === 'vi' ? 'Gửi Mail' : 'Email'}
+                        </button>
+                      )}
                       {ord.status !== 'PAID' && (
                         <button
                           type="button"

@@ -380,7 +380,7 @@ public class PayosService {
                     if (!"PAID".equals(order.getStatus())) {
                         OrderService.fulfillOrderKeyStatic(order, licenseKeyRepository, orderRepository);
                         try {
-                            emailService.sendKeyEmail(order);
+                            emailService.sendKeyEmailAsync(order);
                         } catch (Exception mailErr) {
                             System.err.println(">>> [Webhook Mail Error] " + mailErr.getMessage());
                         }

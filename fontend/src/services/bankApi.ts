@@ -62,7 +62,9 @@ export async function saveBankConfigToBackend(bankConfig: BankConfig): Promise<B
     accountNo: bankConfig.accountNo,
     accountName: bankConfig.accountName,
     payosEnabled: bankConfig.payosEnabled,
-    enableStaticQr: bankConfig.enableStaticQr
+    enableStaticQr: bankConfig.enableStaticQr,
+    mailEnabled: bankConfig.mailEnabled,
+    mailSenderName: bankConfig.mailSenderName
   }));
 
   try {
@@ -85,3 +87,22 @@ export async function saveBankConfigToBackend(bankConfig: BankConfig): Promise<B
   }
   return bankConfig;
 }
+
+// Test Send Email via Backend SMTP
+export async function testSendEmailInBackend(targetEmail: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const token = await refreshAdminRollingToken();
+    const res = await fetch(`${API_BASE_URL}/bank-config/test-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Auth': token
+      },
+      body: JSON.stringify({ targetEmail })
+    });
+    return await res.json();
+  } catch (err) {
+    console.warn('Test send email error', err);
+    return { success: false, message: 'Lỗi mạng khi kết nối máy chủ gửi thử email.' };
+  }
+}

@@ -67,6 +67,15 @@ public class OrderEntity {
     @Column(name = "customer_email")
     private String customerEmail;
 
+    @Column(name = "email_sent")
+    private Boolean emailSent;
+
+    @Column(name = "email_sent_at")
+    private LocalDateTime emailSentAt;
+
+    @Column(name = "email_error", length = 1000)
+    private String emailError;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

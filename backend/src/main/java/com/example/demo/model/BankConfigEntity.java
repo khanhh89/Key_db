@@ -51,4 +51,23 @@ public class BankConfigEntity {
 
     @Column(name = "enable_static_qr")
     private Boolean enableStaticQr;
+
+    // GMAIL / SMTP SENDER CREDENTIALS
+    @Column(name = "mail_host")
+    private String mailHost;
+
+    @Column(name = "mail_port")
+    private Integer mailPort;
+
+    @Column(name = "mail_username")
+    private String mailUsername;
+
+    @Column(name = "mail_password")
+    private String mailPassword;
+
+    @Column(name = "mail_sender_name")
+    private String mailSenderName;
+
+    @Column(name = "mail_enabled")
+    private Boolean mailEnabled;
 }

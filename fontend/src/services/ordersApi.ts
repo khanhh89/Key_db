@@ -112,8 +112,8 @@ export async function createPayosPaymentLinkInBackend(orderId: string, amount?: 
     const res = await fetch(`${API_BASE_URL}/payos/create-payment-link`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        orderId, 
+      body: JSON.stringify({
+        orderId,
         amount,
         returnUrl: window.location.href,
         cancelUrl: window.location.href
@@ -213,7 +213,7 @@ export async function verifyCustomerPaymentInBackend(orderId: string): Promise<{
           return { success: false, message: `⏳ Hệ thống chưa nhận được tiền cho nội dung [${orderData.paymentCode}]. Vui lòng chuyển khoản đúng số tiền và nội dung!` };
         }
       }
-    } catch (fallbackErr) {}
+    } catch (fallbackErr) { }
   }
   return { success: false, message: '⏳ Hệ thống chưa nhận được tiền vào tài khoản ngân hàng. Vui lòng hoàn tất chuyển khoản!' };
 }
@@ -276,3 +276,45 @@ export async function clearAllOrdersFromBackend(): Promise<boolean> {
   localStorage.removeItem('modlienquan_orders');
   return true;
 }
+
+// Update Order Customer Email
+export async function updateOrderEmailInBackend(orderId: string, email: string): Promise<OrderItem | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/orders/${orderId}/email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    if (res.ok) {
+      const data: OrderItem = await res.json();
+      saveLocalOrder(data);
+      return data;
+    }
+  } catch (err) {
+    console.warn('Update order email failed', err);
+  }
+  return null;
+}
+
+// Resend VIP Key Email to Customer
+export async function resendOrderEmailInBackend(
+  orderId: string,
+  email?: string
+): Promise<{ success: boolean; message: string; order?: OrderItem }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/orders/${orderId}/resend-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (data.order) {
+      saveLocalOrder(data.order);
+    }
+    return data;
+  } catch (err) {
+    console.warn('Resend key email error', err);
+    return { success: false, message: 'Lỗi mạng hoặc không thể kết nối máy chủ gửi email.' };
+  }
+}
+

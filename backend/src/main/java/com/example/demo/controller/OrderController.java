@@ -47,6 +47,22 @@ public class OrderController {
         return orderService.verifyCustomerPayment(id);
     }
 
+    @PostMapping("/{id}/email")
+    public ResponseEntity<?> updateOrderEmail(
+            @PathVariable String id,
+            @RequestBody java.util.Map<String, String> body) {
+        String email = body != null ? body.get("email") : null;
+        return orderService.updateOrderEmail(id, email);
+    }
+
+    @PostMapping("/{id}/resend-email")
+    public ResponseEntity<?> resendOrderEmail(
+            @PathVariable String id,
+            @RequestBody(required = false) java.util.Map<String, String> body) {
+        String overrideEmail = body != null ? body.get("email") : null;
+        return orderService.resendOrderEmail(id, overrideEmail);
+    }
+
     @PostMapping("/{id}/pay")
     public ResponseEntity<?> confirmOrderPayment(
             @RequestHeader(value = "X-Admin-Auth", required = false) String adminAuth,

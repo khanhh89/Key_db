@@ -75,6 +75,9 @@ public class OrderService {
                 .status(original.getStatus())
                 .deliveredKey(null)
                 .customerEmail(original.getCustomerEmail())
+                .emailSent(original.getEmailSent())
+                .emailSentAt(original.getEmailSentAt())
+                .emailError(original.getEmailError())
                 .createdAt(original.getCreatedAt())
                 .paidAt(original.getPaidAt())
                 .build();
@@ -84,6 +87,9 @@ public class OrderService {
         String orderId = "ORD-" + (10000 + new Random().nextInt(90000));
         String paymentCode = "MK" + (10000 + new Random().nextInt(90000));
         double initialAmount = orderReq.getAmount() > 0 ? orderReq.getAmount() : 50000.0;
+        String cleanEmail = (orderReq.getCustomerEmail() != null && !orderReq.getCustomerEmail().isBlank())
+                ? orderReq.getCustomerEmail().trim().toLowerCase()
+                : null;
 
         OrderEntity newOrder = OrderEntity.builder()
                 .id(orderId)
@@ -92,7 +98,8 @@ public class OrderService {
                 .amount(initialAmount)
                 .originalAmount(initialAmount)
                 .durationDays(orderReq.getDurationDays() != null ? orderReq.getDurationDays() : 30)
-                .customerEmail(orderReq.getCustomerEmail())
+                .customerEmail(cleanEmail)
+                .emailSent(false)
                 .paymentCode(paymentCode)
                 .status("PENDING")
                 .createdAt(LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")))
@@ -100,7 +107,7 @@ public class OrderService {
 
         OrderEntity savedOrder = orderRepository.save(newOrder);
 
-        systemLogService.log(request, "ORDER_CREATE", "Người dùng tạo đơn hàng [" + savedOrder.getId() + "] mua key [" + savedOrder.getAppName() + "] số tiền " + String.format("%,.0f", savedOrder.getAmount()) + "đ, mã nội dung [" + savedOrder.getPaymentCode() + "].");
+        systemLogService.log(request, "ORDER_CREATE", "Người dùng tạo đơn hàng [" + savedOrder.getId() + "] mua key [" + savedOrder.getAppName() + "] email [" + (cleanEmail != null ? cleanEmail : "None") + "] số tiền " + String.format("%,.0f", savedOrder.getAmount()) + "đ, mã nội dung [" + savedOrder.getPaymentCode() + "].");
 
         return savedOrder;
     }
@@ -315,9 +322,37 @@ public class OrderService {
     public void fulfillOrderKey(OrderEntity order) {
         fulfillOrderKeyStatic(order, licenseKeyRepository, orderRepository);
         try {
-            emailService.sendKeyEmail(order);
+            emailService.sendKeyEmailAsync(order);
         } catch (Exception e) {
             System.err.println(">>> Failed to send email in OrderService: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<?> updateOrderEmail(String id, String email) {
+        Optional<OrderEntity> orderOpt = findOrder(id);
+        if (orderOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        OrderEntity order = orderOpt.get();
+        if (email != null && !email.isBlank()) {
+            String cleanEmail = email.trim().toLowerCase();
+            order.setCustomerEmail(cleanEmail);
+            orderRepository.save(order);
+            // Nếu đơn hàng đã thanh toán và có key, tự động kích hoạt gửi mail ngay
+            if ("PAID".equals(order.getStatus()) && order.getDeliveredKey() != null) {
+                emailService.sendKeyEmailAsync(order);
+            }
+        }
+        return ResponseEntity.ok(order);
+    }
+
+    public ResponseEntity<?> resendOrderEmail(String id, String overrideEmail) {
+        Map<String, Object> result = emailService.resendKeyEmail(id, overrideEmail);
+        boolean success = Boolean.TRUE.equals(result.get("success"));
+        if (success) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.badRequest().body(result);
         }
     }
 

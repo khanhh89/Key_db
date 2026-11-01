@@ -13,6 +13,8 @@ import {
   saveLocalOrder,
   formatDateTime,
   trackClientEvent,
+  updateOrderEmailInBackend,
+  resendOrderEmailInBackend,
   type PayosLinkData,
   type CouponApplyResult
 } from '../../services/api';
@@ -108,6 +110,19 @@ export function BuyKeyModal({
   const [isApplyingCoupon, setIsApplyingCoupon] = useState<boolean>(false);
   const [originalPrice, setOriginalPrice] = useState<number>(0);
   const [showKeySecret, setShowKeySecret] = useState<boolean>(true);
+
+  // Email VIP Key Delivery States
+  const [customerEmail, setCustomerEmail] = useState<string>(() => {
+    try {
+      return localStorage.getItem('modlienquan_customer_email') || initialOrder?.customerEmail || '';
+    } catch {
+      return initialOrder?.customerEmail || '';
+    }
+  });
+  const [emailEditInput, setEmailEditInput] = useState<string>('');
+  const [showEmailEdit, setShowEmailEdit] = useState<boolean>(false);
+  const [isSubmittingEmail, setIsSubmittingEmail] = useState<boolean>(false);
+  const [isResendingEmail, setIsResendingEmail] = useState<boolean>(false);
 
   const activeCouponCodeRef = useRef<string | null>(null);
   const isOrderPaidRef = useRef<boolean>(false);
@@ -362,6 +377,92 @@ export function BuyKeyModal({
     showToast(lang === 'vi' ? 'Đã gỡ mã giảm giá' : 'Removed promo code');
   };
 
+  const handleSaveEmailForOrder = async (override?: string) => {
+    const emailToSave = (override !== undefined ? override : emailEditInput).trim().toLowerCase();
+    if (!emailToSave || !emailToSave.includes('@') || !emailToSave.includes('.')) {
+      showToast(lang === 'vi' ? '⚠️ Vui lòng nhập địa chỉ Gmail/Email hợp lệ!' : '⚠️ Please enter a valid email address!');
+      return;
+    }
+    setIsSubmittingEmail(true);
+    try {
+      localStorage.setItem('modlienquan_customer_email', emailToSave);
+      setCustomerEmail(emailToSave);
+
+      if (order) {
+        const updated = await updateOrderEmailInBackend(order.id, emailToSave);
+        if (updated) {
+          setOrder(updated);
+          showToast(lang === 'vi' ? `✓ Đã lưu Gmail nhận Key: ${emailToSave}` : `✓ Saved delivery email: ${emailToSave}`);
+        } else {
+          setOrder({ ...order, customerEmail: emailToSave });
+          showToast(lang === 'vi' ? `✓ Đã cập nhật email: ${emailToSave}` : `✓ Updated email: ${emailToSave}`);
+        }
+      } else {
+        showToast(lang === 'vi' ? `✓ Đã lưu email: ${emailToSave}` : `✓ Saved email: ${emailToSave}`);
+      }
+      setShowEmailEdit(false);
+      setEmailEditInput('');
+    } catch (err) {
+      console.warn('Error saving email', err);
+    } finally {
+      setIsSubmittingEmail(false);
+    }
+  };
+
+  const handleResendKeyEmail = async (overrideEmail?: string) => {
+    if (!order) return;
+    setIsResendingEmail(true);
+    showToast(lang === 'vi' ? '⚡ Đang gửi Key về Gmail...' : 'Sending key to Gmail...');
+    try {
+      const targetEmail = (overrideEmail || order.customerEmail || customerEmail || '').trim().toLowerCase();
+      const res = await resendOrderEmailInBackend(order.id, targetEmail || undefined);
+      if (res.success) {
+        if (res.order) setOrder(res.order);
+        showToast(res.message || (lang === 'vi' ? '✓ Đã gửi Key VIP về Gmail thành công!' : 'VIP Key sent to Gmail!'));
+      } else {
+        showToast(res.message || (lang === 'vi' ? '⚠️ Gửi email chưa hoàn tất' : 'Failed to send email'));
+      }
+    } catch (err) {
+      showToast(lang === 'vi' ? '⚠️ Lỗi khi gửi lại email' : 'Error resending email');
+    } finally {
+      setIsResendingEmail(false);
+    }
+  };
+
+  const handleDownloadKeyTxt = () => {
+    if (!order || !order.deliveredKey) return;
+    const content = `=====================================================
+⚡ BẢN QUYỀN VIP - ${app.name.toUpperCase()}
+=====================================================
+Mã Đơn Hàng    : #${order.id}
+Ứng Dụng       : ${order.appName || app.name}
+Thời Hạn Gói   : ${order.durationDays ? (order.durationDays >= 365 ? '1 Năm (Vĩnh Viễn)' : order.durationDays + ' Ngày VIP') : '30 Ngày VIP'}
+Mã Key VIP     : ${order.deliveredKey}
+Số Tiền        : ${(order.amount || 0).toLocaleString()} đ
+Mã Chuyển Khoản: ${order.paymentCode}
+Trạng Thái     : ĐÃ THANH TOÁN THÀNH CÔNG
+Email Nhận Key : ${order.customerEmail || customerEmail || 'N/A'}
+Thời Gian TT   : ${formatDateTime(order.paidAt || order.createdAt)}
+=====================================================
+3 BƯỚC KÍCH HOẠT NHANH:
+1. Cài đặt bản hack/mod game từ website.
+2. Mở ứng dụng, vào mục "Kích Hoạt Bản Quyền VIP".
+3. Dán chính xác mã Key VIP bên trên để kích hoạt đầy đủ đặc quyền 24/7.
+=====================================================
+Chính sách: Bảo hành 100% trọn đời gói. Tuyệt đối không chia sẻ mã Key!
+`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `KEY_VIP_${app.name.replace(/[^a-zA-Z0-9]/g, '_')}_${order.id}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(lang === 'vi' ? '💾 Đã tải file sao lưu Key VIP về máy!' : 'Downloaded key backup file!');
+  };
+
   const handleCreateOrder = async (days: number, basePrice: number) => {
     if (appliedCoupon && appliedCoupon.code) {
       await releaseCouponInBackend(appliedCoupon.code, order?.id);
@@ -379,7 +480,12 @@ export function BuyKeyModal({
     setQrFallbackIndex(0);
     setQrImageFailed(false);
 
-    const newOrder = await createOrderInBackend(app.id, app.name, basePrice, days);
+    const cleanEmail = customerEmail.trim();
+    if (cleanEmail) {
+      localStorage.setItem('modlienquan_customer_email', cleanEmail);
+    }
+
+    const newOrder = await createOrderInBackend(app.id, app.name, basePrice, days, cleanEmail || undefined);
     setOrder(newOrder);
     setIsCreating(false);
 
@@ -710,6 +816,54 @@ export function BuyKeyModal({
           /* Package Selection Step - Clean & Direct */
           <div className="package-selection-step">
             <label className="step-label">{t.step1}</label>
+
+            {/* GMAIL RECEIVER FIELD (SMART PRESET & AUTO-STORE) */}
+            <div className="email-preset-box" style={{
+              marginBottom: '16px',
+              padding: '12px 14px',
+              borderRadius: '14px',
+              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.08) 0%, rgba(15, 23, 42, 0.7) 100%)',
+              border: '1.5px solid rgba(56, 189, 248, 0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>📧</span>
+                  <span>{lang === 'vi' ? 'Gmail nhận Key VIP tự động (Khuyến nghị):' : 'VIP Key Gmail Delivery (Recommended):'}</span>
+                </label>
+                <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                  {lang === 'vi' ? 'Tránh thất lạc Key' : 'Auto Backup'}
+                </span>
+              </div>
+              <input
+                type="email"
+                value={customerEmail}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setCustomerEmail(val);
+                  localStorage.setItem('modlienquan_customer_email', val.trim());
+                }}
+                placeholder={lang === 'vi' ? 'Nhập Gmail của bạn (vd: yourname@gmail.com)' : 'Enter your Gmail (e.g. yourname@gmail.com)'}
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  background: 'rgba(15, 23, 42, 0.9)',
+                  border: '1px solid rgba(56, 189, 248, 0.35)',
+                  color: '#ffffff',
+                  fontSize: '13.5px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <small style={{ fontSize: '11.5px', color: '#94a3b8', margin: 0 }}>
+                {lang === 'vi'
+                  ? '⚡ Hệ thống sẽ tự động gửi mã Key VIP & Hóa đơn về Gmail này ngay khi thanh toán VietQR thành công!'
+                  : '⚡ System will automatically deliver your VIP Key & invoice to this Gmail once payment is completed!'}
+              </small>
+            </div>
             {packageOptions.length === 0 ? (
               <div className="out-of-stock-notice-box" style={{
                 textAlign: 'center',
@@ -907,6 +1061,247 @@ export function BuyKeyModal({
               );
             })()}
 
+            {/* EMAIL DELIVERY & OFFLINE BACKUP CARD */}
+            {(() => {
+              const activeEmail = order.customerEmail || customerEmail;
+              return activeEmail ? (
+                <div className="email-delivery-success-card" style={{
+                  marginTop: '16px',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(15, 23, 42, 0.85) 100%)',
+                  border: '1.5px solid rgba(16, 185, 129, 0.4)',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <div style={{ fontSize: '26px', lineHeight: 1 }}>✉️</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                        <h5 style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#34d399' }}>
+                          {lang === 'vi' ? 'ĐÃ GỬI KEY VỀ GMAIL CỦA BẠN' : 'VIP KEY SENT TO GMAIL'}
+                        </h5>
+                        <span style={{
+                          fontSize: '11px',
+                          background: 'rgba(52, 211, 153, 0.2)',
+                          color: '#34d399',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontWeight: 700
+                        }}>
+                          {order.emailSent ? '✓ ĐÃ GỬI' : '⚡ TỰ ĐỘNG'}
+                        </span>
+                      </div>
+                      <p style={{ margin: '4px 0 6px 0', fontSize: '13px', color: '#cbd5e1' }}>
+                        {lang === 'vi' ? 'Hộp thư nhận:' : 'Delivered to:'}{' '}
+                        <strong style={{ color: '#38bdf8', fontFamily: 'monospace' }}>
+                          {activeEmail}
+                        </strong>
+                      </p>
+                      <small style={{ display: 'block', fontSize: '11.5px', color: '#94a3b8', lineHeight: 1.4 }}>
+                        {lang === 'vi'
+                          ? '💡 Vui lòng kiểm tra Hộp thư đến (hoặc thư mục Spam/Quảng cáo) để xem lại mã Key VIP & Hóa đơn bất cứ lúc nào.'
+                          : '💡 Please check your Inbox (or Spam/Promotions folder) to view your VIP Key and receipt anytime.'}
+                      </small>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+                    <a
+                      href="https://mail.google.com"
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        flex: 1,
+                        minWidth: '120px',
+                        padding: '9px 12px',
+                        borderRadius: '10px',
+                        background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(2, 132, 199, 0.4) 100%)',
+                        border: '1px solid rgba(56, 189, 248, 0.4)',
+                        color: '#38bdf8',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        textAlign: 'center',
+                        textDecoration: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      📬 {lang === 'vi' ? 'Mở Hòm Thư Gmail ➔' : 'Open Gmail ➔'}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => handleResendKeyEmail()}
+                      disabled={isResendingEmail}
+                      style={{
+                        flex: 1,
+                        minWidth: '110px',
+                        padding: '9px 12px',
+                        borderRadius: '10px',
+                        background: 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        color: '#ffffff',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {isResendingEmail ? '⏳ ...' : '🔄 ' + (lang === 'vi' ? 'Gửi Lại Thư' : 'Resend Email')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowEmailEdit(!showEmailEdit)}
+                      style={{
+                        padding: '9px 12px',
+                        borderRadius: '10px',
+                        background: 'transparent',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        color: '#94a3b8',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ✏️ {lang === 'vi' ? 'Đổi Mail' : 'Edit'}
+                    </button>
+                  </div>
+
+                  {showEmailEdit && (
+                    <div style={{ marginTop: '10px', display: 'flex', gap: '6px' }}>
+                      <input
+                        type="email"
+                        placeholder="nhap-gmail-moi@gmail.com"
+                        value={emailEditInput}
+                        onChange={(e) => setEmailEditInput(e.target.value)}
+                        style={{
+                          flex: 1,
+                          padding: '9px 12px',
+                          borderRadius: '8px',
+                          background: 'rgba(0,0,0,0.5)',
+                          border: '1px solid rgba(56, 189, 248, 0.4)',
+                          color: '#fff',
+                          fontSize: '12px',
+                          outline: 'none'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        disabled={isSubmittingEmail}
+                        onClick={async () => {
+                          const target = emailEditInput.trim();
+                          if (target) {
+                            await handleSaveEmailForOrder(target);
+                            await handleResendKeyEmail(target);
+                          }
+                        }}
+                        style={{
+                          padding: '9px 14px',
+                          borderRadius: '8px',
+                          background: '#38bdf8',
+                          color: '#0f172a',
+                          border: 'none',
+                          fontWeight: 700,
+                          fontSize: '12px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {isSubmittingEmail ? '...' : (lang === 'vi' ? 'Lưu & Gửi' : 'Save & Send')}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="email-delivery-prompt-card" style={{
+                  marginTop: '16px',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.08) 0%, rgba(15, 23, 42, 0.85) 100%)',
+                  border: '1.5px solid rgba(56, 189, 248, 0.3)',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '20px' }}>📩</span>
+                    <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: '#38bdf8' }}>
+                      {lang === 'vi' ? 'GỬI BẢN QUYỀN VỀ GMAIL ĐỂ SAO LƯU' : 'BACKUP VIP KEY TO YOUR GMAIL'}
+                    </h5>
+                  </div>
+                  <p style={{ margin: '0 0 10px 0', fontSize: '12.5px', color: '#94a3b8' }}>
+                    {lang === 'vi'
+                      ? 'Nhập Gmail của bạn để hệ thống gửi ngay mã Key VIP & hóa đơn điện tử về hộp thư đề phòng đóng nhầm tab:'
+                      : 'Enter your Gmail to receive electronic receipt and store your key permanently:'}
+                  </p>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <input
+                      type="email"
+                      placeholder={lang === 'vi' ? 'Nhập Gmail của bạn (vd: yourname@gmail.com)' : 'Enter your Gmail'}
+                      value={emailEditInput}
+                      onChange={(e) => setEmailEditInput(e.target.value)}
+                      style={{
+                        flex: 1,
+                        padding: '10px 12px',
+                        borderRadius: '8px',
+                        background: 'rgba(0,0,0,0.5)',
+                        border: '1px solid rgba(56, 189, 248, 0.4)',
+                        color: '#fff',
+                        fontSize: '12.5px',
+                        outline: 'none'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      disabled={isSubmittingEmail || !emailEditInput.trim()}
+                      onClick={async () => {
+                        const target = emailEditInput.trim();
+                        if (target) {
+                          await handleSaveEmailForOrder(target);
+                          await handleResendKeyEmail(target);
+                        }
+                      }}
+                      style={{
+                        padding: '10px 16px',
+                        borderRadius: '8px',
+                        background: 'linear-gradient(135deg, #00f2fe, #4facfe)',
+                        color: '#040b17',
+                        border: 'none',
+                        fontWeight: 800,
+                        fontSize: '12.5px',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {isSubmittingEmail ? '...' : (lang === 'vi' ? 'GỬI KEY NGAY 🚀' : 'SEND KEY NOW 🚀')}
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* OFFLINE TXT FILE BACKUP DOWNLOAD */}
+            <button
+              type="button"
+              onClick={handleDownloadKeyTxt}
+              style={{
+                width: '100%',
+                marginTop: '12px',
+                padding: '11px 16px',
+                borderRadius: '12px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px dashed rgba(56, 189, 248, 0.35)',
+                color: '#38bdf8',
+                fontSize: '12.5px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              💾 {lang === 'vi' ? 'Tải File Bản Quyền Sao Lưu (.txt)' : 'Download Key Backup File (.txt)'}
+            </button>
+
             <div className="order-details-mini" style={{
               marginTop: '16px',
               padding: '12px 14px',
@@ -1102,6 +1497,32 @@ export function BuyKeyModal({
                 <span>✓ {appliedCoupon.message}</span>
               </div>
             )}
+
+            {/* GMAIL DELIVERY STRIP DURING PAYMENT */}
+            <div className="coupon-inline-strip" style={{ marginTop: '8px' }}>
+              <span className="coupon-inline-label" style={{ minWidth: '100px' }}>
+                📧 {lang === 'vi' ? 'Nhận qua Gmail:' : 'Send to Gmail:'}
+              </span>
+              <input
+                type="email"
+                className="coupon-inline-input"
+                style={{ textTransform: 'none' }}
+                placeholder={lang === 'vi' ? 'Nhập Gmail (tự động nhận key)' : 'Enter Gmail (auto receives key)'}
+                value={customerEmail}
+                onChange={(e) => {
+                  setCustomerEmail(e.target.value);
+                  localStorage.setItem('modlienquan_customer_email', e.target.value.trim());
+                }}
+              />
+              <button
+                type="button"
+                className="coupon-inline-btn apply"
+                disabled={isSubmittingEmail || !customerEmail.trim()}
+                onClick={() => handleSaveEmailForOrder(customerEmail)}
+              >
+                {isSubmittingEmail ? '...' : (lang === 'vi' ? 'LƯU' : 'SAVE')}
+              </button>
+            </div>
 
             {/* 2-Minute Expiration Warning Strip */}
             {timeLeft <= 120 && (

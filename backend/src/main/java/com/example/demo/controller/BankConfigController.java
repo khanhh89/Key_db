@@ -15,6 +15,9 @@ public class BankConfigController {
     @Autowired
     private BankConfigRepository bankConfigRepository;
 
+    @Autowired
+    private com.example.demo.service.EmailService emailService;
+
     @GetMapping
     public ResponseEntity<BankConfigEntity> getBankConfig(@RequestHeader(value = "X-Admin-Auth", required = false) String adminAuth) {
         BankConfigEntity config = bankConfigRepository.findAll().stream().findFirst()
@@ -28,6 +31,12 @@ public class BankConfigController {
                             .payosChecksumKey("")
                             .payosEnabled(false)
                             .enableStaticQr(true)
+                            .mailHost("smtp.gmail.com")
+                            .mailPort(587)
+                            .mailUsername("")
+                            .mailPassword("")
+                            .mailSenderName("MOD VIP STORE")
+                            .mailEnabled(true)
                             .build();
                     return bankConfigRepository.save(defaultConfig);
                 });
@@ -44,6 +53,10 @@ public class BankConfigController {
                     .payosClientId(null)
                     .payosApiKey(null)
                     .payosChecksumKey(null)
+                    .mailUsername(null)
+                    .mailPassword(null)
+                    .mailSenderName(config.getMailSenderName())
+                    .mailEnabled(config.getMailEnabled())
                     .build();
             return ResponseEntity.ok(publicConfig);
         }
@@ -53,6 +66,9 @@ public class BankConfigController {
         }
         if (config.getEnableStaticQr() == null) {
             config.setEnableStaticQr(true);
+        }
+        if (config.getMailEnabled() == null) {
+            config.setMailEnabled(true);
         }
         return ResponseEntity.ok(config);
     }
@@ -86,6 +102,37 @@ public class BankConfigController {
         if (bankDetails.getPayosEnabled() != null) config.setPayosEnabled(bankDetails.getPayosEnabled());
         if (bankDetails.getEnableStaticQr() != null) config.setEnableStaticQr(bankDetails.getEnableStaticQr());
 
+        // Update Gmail SMTP credentials
+        if (bankDetails.getMailHost() != null && !bankDetails.getMailHost().isBlank()) {
+            config.setMailHost(bankDetails.getMailHost().trim());
+        }
+        if (bankDetails.getMailPort() != null && bankDetails.getMailPort() > 0) {
+            config.setMailPort(bankDetails.getMailPort());
+        }
+        if (bankDetails.getMailUsername() != null) {
+            config.setMailUsername(bankDetails.getMailUsername().trim());
+        }
+        if (bankDetails.getMailPassword() != null && !bankDetails.getMailPassword().isBlank()) {
+            config.setMailPassword(bankDetails.getMailPassword().trim());
+        }
+        if (bankDetails.getMailSenderName() != null) {
+            config.setMailSenderName(bankDetails.getMailSenderName().trim());
+        }
+        if (bankDetails.getMailEnabled() != null) {
+            config.setMailEnabled(bankDetails.getMailEnabled());
+        }
+
         return ResponseEntity.ok(bankConfigRepository.save(config));
+    }
+
+    @PostMapping("/test-email")
+    public ResponseEntity<?> testMailConnection(
+            @RequestHeader(value = "X-Admin-Auth", required = false) String adminAuth,
+            @RequestBody java.util.Map<String, String> body) {
+        if (!AdminSecurityUtil.isValidAdmin(adminAuth)) {
+            return ResponseEntity.status(403).body("Security Error: Only authenticated Admin can test email connection.");
+        }
+        String targetEmail = body != null ? body.get("targetEmail") : null;
+        return ResponseEntity.ok(emailService.testSendEmail(targetEmail));
     }
 }

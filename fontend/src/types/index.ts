@@ -85,6 +85,9 @@ export interface OrderItem {
   status: 'PENDING' | 'PAID' | 'CANCELLED';
   deliveredKey?: string;
   customerEmail?: string;
+  emailSent?: boolean;
+  emailSentAt?: string;
+  emailError?: string;
   createdAt?: string;
   paidAt?: string;
 }
@@ -119,6 +122,12 @@ export interface BankConfig {
   payosChecksumKey?: string;
   payosEnabled?: boolean;
   enableStaticQr?: boolean;
+  mailHost?: string;
+  mailPort?: number;
+  mailUsername?: string;
+  mailPassword?: string;
+  mailSenderName?: string;
+  mailEnabled?: boolean;
 }
 
 export interface CouponItem {
