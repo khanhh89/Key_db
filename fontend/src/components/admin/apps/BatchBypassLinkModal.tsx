@@ -191,7 +191,7 @@ export function BatchBypassLinkModal({
             </h3>
             <button
               type="button"
-              className="bg-transparent border-0 text-[#64748B] text-2xl cursor-pointer hover:text-[#1F2937] transition-colors"
+              className="bg-transparent border-0 text-[#64748B] text-2xl cursor-pointer hover:text-white transition-colors"
               onClick={onClose}
             >
               ×
@@ -265,7 +265,7 @@ export function BatchBypassLinkModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl border border-[#E5E7EB] bg-white text-[#1F2937] font-bold text-xs cursor-pointer hover:bg-[#334155] transition-all"
+              className="px-5 py-2.5 rounded-xl border border-[#E5E7EB] bg-white text-white font-bold text-xs cursor-pointer hover:bg-[#334155] transition-all"
             >
               {lang === 'vi' ? 'Hủy' : 'Cancel'}
             </button>
@@ -275,7 +275,7 @@ export function BatchBypassLinkModal({
                 type="button"
                 onClick={handleSaveAutoRotation}
                 disabled={isSyncing || parsedPoolCount === 0}
-                className="px-6 py-2.5 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(56,189,248,0.3)] transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 rounded-xl border-0 bg-[#2563EB] text-white font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(56,189,248,0.3)] transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSyncing ? (lang === 'vi' ? '⏳ Đang lưu...' : '⏳ Saving...') : `💾 ${lang === 'vi' ? 'Lưu & Bật Tự Động Xoay Link' : 'Save & Enable Auto Rotation'}`}
               </button>
@@ -284,7 +284,7 @@ export function BatchBypassLinkModal({
                 type="button"
                 onClick={handleSyncSingleLink}
                 disabled={isSyncing || !bypassLinkUrl.trim()}
-                className="px-6 py-2.5 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(56,189,248,0.3)] transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 rounded-xl border-0 bg-[#2563EB] text-white font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(56,189,248,0.3)] transition-all hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSyncing ? (lang === 'vi' ? '⏳ Đang lưu...' : '⏳ Saving...') : `✅ ${lang === 'vi' ? 'Lưu Link Cố Định' : 'Save Static Link'}`}
               </button>

@@ -160,7 +160,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
       {/* Header */}
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
-          <h2 className="text-2xl font-heading font-extrabold text-[#1F2937] m-0 flex items-center gap-2.5">
+          <h2 className="text-2xl font-heading font-extrabold text-white m-0 flex items-center gap-2.5">
             🚀 {lang === 'vi' ? 'Quản Lý Cổng Link Vượt (Bypass Gateway)' : 'Bypass Shortlink Gateway'}
           </h2>
           <p className="text-xs text-[#64748B] m-0 mt-1">
@@ -171,7 +171,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
         <button
           type="button"
           onClick={openAddModal}
-          className="bg-[#2563EB] text-[#1F2937] px-5 py-2.5 rounded-xl font-heading font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(14,165,233,0.35)] hover:brightness-110 transition-all flex items-center gap-2 border-0"
+          className="bg-[#2563EB] text-white px-5 py-2.5 rounded-xl font-heading font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(14,165,233,0.35)] hover:brightness-110 transition-all flex items-center gap-2 border-0"
         >
           + {lang === 'vi' ? 'Thêm Nhà Mạng Mới' : 'Add New Provider'}
         </button>
@@ -233,7 +233,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
       {/* Providers Table */}
       <div className="bg-white border border-[#E5E7EB] rounded-2xl overflow-hidden backdrop-blur-md">
         <div className="p-4 border-b border-white/10 flex justify-between items-center flex-wrap gap-2">
-          <h3 className="text-base font-heading font-extrabold text-[#1F2937] m-0 flex items-center gap-2">
+          <h3 className="text-base font-heading font-extrabold text-white m-0 flex items-center gap-2">
             🌐 {lang === 'vi' ? 'Danh Sách Nhà Cung Cấp API Rút Gọn' : 'Shortlink API Providers'}
           </h3>
           <span className="text-xs text-[#64748B]">
@@ -287,7 +287,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                           {p.isActive ? 'Hoạt động' : 'Tạm tắt'}
                         </span>
                       </td>
-                      <td className="p-3.5 font-bold text-[#1F2937]">
+                      <td className="p-3.5 font-bold text-white">
                         {p.name}
                       </td>
                       <td className="p-3.5 font-mono text-[#7dd3fc] truncate max-w-[200px]">
@@ -298,10 +298,10 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                       </td>
                       <td className="p-3.5">
                         <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-[#1F2937] text-xs">{weightPercent}%</span>
+                          <span className="font-extrabold text-white text-xs">{weightPercent}%</span>
                         </div>
                       </td>
-                      <td className="p-3.5 font-mono text-[#1F2937]">
+                      <td className="p-3.5 font-mono text-white">
                         {(p.totalClicks || 0).toLocaleString()}
                       </td>
                       <td className="p-3.5">
@@ -359,7 +359,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="bg-transparent border-0 text-[#64748B] text-2xl cursor-pointer hover:text-[#1F2937]"
+                  className="bg-transparent border-0 text-[#64748B] text-2xl cursor-pointer hover:text-white"
                 >
                   ×
                 </button>
@@ -368,7 +368,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
               <form onSubmit={handleSave} className="flex flex-col gap-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-[#1F2937]">
+                    <label className="text-xs font-bold text-white">
                       Tên Nhà Mạng (*):
                     </label>
                     <input
@@ -376,12 +376,12 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
                       placeholder="VD: Link1s VIP, Link4m, Yeumoney..."
-                      className="px-3.5 py-2.5 rounded-xl border border-[#2563EB] bg-[#F5F7FB] text-[#1F2937] text-xs outline-none focus:border-[#2563EB]"
+                      className="px-3.5 py-2.5 rounded-xl border border-[#2563EB] bg-[#F5F7FB] text-white text-xs outline-none focus:border-[#2563EB]"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-[#1F2937]">
+                    <label className="text-xs font-bold text-white">
                       Trọng số phân chia (%):
                     </label>
                     <input
@@ -391,13 +391,13 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                       value={formWeight}
                       onChange={(e) => setFormWeight(Number(e.target.value))}
                       placeholder="VD: 50, 30, 20"
-                      className="px-3.5 py-2.5 rounded-xl border border-[#2563EB] bg-[#F5F7FB] text-[#1F2937] text-xs outline-none focus:border-[#2563EB]"
+                      className="px-3.5 py-2.5 rounded-xl border border-[#2563EB] bg-[#F5F7FB] text-white text-xs outline-none focus:border-[#2563EB]"
                     />
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-[#1F2937]">
+                  <label className="text-xs font-bold text-white">
                     API Endpoint URL (*):
                   </label>
                   <input
@@ -405,7 +405,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                     value={formApiUrl}
                     onChange={(e) => setFormApiUrl(e.target.value)}
                     placeholder="https://link1s.com/api"
-                    className="px-3.5 py-2.5 rounded-xl border border-[#2563EB] bg-[#F5F7FB] text-[#1F2937] text-xs font-mono outline-none focus:border-[#2563EB]"
+                    className="px-3.5 py-2.5 rounded-xl border border-[#2563EB] bg-[#F5F7FB] text-white text-xs font-mono outline-none focus:border-[#2563EB]"
                   />
                   <small className="text-[11px] text-[#64748b]">
                     Hầu hết các trang rút gọn đều có endpoint dạng: https://domain.com/api
@@ -413,7 +413,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-[#1F2937]">
+                  <label className="text-xs font-bold text-white">
                     API Token / API Key (*):
                   </label>
                   <input
@@ -421,7 +421,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                     value={formApiToken}
                     onChange={(e) => setFormApiToken(e.target.value)}
                     placeholder="Nhập API Token lấy từ tài khoản của bạn..."
-                    className="px-3.5 py-2.5 rounded-xl border border-[#2563EB] bg-[#F5F7FB] text-[#1F2937] text-xs font-mono outline-none focus:border-[#2563EB]"
+                    className="px-3.5 py-2.5 rounded-xl border border-[#2563EB] bg-[#F5F7FB] text-white text-xs font-mono outline-none focus:border-[#2563EB]"
                   />
                 </div>
 
@@ -434,7 +434,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                       type="text"
                       value={formParamTokenName}
                       onChange={(e) => setFormParamTokenName(e.target.value)}
-                      className="px-3.5 py-2 rounded-xl border border-white/10 bg-[#F5F7FB] text-[#1F2937] text-xs font-mono outline-none"
+                      className="px-3.5 py-2 rounded-xl border border-white/10 bg-[#F5F7FB] text-white text-xs font-mono outline-none"
                     />
                   </div>
 
@@ -446,7 +446,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                       type="text"
                       value={formParamUrlName}
                       onChange={(e) => setFormParamUrlName(e.target.value)}
-                      className="px-3.5 py-2 rounded-xl border border-white/10 bg-[#F5F7FB] text-[#1F2937] text-xs font-mono outline-none"
+                      className="px-3.5 py-2 rounded-xl border border-white/10 bg-[#F5F7FB] text-white text-xs font-mono outline-none"
                     />
                   </div>
                 </div>
@@ -461,7 +461,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                       min="1"
                       value={formWeight}
                       onChange={(e) => setFormWeight(e.target.value === '' ? '' : Number(e.target.value))}
-                      className="px-3.5 py-2 rounded-xl border border-white/10 bg-[#F5F7FB] text-[#1F2937] text-xs font-mono outline-none"
+                      className="px-3.5 py-2 rounded-xl border border-white/10 bg-[#F5F7FB] text-white text-xs font-mono outline-none"
                     />
                   </div>
 
@@ -475,7 +475,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                       max="10"
                       value={formBypassSteps}
                       onChange={(e) => setFormBypassSteps(e.target.value === '' ? '' : Number(e.target.value))}
-                      className="px-3.5 py-2 rounded-xl border border-white/10 bg-[#F5F7FB] text-[#1F2937] text-xs font-mono outline-none"
+                      className="px-3.5 py-2 rounded-xl border border-white/10 bg-[#F5F7FB] text-white text-xs font-mono outline-none"
                     />
                   </div>
                 </div>
@@ -487,7 +487,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                     onChange={(e) => setFormIsActive(e.target.checked)}
                     className="w-4 h-4 accent-[#38bdf8] cursor-pointer"
                   />
-                  <span className="text-xs font-bold text-[#1F2937] cursor-pointer" onClick={() => setFormIsActive(!formIsActive)}>
+                  <span className="text-xs font-bold text-white cursor-pointer" onClick={() => setFormIsActive(!formIsActive)}>
                     Bật kích hoạt nhà mạng này trong hệ thống xoay link
                   </span>
                 </div>
@@ -516,7 +516,7 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                     >
                       <div className="font-bold">{testResult.message}</div>
                       {testResult.shortenedUrl && (
-                        <div className="font-mono text-[#1F2937] text-[11px] break-all">
+                        <div className="font-mono text-white text-[11px] break-all">
                           Link mẫu: {testResult.shortenedUrl} ({testResult.responseTimeMs}ms)
                         </div>
                       )}
@@ -529,14 +529,14 @@ export function ShortlinkGatewayPage({ lang, showToast }: ShortlinkGatewayPagePr
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-white text-[#1F2937] font-bold text-xs cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-white text-white font-bold text-xs cursor-pointer"
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="px-6 py-2.5 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:brightness-110 transition-all disabled:opacity-50"
+                    className="px-6 py-2.5 rounded-xl border-0 bg-[#2563EB] text-white font-extrabold text-xs cursor-pointer shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:brightness-110 transition-all disabled:opacity-50"
                   >
                     {isSaving ? '⏳ Đang lưu...' : '💾 Lưu Nhà Mạng'}
                   </button>

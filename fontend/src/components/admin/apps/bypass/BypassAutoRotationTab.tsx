@@ -70,7 +70,7 @@ export function BypassAutoRotationTab({
       {/* Textarea for 2-3 links */}
       <div className="flex flex-col gap-1.5">
         <div className="flex justify-between items-center">
-          <label className="text-xs font-bold text-[#1F2937]">
+          <label className="text-xs font-bold text-white">
             📝 {lang === 'vi' ? 'Dán danh sách 2 - 3 Link Vượt (Mỗi dòng 1 link):' : 'Paste 2 - 3 Bypass Links (1 per line):'}
           </label>
           <span className="text-[11px] font-bold" style={{ color: parsedPoolCount >= 2 ? '#22c55e' : '#94a3b8' }}>
@@ -83,7 +83,7 @@ export function BypassAutoRotationTab({
           value={linkPoolText}
           onChange={(e) => setLinkPoolText(e.target.value)}
           placeholder={`https://link1s.com/link-1\nhttps://link4m.co/link-2\nhttps://yeumoney.com/link-3`}
-          className="w-full p-3 rounded-xl border border-[#2563EB] bg-[#F5F7FB] text-[#1F2937] text-xs font-mono leading-relaxed outline-none resize-y"
+          className="w-full p-3 rounded-xl border border-[#2563EB] bg-[#F5F7FB] text-white text-xs font-mono leading-relaxed outline-none resize-y"
         />
         <div className="text-[11px] text-[#64748b]">
           💡 {lang === 'vi'
@@ -94,7 +94,7 @@ export function BypassAutoRotationTab({
 
       {/* Rotation Strategy Options */}
       <div className="bg-[#0b1329] border border-[#E5E7EB] rounded-[14px] p-3.5 flex flex-col gap-3">
-        <div className="text-xs font-bold text-[#1F2937]">
+        <div className="text-xs font-bold text-white">
           ⚙️ {lang === 'vi' ? 'Chế độ xoay link:' : 'Rotation Strategy:'}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">

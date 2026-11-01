@@ -37,7 +37,7 @@ export function OrderPayosConfig({
       <form onSubmit={handleSaveConfig} className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-170px)] pr-1">
         <div className="bg-[#2563EB]/[0.08] border border-[#2563EB] p-[16px_20px] rounded-[14px]">
           <label className="flex items-center gap-3 cursor-pointer">
-            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
+            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
               type="checkbox"
               checked={payosEnabled}
               onChange={(e) => {
@@ -52,7 +52,7 @@ export function OrderPayosConfig({
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-[#64748B]">Client ID (Mã Client ID từ PayOS Dashboard):</label>
-            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
+            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
               type="text"
               value={payosClientId}
               onChange={(e) => setPayosClientId(e.target.value)}
@@ -61,7 +61,7 @@ export function OrderPayosConfig({
 
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-[#64748B]">API Key (Mã API Key từ PayOS Dashboard):</label>
-            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
+            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
               type="password"
               value={payosApiKey}
               onChange={(e) => setPayosApiKey(e.target.value)}
@@ -70,7 +70,7 @@ export function OrderPayosConfig({
 
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-[#64748B]">Checksum Key (Mã Checksum Signature):</label>
-            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
+            <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
               type="password"
               value={payosChecksumKey}
               onChange={(e) => setPayosChecksumKey(e.target.value)}
@@ -85,7 +85,7 @@ export function OrderPayosConfig({
 
         <button
           type="button"
-          className="px-6 py-3 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)] mt-2 w-fit"
+          className="px-6 py-3 rounded-xl border-0 bg-[#2563EB] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)] mt-2 w-fit"
           disabled={isSaving}
           onClick={() => handleSaveConfig()}
         >

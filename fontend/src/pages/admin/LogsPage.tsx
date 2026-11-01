@@ -166,7 +166,7 @@ export function LogsPage({ lang, showToast }: LogsPageProps) {
 
       {/* Search Input Bar */}
       <div className="mb-5">
-        <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
+        <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}

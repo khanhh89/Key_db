@@ -162,7 +162,7 @@ export function DashboardPage({
         </div>
         <div className="flex gap-4 items-center flex-wrap z-10">
           <button 
-            className="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[#1F2937] font-semibold text-sm cursor-pointer transition-all duration-300 flex items-center gap-2 hover:-translate-y-1 hover:shadow-lg backdrop-blur-md" 
+            className="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm cursor-pointer transition-all duration-300 flex items-center gap-2 hover:-translate-y-1 hover:shadow-lg backdrop-blur-md" 
             onClick={exportDashboardCSV}
           >
             📊 {lang === 'vi' ? 'Xuất Báo Cáo CSV' : 'Export CSV Report'}
@@ -176,7 +176,7 @@ export function DashboardPage({
 
       {/* Date Filter Bar */}
       <div className="flex flex-col md:flex-row md:items-center gap-4 bg-white border border-[#E5E7EB] rounded-2xl p-4 backdrop-blur-md">
-        <span className="text-sm font-bold text-[#1F2937] px-2 whitespace-nowrap">🗓️ {lang === 'vi' ? 'Thời gian thống kê:' : 'Stats Filter:'}</span>
+        <span className="text-sm font-bold text-white px-2 whitespace-nowrap">🗓️ {lang === 'vi' ? 'Thời gian thống kê:' : 'Stats Filter:'}</span>
         <div className="flex flex-wrap gap-2">
           {['ALL', 'TODAY', '7DAYS', '30DAYS'].map((filter) => {
             const labels: any = { ALL: 'Tất cả', TODAY: 'Hôm nay (24h)', '7DAYS': '7 ngày qua', '30DAYS': '30 ngày qua' };
@@ -187,7 +187,7 @@ export function DashboardPage({
                 key={filter}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${
                   isActive 
-                  ? 'bg-[#2563EB] text-[#1F2937] shadow-[0_4px_12px_rgba(56,189,248,0.4)] border-0' 
+                  ? 'bg-[#2563EB] text-white shadow-[0_4px_12px_rgba(56,189,248,0.4)] border-0' 
                   : 'bg-white text-[#64748B] border border-[#E5E7EB] hover:bg-white hover:text-[#64748B]'
                 }`}
                 onClick={() => setDateFilter(filter as DateFilterMode)}
@@ -227,7 +227,7 @@ export function DashboardPage({
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <h3 className="m-0 text-base md:text-lg font-bold text-[#1F2937]">
+              <h3 className="m-0 text-base md:text-lg font-bold text-white">
                 {lang === 'vi' ? 'AI UX Intelligence & Phân Tích Khó Khăn Người Dùng' : 'AI UX Intelligence & Friction Analytics'}
               </h3>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/30">
@@ -244,7 +244,7 @@ export function DashboardPage({
 
         <button
           onClick={() => navigate('/admin/ai-analytics')}
-          className="px-5 py-3 rounded-xl bg-[#2563EB] hover:from-[#7c3aed] hover:to-[#4f46e5] text-[#1F2937] font-bold text-xs tracking-wide cursor-pointer transition-all duration-300 shadow-[0_4px_15px_rgba(139,92,246,0.3)] flex items-center gap-2 shrink-0 z-10 hover:-translate-y-0.5"
+          className="px-5 py-3 rounded-xl bg-[#2563EB] hover:from-[#7c3aed] hover:to-[#4f46e5] text-white font-bold text-xs tracking-wide cursor-pointer transition-all duration-300 shadow-[0_4px_15px_rgba(139,92,246,0.3)] flex items-center gap-2 shrink-0 z-10 hover:-translate-y-0.5"
         >
           <span>🚀</span>
           <span>{lang === 'vi' ? 'Mở Trung Tâm AI Phân Tích' : 'Open AI Analytics Center'}</span>
@@ -276,7 +276,7 @@ export function DashboardPage({
             >
               <span className="w-10 h-10 rounded-xl bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">📱</span>
               <div className="flex flex-col">
-                <strong className="text-sm text-[#1F2937]">{lang === 'vi' ? 'Catalog Apps' : 'Catalog Apps'}</strong>
+                <strong className="text-sm text-white">{lang === 'vi' ? 'Catalog Apps' : 'Catalog Apps'}</strong>
                 <small className="text-[11px] text-[#64748B] mt-0.5">{lang === 'vi' ? 'Quản lý App & Link' : 'Edit Apps & Links'}</small>
               </div>
             </button>
@@ -286,7 +286,7 @@ export function DashboardPage({
             >
               <span className="w-10 h-10 rounded-xl bg-[#a855f7]/10 text-[#a855f7] flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">🔑</span>
               <div className="flex flex-col">
-                <strong className="text-sm text-[#1F2937]">{lang === 'vi' ? 'Kho Key VIP' : 'VIP Keys'}</strong>
+                <strong className="text-sm text-white">{lang === 'vi' ? 'Kho Key VIP' : 'VIP Keys'}</strong>
                 <small className="text-[11px] text-[#64748B] mt-0.5">{lang === 'vi' ? 'Nhập Key hàng loạt' : 'Bulk Import Keys'}</small>
               </div>
             </button>

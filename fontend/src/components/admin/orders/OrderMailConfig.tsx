@@ -70,7 +70,7 @@ export function OrderMailConfig({
         <div className="bg-[#2563EB]/[0.08] border border-[#2563EB] p-[16px_20px] rounded-[14px]">
           <label className="flex items-center gap-3 cursor-pointer">
             <input
-              className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
+              className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
               type="checkbox"
               checked={mailEnabled}
               onChange={(e) => {
@@ -89,7 +89,7 @@ export function OrderMailConfig({
               {lang === 'vi' ? 'Địa Chỉ Gmail Gửi Đi (Username):' : 'Sender Gmail Address:'}
             </label>
             <input
-              className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
+              className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
               type="email"
               placeholder="vidu@gmail.com"
               value={mailUsername}
@@ -115,7 +115,7 @@ export function OrderMailConfig({
               </button>
             </div>
             <input
-              className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20 font-mono tracking-wider"
+              className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20 font-mono tracking-wider"
               type={showPassword ? 'text' : 'password'}
               placeholder="xxxx xxxx xxxx xxxx"
               value={mailPassword}
@@ -133,7 +133,7 @@ export function OrderMailConfig({
             {lang === 'vi' ? 'Tên Người Gửi Hiển Thị Trong Hộp Thư:' : 'Sender Display Name:'}
           </label>
           <input
-            className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
+            className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
             type="text"
             placeholder="MOD VIP STORE"
             value={mailSenderName}
@@ -142,7 +142,7 @@ export function OrderMailConfig({
         </div>
 
         {/* STEP-BY-STEP INSTRUCTION BOX */}
-        <div className="bg-[#2563EB]/[0.05] border border-[#2563EB]/20 rounded-xl p-4 text-[12.5px] text-[#1F2937] leading-relaxed">
+        <div className="bg-[#2563EB]/[0.05] border border-[#2563EB]/20 rounded-xl p-4 text-[12.5px] text-white leading-relaxed">
           <strong className="text-[#2563EB] flex items-center gap-1.5 mb-2 font-bold text-sm">
             <span>💡</span>
             <span>{lang === 'vi' ? 'Cách lấy Mật khẩu ứng dụng Google 16 ký tự trong 30 giây:' : 'How to get a Google App Password:'}</span>
@@ -180,7 +180,7 @@ export function OrderMailConfig({
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-[#64748B]">SMTP Host:</label>
                 <input
-                  className="px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none"
+                  className="px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none"
                   type="text"
                   value={mailHost}
                   onChange={(e) => setMailHost(e.target.value)}
@@ -189,7 +189,7 @@ export function OrderMailConfig({
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-[#64748B]">SMTP Port (TLS):</label>
                 <input
-                  className="px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none"
+                  className="px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none"
                   type="number"
                   value={mailPort}
                   onChange={(e) => setMailPort(Number(e.target.value) || 587)}
@@ -219,7 +219,7 @@ export function OrderMailConfig({
               placeholder={lang === 'vi' ? 'Nhập email nhận thư test...' : 'Test receiver email...'}
               value={testEmail}
               onChange={(e) => setTestEmail(e.target.value)}
-              className="px-3 py-2 rounded-lg border-0 bg-transparent text-[#1F2937] text-xs outline-none flex-1"
+              className="px-3 py-2 rounded-lg border-0 bg-transparent text-white text-xs outline-none flex-1"
             />
             <button
               type="button"

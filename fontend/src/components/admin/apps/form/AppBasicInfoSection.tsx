@@ -50,7 +50,7 @@ export function AppBasicInfoSection({
             {lang === 'vi' ? 'Tên App (*):' : 'App Name (*):'}
           </label>
           <input
-            className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
+            className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
             type="text"
             ref={appNameInputRef}
             value={appName}
@@ -64,7 +64,7 @@ export function AppBasicInfoSection({
             {lang === 'vi' ? 'Tên Game / Subtitle (*):' : 'Sub Title (*):'}
           </label>
           <input
-            className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
+            className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
             type="text"
             value={appSub}
             placeholder={lang === 'vi' ? 'VD: Hack Map + Cam Xa + Skin' : 'e.g. Map Hack + Drone View'}
@@ -119,7 +119,7 @@ export function AppBasicInfoSection({
                   🔗 {lang === 'vi' ? 'Link Vượt Riêng (Tùy chọn - Mở thẳng trang web bên ngoài):' : 'Custom Bypass URL (Optional - Opens external site):'}
                 </label>
                 <input
-                  className="px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
+                  className="px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
                   type="text"
                   value={appCustomBypassUrl}
                   placeholder="https://link4m.co/st?api=..."

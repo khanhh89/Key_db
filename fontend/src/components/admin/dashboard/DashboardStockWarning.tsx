@@ -44,11 +44,11 @@ export function DashboardStockWarning({ lang, lowOrOutStockApps, renderAppIcon }
         {lowOrOutStockApps.map((item) => (
           <div key={item.app.id} className={`flex items-center justify-between p-4 rounded-[12px] border bg-white ${item.isOut ? 'border-[#FECACA]' : 'border-[#FDE68A]'}`}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#F1F5F9] flex items-center justify-center border border-[#E2E8F0] shrink-0 text-[#1E293B]">
+              <div className="w-10 h-10 rounded-lg bg-[#F1F5F9] flex items-center justify-center border border-[#E2E8F0] shrink-0 text-white">
                 {renderAppIcon(item.app.icon)}
               </div>
               <div className="flex flex-col min-w-0">
-                <strong className="text-[#1E293B] text-sm truncate max-w-[120px]">{item.app.name}</strong>
+                <strong className="text-white text-sm truncate max-w-[120px]">{item.app.name}</strong>
                 <span className="text-xs text-[#64748B] truncate max-w-[120px]">{item.app.sub || 'VIP APP'}</span>
               </div>
             </div>

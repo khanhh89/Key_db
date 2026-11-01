@@ -14,9 +14,9 @@ export function DashboardRecentOrders({ lang, recentOrders, isLoading }: Dashboa
   return (
     <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-7 flex flex-col gap-6 backdrop-blur-md shadow-lg flex-1">
       <div className="flex justify-between items-center flex-wrap gap-4">
-        <h2 className="m-0 text-lg font-bold text-[#1F2937] flex items-center gap-2">📋 {lang === 'vi' ? 'Đơn Hàng Gần Đây' : 'Recent Transactions'}</h2>
+        <h2 className="m-0 text-lg font-bold text-white flex items-center gap-2">📋 {lang === 'vi' ? 'Đơn Hàng Gần Đây' : 'Recent Transactions'}</h2>
         <button
-          className="bg-transparent hover:bg-white/5 border border-white/10 text-[#64748B] hover:text-[#1F2937] px-4 py-2 rounded-lg font-bold text-xs cursor-pointer transition-colors border-0"
+          className="bg-transparent hover:bg-white/5 border border-white/10 text-[#64748B] hover:text-white px-4 py-2 rounded-lg font-bold text-xs cursor-pointer transition-colors border-0"
           onClick={() => navigate('/admin/orders')}
         >
           {lang === 'vi' ? 'Xem Tất Cả ➔' : 'View All ➔'}
@@ -40,12 +40,12 @@ export function DashboardRecentOrders({ lang, recentOrders, isLoading }: Dashboa
                   {o.status === 'PAID' ? '✓ PAID' : '⏳ PENDING'}
                 </span>
                 <div className="flex flex-col">
-                  <strong className="text-sm text-[#1E293B] font-mono">{o.id}</strong>
+                  <strong className="text-sm text-white font-mono">{o.id}</strong>
                   <small className="text-[11px] text-[#64748B] truncate max-w-[150px]">{o.appName || o.appId}</small>
                 </div>
               </div>
               <div className="flex flex-col items-end">
-                <span className="text-sm font-bold text-[#1E293B]">{o.amount.toLocaleString('vi-VN')} VNĐ</span>
+                <span className="text-sm font-bold text-white">{o.amount.toLocaleString('vi-VN')} VNĐ</span>
                 <small className="text-[10px] text-[#94A3B8]">{o.createdAt ? formatDateTime(o.createdAt) : ''}</small>
               </div>
             </div>

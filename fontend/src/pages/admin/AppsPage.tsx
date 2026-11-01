@@ -70,7 +70,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
               onClick={() => setIsBatchFreeKeyOpen(true)}>
               🔑 {lang === 'vi' ? 'Sync Key Free' : 'Sync Free Key'}
             </button>
-            <button className="bg-[#2563EB] border-0 text-[#1F2937] px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={openNewAppModal}>
+            <button className="bg-[#2563EB] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]" onClick={openNewAppModal}>
               + {lang === 'vi' ? 'Thêm App Mới' : 'Add New App'}
             </button>
           </div>
@@ -94,17 +94,17 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
             <tbody>
               {apps.map(app => (
                 <tr key={app.id}>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">
                     <div className={`w-[46px] h-[46px] shrink-0 flex items-center justify-center rounded-xl bg-white border border-[#E5E7EB] overflow-hidden ${app.cls || ''}`}>
                       {app.icon && (app.icon.startsWith('http://') || app.icon.startsWith('https://') || app.icon.startsWith('data:image/') || app.icon.startsWith('/')) ? (
                         <LazyImage src={app.icon} alt={app.name} className="w-full h-full object-cover" />
                       ) : <span className="text-xl">{app.icon}</span>}
                     </div>
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]"><strong>{app.name}</strong></td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">{app.sub}</td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white"><strong>{app.name}</strong></td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">{app.sub}</td>
                   <td className="note-cell" dangerouslySetInnerHTML={{ __html: app.note || '' }}></td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">
                     <button type="button" onClick={() => toggleSellKeyStatus(app)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
                       {app.allowSellKey !== false ? (
                         <span className="inline-block px-[10px] py-1 rounded-lg font-bold text-[11px]" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>🟢 {lang === 'vi' ? 'Bật Bán' : 'Enabled'}</span>
@@ -113,7 +113,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                       )}
                     </button>
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">
                     <button type="button" onClick={() => toggleFreeKeyStatus(app)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
                       {app.allowFreeKey !== false ? (
                         <span className="inline-block px-[10px] py-1 rounded-lg font-bold text-[11px]" style={{ background: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.3)' }}>🟢 {lang === 'vi' ? 'Bật Free' : 'Enabled'}</span>
@@ -122,7 +122,7 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                       )}
                     </button>
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">
                     {app.shots && app.shots.length > 0 ? (
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
                         {app.shots.map((s, idx) => {
@@ -136,10 +136,10 @@ export function AppsPage({ lang, apps, setApps, config, showToast }: AppsPagePro
                       </div>
                     ) : <small className="text-[#64748b]">-</small>}
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">
                     <div className="flex items-center gap-2">
-                      <button className="bg-[#2563EB]/12 text-[#2563EB] border border-[#2563EB] px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#2563EB] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]" onClick={() => openEditAppModal(app)}>✎ {lang === 'vi' ? 'Sửa' : 'Edit'}</button>
-                      <button className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-[#1F2937] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]" onClick={() => setDeletingApp({ id: app.id, name: app.name })}>🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}</button>
+                      <button className="bg-[#2563EB]/12 text-[#2563EB] border border-[#2563EB] px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#2563EB] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]" onClick={() => openEditAppModal(app)}>✎ {lang === 'vi' ? 'Sửa' : 'Edit'}</button>
+                      <button className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]" onClick={() => setDeletingApp({ id: app.id, name: app.name })}>🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}</button>
                     </div>
                   </td>
                 </tr>

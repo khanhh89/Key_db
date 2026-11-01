@@ -341,7 +341,7 @@ ${activeReport.recommendations}
         <div className="flex items-center gap-3 flex-wrap z-10">
           <button
             onClick={openQuickConfigModal}
-            className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-[#1F2937] font-bold text-sm cursor-pointer transition-all duration-300 flex items-center gap-2 hover:-translate-y-0.5 shadow-lg backdrop-blur-md"
+            className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm cursor-pointer transition-all duration-300 flex items-center gap-2 hover:-translate-y-0.5 shadow-lg backdrop-blur-md"
             title="Gắn API Key và thay đổi phiên bản Gemini Model"
           >
             <span>🔑</span>
@@ -351,7 +351,7 @@ ${activeReport.recommendations}
           <button
             onClick={handleRunAnalysis}
             disabled={isAnalyzing}
-            className={`px-6 py-3.5 rounded-2xl font-bold text-sm text-[#1F2937] shadow-[0_4px_20px_rgba(139,92,246,0.4)] transition-all duration-300 flex items-center gap-2.5 cursor-pointer hover:-translate-y-0.5 ${
+            className={`px-6 py-3.5 rounded-2xl font-bold text-sm text-white shadow-[0_4px_20px_rgba(139,92,246,0.4)] transition-all duration-300 flex items-center gap-2.5 cursor-pointer hover:-translate-y-0.5 ${
               isAnalyzing
                 ? 'bg-[#2563EB] opacity-80 cursor-wait animate-pulse'
                 : 'bg-gradient-to-r from-[#8b5cf6] via-[#6366f1] to-[#38bdf8] hover:shadow-[0_6px_25px_rgba(139,92,246,0.6)]'
@@ -373,7 +373,7 @@ ${activeReport.recommendations}
           {activeReport && (
             <button
               onClick={handleExportMarkdown}
-              className="px-4 py-3.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-[#1F2937] font-semibold text-sm cursor-pointer transition-all duration-300 flex items-center gap-2 hover:-translate-y-0.5"
+              className="px-4 py-3.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm cursor-pointer transition-all duration-300 flex items-center gap-2 hover:-translate-y-0.5"
               title="Xuất file Markdown"
             >
               <span>📥</span>
@@ -391,7 +391,7 @@ ${activeReport.recommendations}
             onClick={() => setActiveTab('OVERVIEW')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer flex items-center gap-2 ${
               activeTab === 'OVERVIEW'
-                ? 'bg-[#2563EB] text-[#1F2937] shadow-[0_4px_12px_rgba(139,92,246,0.35)]'
+                ? 'bg-[#2563EB] text-white shadow-[0_4px_12px_rgba(139,92,246,0.35)]'
                 : 'bg-white text-[#64748B] hover:bg-white hover:text-[#64748B]'
             }`}
           >
@@ -403,7 +403,7 @@ ${activeReport.recommendations}
             onClick={() => setActiveTab('HISTORY')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer flex items-center gap-2 ${
               activeTab === 'HISTORY'
-                ? 'bg-[#2563EB] text-[#1F2937] shadow-[0_4px_12px_rgba(139,92,246,0.35)]'
+                ? 'bg-[#2563EB] text-white shadow-[0_4px_12px_rgba(139,92,246,0.35)]'
                 : 'bg-white text-[#64748B] hover:bg-white hover:text-[#64748B]'
             }`}
           >
@@ -415,7 +415,7 @@ ${activeReport.recommendations}
             onClick={() => setActiveTab('SETTINGS')}
             className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer flex items-center gap-2 ${
               activeTab === 'SETTINGS'
-                ? 'bg-[#2563EB] text-[#1F2937] shadow-[0_4px_12px_rgba(139,92,246,0.35)]'
+                ? 'bg-[#2563EB] text-white shadow-[0_4px_12px_rgba(139,92,246,0.35)]'
                 : 'bg-white text-[#64748B] hover:bg-white hover:text-[#64748B]'
             }`}
           >
@@ -442,8 +442,8 @@ ${activeReport.recommendations}
                 onClick={() => setTimeframe(tf)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all duration-200 ${
                   isSelected
-                    ? 'bg-[#2563EB] text-[#0f172a] font-bold shadow-[0_0_10px_rgba(56,189,248,0.4)]'
-                    : 'text-[#64748B] hover:text-[#1F2937] hover:bg-white/5'
+                    ? 'bg-[#2563EB] text-white font-bold shadow-[0_0_10px_rgba(56,189,248,0.4)]'
+                    : 'text-[#64748B] hover:text-white hover:bg-white/5'
                 }`}
               >
                 {lang === 'vi' ? labels[tf] : labelsEn[tf]}
@@ -508,7 +508,7 @@ ${activeReport.recommendations}
               <div className="my-2 flex flex-col gap-1">
                 <div className="flex justify-between items-center text-sm font-semibold">
                   <span className="text-[#10b981]">✓ Thành công (Paid):</span>
-                  <strong className="text-[#1F2937]">{metrics?.paidOrders ?? 0} ({metrics?.conversionRate ?? 0}%)</strong>
+                  <strong className="text-white">{metrics?.paidOrders ?? 0} ({metrics?.conversionRate ?? 0}%)</strong>
                 </div>
                 <div className="w-full bg-white h-2 rounded-full overflow-hidden flex">
                   <div
@@ -522,7 +522,7 @@ ${activeReport.recommendations}
                 </div>
                 <div className="flex justify-between items-center text-sm font-semibold mt-1">
                   <span className="text-[#f87171]">⚠️ Bỏ dở (Drop-off):</span>
-                  <strong className="text-[#1F2937]">{metrics?.pendingOrders ?? 0} ({metrics?.abandonmentRate ?? 0}%)</strong>
+                  <strong className="text-white">{metrics?.pendingOrders ?? 0} ({metrics?.abandonmentRate ?? 0}%)</strong>
                 </div>
               </div>
 
@@ -545,7 +545,7 @@ ${activeReport.recommendations}
 
               <div className="my-2 flex flex-col gap-2">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-extrabold text-[#1F2937]">{metrics?.uniqueDevices ?? 0}</span>
+                  <span className="text-3xl font-extrabold text-white">{metrics?.uniqueDevices ?? 0}</span>
                   <span className="text-xs text-[#64748B]">{lang === 'vi' ? 'thiết bị độc nhất' : 'unique devices'}</span>
                 </div>
 
@@ -563,7 +563,7 @@ ${activeReport.recommendations}
 
               <div className="pt-2 border-t border-[#E5E7EB] flex justify-between items-center text-xs text-[#64748B]">
                 <span>{lang === 'vi' ? 'Tổng lượt xem trang:' : 'Page views:'}</span>
-                <strong className="text-[#1F2937] font-mono">{metrics?.totalPageViews ?? 0}</strong>
+                <strong className="text-white font-mono">{metrics?.totalPageViews ?? 0}</strong>
               </div>
             </div>
 
@@ -627,7 +627,7 @@ ${activeReport.recommendations}
                     }}
                   >
                     <div className="flex justify-between items-start gap-2">
-                      <strong className="text-xs text-[#1F2937] leading-snug">{fp.title}</strong>
+                      <strong className="text-xs text-white leading-snug">{fp.title}</strong>
                       <span
                         className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase shrink-0"
                         style={{
@@ -663,7 +663,7 @@ ${activeReport.recommendations}
                   🧠
                 </div>
                 <div>
-                  <h3 className="m-0 text-xl font-bold text-[#1F2937] flex items-center gap-2">
+                  <h3 className="m-0 text-xl font-bold text-white flex items-center gap-2">
                     {lang === 'vi' ? 'Bản Đồ Phân Tích Chiến Lược Của AI' : 'AI Strategic Insight & Recommendations'}
                   </h3>
                   <p className="m-0 text-xs text-[#64748B] mt-0.5">
@@ -693,12 +693,12 @@ ${activeReport.recommendations}
                     ? '🎯 Nhập yêu cầu tập trung riêng cho AI (Ví dụ: "Tập trung phân tích vì sao đơn bị hủy nhiều nhất vào buổi tối")...'
                     : '🎯 Optional AI focus (e.g., "Analyze why checkout drops happen at night")...'
                 }
-                className="flex-1 bg-transparent border-0 text-xs md:text-sm text-[#1F2937] outline-none px-2"
+                className="flex-1 bg-transparent border-0 text-xs md:text-sm text-white outline-none px-2"
               />
               <button
                 onClick={handleRunAnalysis}
                 disabled={isAnalyzing}
-                className="px-4 py-2 rounded-xl bg-[#6366f1] hover:bg-[#4f46e5] text-[#1F2937] text-xs font-bold cursor-pointer transition-colors whitespace-nowrap"
+                className="px-4 py-2 rounded-xl bg-[#6366f1] hover:bg-[#4f46e5] text-white text-xs font-bold cursor-pointer transition-colors whitespace-nowrap"
               >
                 {lang === 'vi' ? 'Phân Tích Với Yêu Cầu Này' : 'Analyze With Focus'}
               </button>
@@ -713,7 +713,7 @@ ${activeReport.recommendations}
                     <span>📌</span>
                     <span>{lang === 'vi' ? 'Tóm Tắt Điều Hành' : 'Executive Summary'}</span>
                   </h4>
-                  <p className="m-0 text-sm text-[#1F2937] leading-relaxed font-medium">
+                  <p className="m-0 text-sm text-white leading-relaxed font-medium">
                     {activeReport.summary}
                   </p>
                 </div>
@@ -764,7 +764,7 @@ ${activeReport.recommendations}
                 </p>
                 <button
                   onClick={handleRunAnalysis}
-                  className="mt-2 px-5 py-2.5 rounded-xl bg-[#8b5cf6] text-[#1F2937] font-bold text-xs cursor-pointer hover:bg-[#7c3aed] transition-colors"
+                  className="mt-2 px-5 py-2.5 rounded-xl bg-[#8b5cf6] text-white font-bold text-xs cursor-pointer hover:bg-[#7c3aed] transition-colors"
                 >
                   🚀 {lang === 'vi' ? 'Phân Tích Ngay' : 'Run Analysis Now'}
                 </button>
@@ -779,7 +779,7 @@ ${activeReport.recommendations}
         <div className="bg-white border border-[#E5E7EB] rounded-2xl p-6 backdrop-blur-md flex flex-col gap-4">
           <div className="flex justify-between items-center flex-wrap gap-3">
             <div>
-              <h3 className="m-0 text-lg font-bold text-[#1F2937]">📜 {lang === 'vi' ? 'Lịch Sử Các Lần Phân Tích AI' : 'AI Analysis Reports Archive'}</h3>
+              <h3 className="m-0 text-lg font-bold text-white">📜 {lang === 'vi' ? 'Lịch Sử Các Lần Phân Tích AI' : 'AI Analysis Reports Archive'}</h3>
               <p className="m-0 text-xs text-[#64748B] mt-1">
                 {lang === 'vi'
                   ? 'Xem lại các báo cáo đã phân tích trong quá khứ để theo dõi sự cải thiện của hệ thống.'
@@ -818,7 +818,7 @@ ${activeReport.recommendations}
                     return (
                       <tr key={r.id} className="border-b border-[#E5E7EB] hover:bg-white/[0.02] transition-colors">
                         <td className="p-3.5 font-mono text-[#64748B]">#{r.id}</td>
-                        <td className="p-3.5 text-[#1F2937] font-semibold">{formatDateTime(r.createdAt)}</td>
+                        <td className="p-3.5 text-white font-semibold">{formatDateTime(r.createdAt)}</td>
                         <td className="p-3.5">
                           <span className="px-2 py-0.5 rounded bg-white/10 text-[#64748B] font-bold">
                             {r.scope}
@@ -882,7 +882,7 @@ ${activeReport.recommendations}
       {activeTab === 'SETTINGS' && (
         <div className="bg-white border border-[#E5E7EB] rounded-3xl p-6 md:p-8 backdrop-blur-md flex flex-col gap-6 max-w-3xl">
           <div>
-            <h3 className="m-0 text-xl font-bold text-[#1F2937] flex items-center gap-2">
+            <h3 className="m-0 text-xl font-bold text-white flex items-center gap-2">
               ⚙️ {lang === 'vi' ? 'Cấu Hình Google Gemini AI & Engine Phân Tích' : 'AI Engine & Gemini API Configuration'}
             </h3>
             <p className="m-0 text-xs text-[#64748B] mt-1 leading-relaxed">
@@ -896,7 +896,7 @@ ${activeReport.recommendations}
           <div className="p-4 rounded-2xl border flex items-center gap-3 bg-white border-white/10">
             <span className="text-2xl">{aiConfig?.hasApiKey ? '🟢' : '🟡'}</span>
             <div className="flex flex-col text-xs">
-              <strong className="text-[#1F2937] text-sm">
+              <strong className="text-white text-sm">
                 {aiConfig?.hasApiKey
                   ? (lang === 'vi' ? 'Đã kích hoạt Google Gemini AI' : 'Google Gemini AI Connected')
                   : (lang === 'vi' ? 'Đang chạy chế độ Smart Heuristic Engine (Mặc định)' : 'Running Built-in Smart Heuristic')}
@@ -928,12 +928,12 @@ ${activeReport.recommendations}
                   value={apiKeyInput}
                   onChange={(e) => setApiKeyInput(e.target.value)}
                   placeholder="Dán mã API Key tại đây (bắt đầu bằng AIzaSy...)"
-                  className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] text-sm outline-none focus:border-[#8b5cf6] focus:ring-2 focus:ring-[#8b5cf6]/20 font-mono pr-12"
+                  className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white text-sm outline-none focus:border-[#8b5cf6] focus:ring-2 focus:ring-[#8b5cf6]/20 font-mono pr-12"
                 />
                 <button
                   type="button"
                   onClick={() => setShowApiKey(!showApiKey)}
-                  className="absolute right-3 text-[#64748B] hover:text-[#1F2937] text-sm cursor-pointer p-1"
+                  className="absolute right-3 text-[#64748B] hover:text-white text-sm cursor-pointer p-1"
                   title={showApiKey ? 'Ẩn Key' : 'Hiện Key'}
                 >
                   {showApiKey ? '🙈' : '👁️'}
@@ -971,7 +971,7 @@ ${activeReport.recommendations}
               <select
                 value={modelSelect}
                 onChange={(e) => setModelSelect(e.target.value)}
-                className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] text-sm outline-none focus:border-[#8b5cf6]"
+                className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white text-sm outline-none focus:border-[#8b5cf6]"
               >
                 <option value="gemini-3.5-flash">⚡ gemini-3.5-flash (Mới Nhất - Khuyên Dùng)</option>
                 <option value="gemini-3.8-flash">🚀 gemini-3.8-flash (High Performance)</option>
@@ -987,7 +987,7 @@ ${activeReport.recommendations}
                   value={customModelInput}
                   onChange={(e) => setCustomModelInput(e.target.value)}
                   placeholder="Nhập chính xác tên Model (ví dụ: gemini-3.5-flash, gemini-3.8-flash)..."
-                  className="px-4 py-3 rounded-xl border border-[#8b5cf6] bg-[#F5F7FB] text-[#1F2937] text-xs font-mono outline-none mt-1"
+                  className="px-4 py-3 rounded-xl border border-[#8b5cf6] bg-[#F5F7FB] text-white text-xs font-mono outline-none mt-1"
                 />
               )}
             </div>
@@ -1006,7 +1006,7 @@ ${activeReport.recommendations}
                     ? 'Ví dụ: "Hãy tập trung vào giải pháp tăng tỉ lệ chuyển đổi mua key 1 tháng và giảm thiểu khiếu nại về tốc độ cấp key..."'
                     : 'e.g., Focus on increasing 1-month key conversion and reducing delivery complaints...'
                 }
-                className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] text-xs md:text-sm outline-none focus:border-[#8b5cf6] font-sans leading-relaxed"
+                className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white text-xs md:text-sm outline-none focus:border-[#8b5cf6] font-sans leading-relaxed"
               />
             </div>
 
@@ -1014,7 +1014,7 @@ ${activeReport.recommendations}
               <button
                 type="submit"
                 disabled={isSavingConfig}
-                className="px-6 py-3.5 rounded-2xl bg-[#2563EB] text-[#1F2937] font-bold text-sm cursor-pointer shadow-[0_4px_20px_rgba(139,92,246,0.3)] hover:opacity-95 transition-all"
+                className="px-6 py-3.5 rounded-2xl bg-[#2563EB] text-white font-bold text-sm cursor-pointer shadow-[0_4px_20px_rgba(139,92,246,0.3)] hover:opacity-95 transition-all"
               >
                 {isSavingConfig
                   ? (lang === 'vi' ? 'Đang lưu...' : 'Saving...')
@@ -1037,14 +1037,14 @@ ${activeReport.recommendations}
       {isQuickConfigOpen && (
         <ModalPortal>
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
-            <div className="relative w-full max-w-lg bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] border border-[#6366f1]/50 rounded-3xl p-6 md:p-7 shadow-[0_15px_50px_rgba(99,102,241,0.25)] flex flex-col gap-5 text-[#1F2937] animate-scale-up">
+            <div className="relative w-full max-w-lg bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] border border-[#6366f1]/50 rounded-3xl p-6 md:p-7 shadow-[0_15px_50px_rgba(99,102,241,0.25)] flex flex-col gap-5 text-white animate-scale-up">
               <div className="flex justify-between items-start border-b border-white/10 pb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-[#8b5cf6]/20 text-[#c084fc] flex items-center justify-center text-xl shrink-0">
                     🔑
                   </div>
                   <div>
-                    <h3 className="m-0 text-lg font-bold text-[#1F2937]">
+                    <h3 className="m-0 text-lg font-bold text-white">
                       {lang === 'vi' ? 'Gắn Google Gemini API Key' : 'Connect Google Gemini API'}
                     </h3>
                     <p className="m-0 text-xs text-[#64748B] mt-0.5">
@@ -1054,7 +1054,7 @@ ${activeReport.recommendations}
                 </div>
                 <button
                   onClick={() => setIsQuickConfigOpen(false)}
-                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-[#64748B] hover:text-[#1F2937] flex items-center justify-center text-sm cursor-pointer transition-colors"
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-[#64748B] hover:text-white flex items-center justify-center text-sm cursor-pointer transition-colors"
                 >
                   ✕
                 </button>
@@ -1077,12 +1077,12 @@ ${activeReport.recommendations}
                       value={apiKeyInput}
                       onChange={(e) => setApiKeyInput(e.target.value)}
                       placeholder="Dán mã API Key tại đây (bắt đầu bằng AIzaSy...)"
-                      className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] text-sm outline-none focus:border-[#8b5cf6] font-mono pr-10"
+                      className="w-full px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white text-sm outline-none focus:border-[#8b5cf6] font-mono pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowApiKey(!showApiKey)}
-                      className="absolute right-3 text-[#64748B] hover:text-[#1F2937] text-sm cursor-pointer p-1"
+                      className="absolute right-3 text-[#64748B] hover:text-white text-sm cursor-pointer p-1"
                       title={showApiKey ? 'Ẩn Key' : 'Hiện Key'}
                     >
                       {showApiKey ? '🙈' : '👁️'}
@@ -1120,7 +1120,7 @@ ${activeReport.recommendations}
                   <select
                     value={modelSelect}
                     onChange={(e) => setModelSelect(e.target.value)}
-                    className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] text-sm outline-none focus:border-[#8b5cf6]"
+                    className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white text-sm outline-none focus:border-[#8b5cf6]"
                   >
                     <option value="gemini-3.5-flash">⚡ gemini-3.5-flash (Mới Nhất - Khuyên Dùng)</option>
                     <option value="gemini-3.8-flash">🚀 gemini-3.8-flash (High Performance)</option>
@@ -1136,7 +1136,7 @@ ${activeReport.recommendations}
                       value={customModelInput}
                       onChange={(e) => setCustomModelInput(e.target.value)}
                       placeholder="Nhập tên Model chính xác (vd: gemini-3.5-flash)..."
-                      className="px-4 py-2.5 rounded-xl border border-[#8b5cf6] bg-[#F5F7FB] text-[#1F2937] text-xs font-mono outline-none mt-1"
+                      className="px-4 py-2.5 rounded-xl border border-[#8b5cf6] bg-[#F5F7FB] text-white text-xs font-mono outline-none mt-1"
                     />
                   )}
                 </div>
@@ -1155,7 +1155,7 @@ ${activeReport.recommendations}
                   <button
                     type="button"
                     onClick={() => setIsQuickConfigOpen(false)}
-                    className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-[#1F2937] font-semibold text-xs cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs cursor-pointer"
                   >
                     Hủy Bỏ
                   </button>
@@ -1163,7 +1163,7 @@ ${activeReport.recommendations}
                     type="button"
                     onClick={() => handleSaveConfig()}
                     disabled={isSavingConfig}
-                    className="px-5 py-2.5 rounded-xl bg-[#2563EB] text-[#1F2937] font-bold text-xs cursor-pointer shadow-[0_4px_15px_rgba(139,92,246,0.4)] hover:opacity-95 flex items-center gap-2"
+                    className="px-5 py-2.5 rounded-xl bg-[#2563EB] text-white font-bold text-xs cursor-pointer shadow-[0_4px_15px_rgba(139,92,246,0.4)] hover:opacity-95 flex items-center gap-2"
                   >
                     {isSavingConfig ? 'Đang lưu...' : '💾 Lưu & Kích Hoạt Ngay'}
                   </button>

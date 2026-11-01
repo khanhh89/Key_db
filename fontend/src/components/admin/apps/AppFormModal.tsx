@@ -154,7 +154,7 @@ export function AppFormModal({
             </h4>
             <button
               type="button"
-              className="bg-white/10 border border-white/15 text-[#64748B] w-9 h-9 rounded-full text-xl grid place-items-center cursor-pointer transition-all duration-200 hover:bg-[#ef4444] hover:text-[#1F2937] hover:border-[#ef4444]"
+              className="bg-white/10 border border-white/15 text-[#64748B] w-9 h-9 rounded-full text-xl grid place-items-center cursor-pointer transition-all duration-200 hover:bg-[#ef4444] hover:text-white hover:border-[#ef4444]"
               onClick={onClose}
             >
               ×
@@ -228,7 +228,7 @@ export function AppFormModal({
             <div className="flex justify-end gap-3 pt-3 border-t border-white/10">
               <button
                 type="button"
-                className="px-5 py-3 rounded-xl border border-[#E5E7EB] bg-white text-[#1F2937] font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]"
+                className="px-5 py-3 rounded-xl border border-[#E5E7EB] bg-white text-white font-bold cursor-pointer transition-all duration-200 hover:bg-[#334155]"
                 onClick={onClose}
               >
                 {lang === 'vi' ? 'Hủy Bỏ' : 'Cancel'}
@@ -236,7 +236,7 @@ export function AppFormModal({
               <button
                 type="submit"
                 disabled={isSaving}
-                className="px-6 py-3 rounded-xl border-0 bg-[#2563EB] text-[#1F2937] font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)] disabled:opacity-50"
+                className="px-6 py-3 rounded-xl border-0 bg-[#2563EB] text-white font-heading font-extrabold text-sm cursor-pointer transition-all duration-250 shadow-[0_4px_14px_rgba(56,189,248,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(56,189,248,0.5)] disabled:opacity-50"
               >
                 {isSaving ? (lang === 'vi' ? '⏳ Đang lưu...' : '⏳ Saving...') : `💾 ${lang === 'vi' ? 'Lưu Ứng Dụng' : 'Save Application'}`}
               </button>

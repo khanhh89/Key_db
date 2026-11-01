@@ -63,7 +63,7 @@ export function AppIconUploadSection({
 
       <div className="flex items-stretch gap-2 mt-1">
         <input
-          className="flex-1 px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[2px] focus:ring-[#2563EB]/20"
+          className="flex-1 px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[2px] focus:ring-[#2563EB]/20"
           type="text"
           placeholder={lang === 'vi' ? 'Nhập link ảnh hoặc Emoji (VD: 🚀, 💎)...' : 'Enter image link or Emoji...'}
           value={appIcon}
@@ -73,7 +73,7 @@ export function AppIconUploadSection({
           className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm cursor-pointer transition-all shrink-0 ${
             isUploadingIcon
               ? 'bg-white text-[#64748B] border border-[#E5E7EB] cursor-not-allowed'
-              : 'bg-[#2563EB] border border-[#2563EB] text-[#1F2937] shadow-[0_4px_12px_rgba(14,165,233,0.3)] hover:scale-[1.02]'
+              : 'bg-[#2563EB] border border-[#2563EB] text-white shadow-[0_4px_12px_rgba(14,165,233,0.3)] hover:scale-[1.02]'
           }`}
         >
           {isUploadingIcon
@@ -101,7 +101,7 @@ export function AppIconUploadSection({
               <span className="text-sm text-[#10b981] font-bold">
                 ✓ {lang === 'vi' ? 'Đã tải ảnh lên CDN thành công' : 'Uploaded to CDN successfully'}
               </span>
-              <small className="text-xs text-[#1F2937]/80 break-all bg-black/30 p-1.5 rounded-lg border border-white/10 block">
+              <small className="text-xs text-white/80 break-all bg-black/30 p-1.5 rounded-lg border border-white/10 block">
                 {appIcon.startsWith('data:image/') ? '🖼️ Tệp ảnh Base64' : appIcon}
               </small>
             </div>

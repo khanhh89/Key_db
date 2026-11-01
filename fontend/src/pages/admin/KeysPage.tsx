@@ -304,7 +304,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
       {/* Header */}
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
-          <h2 className="text-xl font-heading font-extrabold text-[#1E293B] m-0 flex items-center gap-2.5">
+          <h2 className="text-xl font-heading font-extrabold text-white m-0 flex items-center gap-2.5">
             <span>🔑</span> {lang === 'vi' ? 'Quản Lý Kho Key VIP' : 'License Keys Inventory'}
             <span className="text-xs font-bold text-[#2563EB] bg-[#EFF6FF] border border-[#BFDBFE] px-2.5 py-0.5 rounded-full">
               {keys.length} Key
@@ -492,7 +492,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                         </div>
                       </div>
                     ) : (
-                      <strong className="text-[#1E293B] text-sm">{getAppName(k.appId)}</strong>
+                      <strong className="text-white text-sm">{getAppName(k.appId)}</strong>
                     )}
                   </td>
                   <td className="p-[14px_16px] align-middle">

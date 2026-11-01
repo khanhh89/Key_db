@@ -21,7 +21,7 @@ export function KeyBatchActionBar({
         <span className="w-6 h-6 rounded-full bg-[#2563EB] text-white flex items-center justify-center text-xs font-bold shadow-sm">
           {selectedCount}
         </span>
-        <span className="font-heading font-extrabold text-[#1E293B] text-sm">
+        <span className="font-heading font-extrabold text-white text-sm">
           {lang === 'vi' ? `Đã chọn ${selectedCount} Key` : `Selected ${selectedCount} Keys`}
         </span>
       </div>
@@ -30,7 +30,7 @@ export function KeyBatchActionBar({
         {onCopySelected && (
           <button
             type="button"
-            className="px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all bg-[#F1F5F9] border border-[#CBD5E1] text-[#1E293B] hover:bg-[#E2E8F0] hover:-translate-y-0.5 flex items-center gap-1.5 shadow-sm"
+            className="px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all bg-[#F1F5F9] border border-[#CBD5E1] text-white hover:bg-[#E2E8F0] hover:-translate-y-0.5 flex items-center gap-1.5 shadow-sm"
             onClick={onCopySelected}
             title="Sao chép toàn bộ mã Key đã chọn (mỗi key 1 dòng)"
           >
@@ -67,7 +67,7 @@ export function KeyBatchActionBar({
 
         <button
           type="button"
-          className="px-3 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all bg-white border border-[#E2E8F0] text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#1E293B]"
+          className="px-3 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all bg-white border border-[#E2E8F0] text-[#64748B] hover:bg-[#F8FAFC] hover:text-white"
           onClick={onClearSelection}
           title="Bỏ chọn toàn bộ"
         >

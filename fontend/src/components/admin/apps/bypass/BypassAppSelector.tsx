@@ -25,7 +25,7 @@ export function BypassAppSelector({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-between items-center">
-        <label className="text-xs font-bold text-[#1F2937] flex items-center gap-2">
+        <label className="text-xs font-bold text-white flex items-center gap-2">
           📱 {lang === 'vi' ? 'Chọn App áp dụng link:' : 'Select Apps to apply link:'}
           <span className="bg-[#2563EB]/20 text-[#2563EB] px-2 py-0.5 rounded text-xs font-extrabold">
             {selectedAppIds.length}/{apps.length}

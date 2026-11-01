@@ -95,7 +95,7 @@ export function OrderList({
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
           <button
             type="button"
-            className="bg-[#2563EB] border-0 text-[#1F2937] px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]"
+            className="bg-[#2563EB] border-0 text-white px-5 py-3 rounded-[14px] font-heading font-extrabold text-sm cursor-pointer transition-all duration-200 flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(56,189,248,0.4)]"
             onClick={exportOrdersCSV}
             style={{ padding: '6px 14px', fontSize: '13px' }}
           >
@@ -104,7 +104,7 @@ export function OrderList({
           {orders.length > 0 && (
             <button
               type="button"
-              className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-[#1F2937] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
+              className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
               onClick={() => setIsClearingAll(true)}
               style={{ padding: '6px 14px', fontSize: '13px' }}
             >
@@ -118,14 +118,14 @@ export function OrderList({
       <div className="flex gap-4 mb-5 items-center flex-wrap">
         <div className="flex items-center gap-2 bg-[#F5F7FB] border border-[#E5E7EB] rounded-xl px-4 py-2 flex-1 min-w-[250px]">
           <span className="text-[11px] font-bold text-[#64748B]">🔍</span>
-          <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-[#1F2937] font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
+          <input className="px-4 py-3 rounded-xl border border-[#E5E7EB] bg-[#F5F7FB] text-white font-inherit text-sm outline-none transition-all duration-200 focus:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/20"
             type="text"
             placeholder={lang === 'vi' ? 'Tìm theo Mã Đơn, Tên App, Mã CK, Key...' : 'Search by ID, App, Code, Key...'}
             value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
           />
           {searchTerm && (
-            <button className="bg-transparent border-none text-[#64748B] cursor-pointer hover:text-[#1F2937]" onClick={() => setSearchTerm('')}>✕</button>
+            <button className="bg-transparent border-none text-[#64748B] cursor-pointer hover:text-white" onClick={() => setSearchTerm('')}>✕</button>
           )}
         </div>
 
@@ -170,15 +170,15 @@ export function OrderList({
           <tbody>
             {filteredOrders.length === 0 ? (
               <tr className="hover:bg-[#2563EB]/[0.04] transition-colors group">
-                <td colSpan={9} className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]" style={{ textAlign: 'center', padding: '2.5rem', color: '#94a3b8' }}>
+                <td colSpan={9} className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white" style={{ textAlign: 'center', padding: '2.5rem', color: '#94a3b8' }}>
                   {lang === 'vi' ? 'Không tìm thấy đơn hàng nào phù hợp' : 'No matching orders found'}
                 </td>
               </tr>
             ) : (
               filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((ord) => (
                 <tr key={ord.id} className="hover:bg-[#2563EB]/[0.04] transition-colors group">
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]"><strong>{ord.id}</strong></td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white"><strong>{ord.id}</strong></td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">
                     {ord.customerEmail ? (
                       <div>
                         <span className="font-mono text-xs font-semibold text-[#2563EB]">{ord.customerEmail}</span>
@@ -196,15 +196,15 @@ export function OrderList({
                       <small className="text-[#94a3b8]">-</small>
                     )}
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">{ord.appName || ord.appId}</td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]"><strong className="text-[#10b981] text-[20px] font-bold">{ord.amount.toLocaleString()} đ</strong></td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]"><code>{ord.paymentCode}</code></td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">{ord.appName || ord.appId}</td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white"><strong className="text-[#10b981] text-[20px] font-bold">{ord.amount.toLocaleString()} đ</strong></td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white"><code>{ord.paymentCode}</code></td>
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">
                     <span className={`inline-block px-[10px] py-1 rounded-lg text-[11px] font-extrabold ${ord.status === 'PAID' ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-[#ef4444]/15 text-[#f87171]'}`}>
                       {ord.status === 'PAID' ? '✓ ĐÃ THANH TOÁN' : '⏳ CHỜ CHUYỂN KHOẢN'}
                     </span>
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">
                     {ord.status === 'PAID' ? (
                       <div style={{ fontSize: '12px' }}>
                         <span style={{ color: '#4ade80', fontWeight: 600 }}>
@@ -222,7 +222,7 @@ export function OrderList({
                       </span>
                     )}
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">
                     {ord.deliveredKey ? (
                       <code
                         className="bg-white text-[#2563EB] px-2.5 py-1 rounded-md font-mono text-[13px]"
@@ -241,7 +241,7 @@ export function OrderList({
                       <small className="text-[#64748b]">-</small>
                     )}
                   </td>
-                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-[#1F2937]">
+                  <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">
                     <div className="flex items-center gap-2">
                       {ord.status === 'PAID' && (
                         <button
@@ -260,7 +260,7 @@ export function OrderList({
                       {ord.status !== 'PAID' && (
                         <button
                           type="button"
-                          className="bg-[#2563EB]/12 text-[#2563EB] border border-[#2563EB] px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#2563EB] hover:text-[#080c14] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]"
+                          className="bg-[#2563EB]/12 text-[#2563EB] border border-[#2563EB] px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#2563EB] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(56,189,248,0.35)]"
                           onClick={() => handleManualConfirm(ord.id)}
                         >
                           ⚡ {lang === 'vi' ? 'Xác Nhận' : 'Confirm'}
@@ -268,7 +268,7 @@ export function OrderList({
                       )}
                       <button
                         type="button"
-                        className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-[#1F2937] hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
+                        className="bg-[#ef4444]/12 text-[#f87171] border border-[#ef4444]/30 px-4 py-2 rounded-[10px] font-inherit font-bold text-[13px] cursor-pointer transition-all duration-200 inline-flex items-center gap-[6px] whitespace-nowrap hover:bg-[#ef4444] hover:text-white hover:-translate-y-0.5 hover:shadow-[0_4px_14px_rgba(239,68,68,0.35)]"
                         onClick={() => setDeletingOrderId(ord.id)}
                       >
                         🗑 {lang === 'vi' ? 'Xóa' : 'Delete'}

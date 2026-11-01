@@ -40,7 +40,7 @@ export function KeyFilterBar({
           value={searchQuery}
           onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
           placeholder={lang === 'vi' ? 'Tìm theo mã key, tên app hoặc nhóm...' : 'Filter key code, app or group...'}
-          className="w-full bg-transparent border-0 outline-none text-sm text-[#1E293B] placeholder-[#94A3B8]"
+          className="w-full bg-transparent border-0 outline-none text-sm text-white placeholder-[#94A3B8]"
         />
         {searchQuery && (
           <button
@@ -60,7 +60,7 @@ export function KeyFilterBar({
         <select
           value={filterDuration}
           onChange={(e) => { setFilterDuration(e.target.value); setCurrentPage(1); }}
-          className="bg-white border border-[#CBD5E1] text-[#1E293B] text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm"
+          className="bg-white border border-[#CBD5E1] text-white text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm"
         >
           <option value="ALL">{lang === 'vi' ? 'Tất cả các gói' : 'All packages'} ({keys.length})</option>
           {uniqueDurations.map((days) => {
@@ -77,7 +77,7 @@ export function KeyFilterBar({
         <select
           value={filterAppId}
           onChange={(e) => { setFilterAppId(e.target.value); setCurrentPage(1); }}
-          className="bg-white border border-[#CBD5E1] text-[#1E293B] text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm max-w-[170px] truncate"
+          className="bg-white border border-[#CBD5E1] text-white text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm max-w-[170px] truncate"
         >
           <option value="ALL">{lang === 'vi' ? 'Tất cả Apps' : 'All Apps'} ({keys.length})</option>
           {apps.map((a) => (
@@ -94,7 +94,7 @@ export function KeyFilterBar({
         <select
           value={filterStatus}
           onChange={(e) => { setFilterStatus(e.target.value as any); setCurrentPage(1); }}
-          className="bg-white border border-[#CBD5E1] text-[#1E293B] text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm"
+          className="bg-white border border-[#CBD5E1] text-white text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm"
         >
           <option value="ALL">{lang === 'vi' ? 'Tất cả trạng thái' : 'All status'}</option>
           <option value="AVAILABLE">● Còn hàng ({countTotalAvailable})</option>
@@ -108,7 +108,7 @@ export function KeyFilterBar({
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as KeySortOption)}
-          className="bg-white border border-[#CBD5E1] text-[#1E293B] text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm"
+          className="bg-white border border-[#CBD5E1] text-white text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm"
         >
           <option value="NEWEST">⏳ {lang === 'vi' ? 'Mới nhất trước' : 'Newest first'}</option>
           <option value="OLDEST">⌛ {lang === 'vi' ? 'Cũ nhất trước' : 'Oldest first'}</option>

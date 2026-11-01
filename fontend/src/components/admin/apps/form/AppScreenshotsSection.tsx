@@ -111,7 +111,7 @@ export function AppScreenshotsSection({
                 ? 'Kéo & thả tệp ảnh Menu vào đây hoặc BẤM ĐỂ CHỌN NHIỀU TỆP'
                 : 'Drag & drop menu images here or CLICK TO SELECT FILES'}
             </div>
-            <small className="text-xs text-[#1F2937]/60 block mt-1">
+            <small className="text-xs text-white/60 block mt-1">
               {lang === 'vi' ? 'Hỗ trợ tải lên cùng lúc nhiều ảnh (PNG, JPG, WEBP)' : 'Supports batch upload (PNG, JPG, WEBP)'}
             </small>
             <input
@@ -171,7 +171,7 @@ export function AppScreenshotsSection({
                         type="button"
                         disabled={idx === 0}
                         onClick={() => moveShotImage(idx, 'left')}
-                        className="bg-white/10 text-[#1F2937] border-0 rounded px-2 py-0.5 text-[11px] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                        className="bg-white/10 text-white border-0 rounded px-2 py-0.5 text-[11px] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                       >
                         ←
                       </button>
@@ -186,7 +186,7 @@ export function AppScreenshotsSection({
                         type="button"
                         disabled={idx === arr.length - 1}
                         onClick={() => moveShotImage(idx, 'right')}
-                        className="bg-white/10 text-[#1F2937] border-0 rounded px-2 py-0.5 text-[11px] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                        className="bg-white/10 text-white border-0 rounded px-2 py-0.5 text-[11px] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                       >
                         →
                       </button>
@@ -205,7 +205,7 @@ export function AppScreenshotsSection({
                 value={appShotsStr}
                 onChange={(e) => setAppShotsStr(e.target.value)}
                 placeholder="https://..., https://..."
-                className="w-full mt-1.5 p-2 rounded-lg bg-black/50 text-[#1F2937] border border-white/15 text-xs font-mono outline-none"
+                className="w-full mt-1.5 p-2 rounded-lg bg-black/50 text-white border border-white/15 text-xs font-mono outline-none"
               />
             </details>
           </div>

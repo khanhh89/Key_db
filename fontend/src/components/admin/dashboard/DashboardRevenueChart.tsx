@@ -25,16 +25,16 @@ export function DashboardRevenueChart({ appStockStats, lang, renderAppIcon }: Da
   return (
     <div className="bg-white border border-[#E5E7EB] rounded-[24px] p-7 flex flex-col gap-6 backdrop-blur-md shadow-lg">
       <div className="flex justify-between items-center flex-wrap gap-4">
-        <h2 className="m-0 text-lg font-bold text-[#1F2937] flex items-center gap-2">📈 {lang === 'vi' ? 'Phân Tích Doanh Thu' : 'App Revenue Analysis'}</h2>
+        <h2 className="m-0 text-lg font-bold text-white flex items-center gap-2">📈 {lang === 'vi' ? 'Phân Tích Doanh Thu' : 'App Revenue Analysis'}</h2>
         <div className="flex p-1 bg-white rounded-xl border border-[#E5E7EB]">
           <button
-            className={`px-4 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors border-0 ${chartViewMode === 'chart' ? 'bg-[#2563EB] text-[#0f172a] shadow-sm' : 'bg-transparent text-[#64748B] hover:text-[#1F2937]'}`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors border-0 ${chartViewMode === 'chart' ? 'bg-[#2563EB] text-white shadow-sm' : 'bg-transparent text-[#64748B] hover:text-white'}`}
             onClick={() => setChartViewMode('chart')}
           >
             📊 {lang === 'vi' ? 'Biểu đồ' : 'Chart'}
           </button>
           <button
-            className={`px-4 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors border-0 ${chartViewMode === 'list' ? 'bg-[#2563EB] text-[#0f172a] shadow-sm' : 'bg-transparent text-[#64748B] hover:text-[#1F2937]'}`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors border-0 ${chartViewMode === 'list' ? 'bg-[#2563EB] text-white shadow-sm' : 'bg-transparent text-[#64748B] hover:text-white'}`}
             onClick={() => setChartViewMode('list')}
           >
             📋 {lang === 'vi' ? 'Danh sách' : 'List'}
@@ -63,7 +63,7 @@ export function DashboardRevenueChart({ appStockStats, lang, renderAppIcon }: Da
               >
                 {/* Tooltip */}
                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white border border-[#E2E8F0] rounded-lg py-2 px-3 flex flex-col items-center whitespace-nowrap shadow-lg pointer-events-none z-20">
-                  <strong className="text-xs text-[#1E293B]">{item.app.name}</strong>
+                  <strong className="text-xs text-white">{item.app.name}</strong>
                   <span className="text-[11px] text-[#2563EB] font-bold">{item.appRevenue.toLocaleString('vi-VN')} đ</span>
                   <small className="text-[10px] text-[#64748B]">({item.appPaidOrdersCount} {lang === 'vi' ? 'đơn' : 'orders'})</small>
                 </div>
@@ -92,7 +92,7 @@ export function DashboardRevenueChart({ appStockStats, lang, renderAppIcon }: Da
                   <div className="w-6 h-6 rounded border border-[#E5E7EB] overflow-hidden bg-white shrink-0">
                     {renderAppIcon(item.app.icon)}
                   </div>
-                  <span className="text-[10px] text-[#64748B] text-center truncate w-full group-hover:text-[#1F2937] transition-colors">{item.app.name}</span>
+                  <span className="text-[10px] text-[#64748B] text-center truncate w-full group-hover:text-white transition-colors">{item.app.name}</span>
                 </div>
               </div>
             );
@@ -112,7 +112,7 @@ export function DashboardRevenueChart({ appStockStats, lang, renderAppIcon }: Da
                     <div className="w-8 h-8 rounded-lg bg-black/30 overflow-hidden shrink-0">
                       {renderAppIcon(item.app.icon)}
                     </div>
-                    <strong className="text-sm text-[#1F2937]">{item.app.name}</strong>
+                    <strong className="text-sm text-white">{item.app.name}</strong>
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="text-sm font-bold text-[#2563EB]">{item.appRevenue.toLocaleString('vi-VN')} đ</span>
