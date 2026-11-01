@@ -121,6 +121,12 @@ public class BankConfigController {
         if (bankDetails.getMailEnabled() != null) {
             config.setMailEnabled(bankDetails.getMailEnabled());
         }
+        if (bankDetails.getMailProvider() != null) {
+            config.setMailProvider(bankDetails.getMailProvider().trim());
+        }
+        if (bankDetails.getMailApiKey() != null) {
+            config.setMailApiKey(bankDetails.getMailApiKey().trim());
+        }
 
         return ResponseEntity.ok(bankConfigRepository.save(config));
     }

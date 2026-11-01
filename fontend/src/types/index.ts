@@ -128,6 +128,8 @@ export interface BankConfig {
   mailPassword?: string;
   mailSenderName?: string;
   mailEnabled?: boolean;
+  mailProvider?: 'SMTP' | 'RESEND' | 'BREVO';
+  mailApiKey?: string;
 }
 
 export interface CouponItem {

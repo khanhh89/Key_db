@@ -70,4 +70,11 @@ public class BankConfigEntity {
 
     @Column(name = "mail_enabled")
     private Boolean mailEnabled;
+
+    // HTTP EMAIL API (Resend / Brevo - Port 443 for Render/Cloud)
+    @Column(name = "mail_provider")
+    private String mailProvider; // "SMTP", "RESEND", "BREVO"
+
+    @Column(name = "mail_api_key", length = 512)
+    private String mailApiKey;
 }

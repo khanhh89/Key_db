@@ -18,14 +18,22 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class EmailService {
@@ -51,6 +59,24 @@ public class EmailService {
     @Value("${app.mail.sender-name:MOD VIP STORE}")
     private String senderName;
 
+    @Value("${app.mail.provider:SMTP}")
+    private String envMailProvider;
+
+    @Value("${app.mail.api-key:}")
+    private String envMailApiKey;
+
+    @Value("${app.mail.resend-api-key:}")
+    private String envResendApiKey;
+
+    @Value("${app.mail.brevo-api-key:}")
+    private String envBrevoApiKey;
+
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .build();
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
     private static final ZoneId VN_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
 
@@ -61,6 +87,31 @@ public class EmailService {
     public CompletableFuture<Boolean> sendKeyEmailAsync(OrderEntity order) {
         boolean result = sendKeyEmail(order);
         return CompletableFuture.completedFuture(result);
+    }
+
+    public String resolveActiveProvider() {
+        BankConfigEntity bankConfig = bankConfigRepository.findAll().stream().findFirst().orElse(null);
+        if (bankConfig != null && bankConfig.getMailProvider() != null && !bankConfig.getMailProvider().isBlank()) {
+            return bankConfig.getMailProvider().trim().toUpperCase();
+        }
+        String apiKey = resolveActiveApiKey();
+        if (apiKey != null && apiKey.startsWith("re_")) return "RESEND";
+        if (apiKey != null && (apiKey.startsWith("xkeysib-") || apiKey.contains("brevo"))) return "BREVO";
+        if (envMailProvider != null && !envMailProvider.isBlank()) {
+            return envMailProvider.trim().toUpperCase();
+        }
+        return "SMTP";
+    }
+
+    public String resolveActiveApiKey() {
+        BankConfigEntity bankConfig = bankConfigRepository.findAll().stream().findFirst().orElse(null);
+        if (bankConfig != null && bankConfig.getMailApiKey() != null && !bankConfig.getMailApiKey().isBlank()) {
+            return bankConfig.getMailApiKey().trim();
+        }
+        if (envMailApiKey != null && !envMailApiKey.isBlank()) return envMailApiKey.trim();
+        if (envResendApiKey != null && !envResendApiKey.isBlank()) return envResendApiKey.trim();
+        if (envBrevoApiKey != null && !envBrevoApiKey.isBlank()) return envBrevoApiKey.trim();
+        return null;
     }
 
     public JavaMailSender getActiveMailSender() {
@@ -79,12 +130,22 @@ public class EmailService {
             Properties props = impl.getJavaMailProperties();
             props.put("mail.transport.protocol", "smtp");
             props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.starttls.required", "true");
+            if (port == 465) {
+                props.put("mail.smtp.ssl.enable", "true");
+                props.put("mail.smtp.socketFactory.port", "465");
+                props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+                props.put("mail.smtp.socketFactory.fallback", "false");
+                props.put("mail.smtp.starttls.enable", "false");
+                props.put("mail.smtp.starttls.required", "false");
+            } else {
+                props.put("mail.smtp.starttls.enable", "true");
+                props.put("mail.smtp.starttls.required", "true");
+                props.put("mail.smtp.ssl.enable", "false");
+            }
             props.put("mail.smtp.ssl.trust", host);
-            props.put("mail.smtp.connectiontimeout", "7000");
-            props.put("mail.smtp.timeout", "7000");
-            props.put("mail.smtp.writetimeout", "7000");
+            props.put("mail.smtp.connectiontimeout", "12000");
+            props.put("mail.smtp.timeout", "12000");
+            props.put("mail.smtp.writetimeout", "12000");
             return impl;
         }
 
@@ -108,6 +169,83 @@ public class EmailService {
     }
 
     /**
+     * Gửi email qua Resend REST API (HTTPS Port 443 - hoạt động 100% trên Render Free Tier).
+     */
+    public boolean sendViaResend(String apiKey, String fromAddress, String senderName, String toEmail, String subject, String htmlContent) throws Exception {
+        String fromFormatted;
+        if (fromAddress != null && !fromAddress.isBlank() && fromAddress.contains("@") && !fromAddress.endsWith("@gmail.com")) {
+            fromFormatted = senderName + " <" + fromAddress.trim() + ">";
+        } else {
+            fromFormatted = senderName + " <onboarding@resend.dev>";
+        }
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("from", fromFormatted);
+        payload.put("to", Collections.singletonList(toEmail.trim()));
+        payload.put("subject", subject);
+        payload.put("html", htmlContent);
+
+        String json = objectMapper.writeValueAsString(payload);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.resend.com/emails"))
+                .header("Authorization", "Bearer " + apiKey.trim())
+                .header("Content-Type", "application/json")
+                .timeout(Duration.ofSeconds(15))
+                .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            System.out.println(">>> [Resend SUCCESS] Email delivered. Response: " + response.body());
+            return true;
+        } else {
+            throw new RuntimeException("Resend API (HTTP " + response.statusCode() + "): " + response.body());
+        }
+    }
+
+    /**
+     * Gửi email qua Brevo REST API (HTTPS Port 443 - không cần domain riêng, gửi được mọi email).
+     */
+    public boolean sendViaBrevo(String apiKey, String fromAddress, String senderName, String toEmail, String subject, String htmlContent) throws Exception {
+        String senderEmail = (fromAddress != null && !fromAddress.isBlank() && fromAddress.contains("@")) 
+                ? fromAddress.trim() 
+                : "noreply@modvip.com";
+
+        Map<String, Object> senderObj = new HashMap<>();
+        senderObj.put("name", senderName);
+        senderObj.put("email", senderEmail);
+
+        Map<String, Object> recipientObj = new HashMap<>();
+        recipientObj.put("email", toEmail.trim());
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("sender", senderObj);
+        payload.put("to", Collections.singletonList(recipientObj));
+        payload.put("subject", subject);
+        payload.put("htmlContent", htmlContent);
+
+        String json = objectMapper.writeValueAsString(payload);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                .header("api-key", apiKey.trim())
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .timeout(Duration.ofSeconds(15))
+                .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            System.out.println(">>> [Brevo SUCCESS] Email delivered. Response: " + response.body());
+            return true;
+        } else {
+            throw new RuntimeException("Brevo API (HTTP " + response.statusCode() + "): " + response.body());
+        }
+    }
+
+    /**
      * Gửi key bản quyền VIP về email khách hàng với giao diện Cyber/Gaming siêu xịn xò.
      */
     public boolean sendKeyEmail(OrderEntity order) {
@@ -126,7 +264,6 @@ public class EmailService {
         String key = order.getDeliveredKey() != null ? order.getDeliveredKey() : "N/A";
         String appName = order.getAppName() != null ? order.getAppName() : "MOD VIP KEY";
 
-        // Tra cứu thêm thông tin app (link tải APK/IPA) và system config (brand, support)
         AppItemEntity appEntity = null;
         if (order.getAppId() != null && !order.getAppId().isBlank()) {
             appEntity = appRepository.findById(order.getAppId()).orElse(null);
@@ -141,11 +278,33 @@ public class EmailService {
         String subject = "🔑 [" + activeSenderTitle + "] Key bản quyền " + appName + " - Đơn hàng #" + order.getId();
         String htmlContent = buildKeyEmailHtml(order, appEntity, configEntity, activeSenderTitle);
 
-        JavaMailSender activeSender = getActiveMailSender();
+        String provider = resolveActiveProvider();
+        String apiKey = resolveActiveApiKey();
         String fromAddress = getActiveFromEmail();
 
-        if (activeSender != null && fromAddress != null && !fromAddress.isBlank()) {
-            try {
+        try {
+            if ("RESEND".equalsIgnoreCase(provider)) {
+                if (apiKey == null || apiKey.isBlank()) {
+                    throw new IllegalStateException("Chưa cấu hình Resend API Key! Vui lòng vào Admin > Cấu hình Email điền API Key (dạng re_xxxx...).");
+                }
+                sendViaResend(apiKey, fromAddress, activeSenderTitle, toEmail, subject, htmlContent);
+            } else if ("BREVO".equalsIgnoreCase(provider)) {
+                if (apiKey == null || apiKey.isBlank()) {
+                    throw new IllegalStateException("Chưa cấu hình Brevo API Key! Vui lòng vào Admin > Cấu hình Email điền API Key (dạng xkeysib-...).");
+                }
+                sendViaBrevo(apiKey, fromAddress, activeSenderTitle, toEmail, subject, htmlContent);
+            } else {
+                // SMTP (Gmail)
+                JavaMailSender activeSender = getActiveMailSender();
+                if (activeSender == null || fromAddress == null || fromAddress.isBlank()) {
+                    String note = "Chưa gắn tài khoản Gmail gửi đi (vào Admin > Cấu hình Email hoặc điền .env MAIL_USERNAME/MAIL_PASSWORD). Key: " + key;
+                    order.setEmailSent(false);
+                    order.setEmailError(note);
+                    orderRepository.save(order);
+                    System.out.println(">>> [EmailService NOT CONFIGURED] " + note + " (Target: " + toEmail + ")");
+                    return false;
+                }
+
                 MimeMessage mimeMessage = activeSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
@@ -155,37 +314,32 @@ public class EmailService {
                 helper.setText(htmlContent, true);
 
                 activeSender.send(mimeMessage);
-
-                // Cập nhật trạng thái thành công vào DB
-                order.setEmailSent(true);
-                order.setEmailSentAt(LocalDateTime.now(VN_ZONE));
-                order.setEmailError(null);
-                orderRepository.save(order);
-
-                System.out.println(">>> [EmailService SUCCESS] Successfully delivered VIP Key email to: " + toEmail + " for order #" + order.getId());
-                return true;
-            } catch (Exception e) {
-                String errMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
-                order.setEmailSent(false);
-                order.setEmailError("SMTP Error: " + errMsg);
-                orderRepository.save(order);
-
-                System.err.println(">>> [EmailService ERROR] Failed to send email via JavaMailSender: " + errMsg);
-                return false;
             }
-        } else {
-            String note = "Chưa gắn tài khoản Gmail gửi đi (vào Admin > Cấu hình Gmail SMTP hoặc điền .env MAIL_USERNAME/MAIL_PASSWORD). Key: " + key;
-            order.setEmailSent(false);
-            order.setEmailError(note);
+
+            // Cập nhật trạng thái thành công vào DB
+            order.setEmailSent(true);
+            order.setEmailSentAt(LocalDateTime.now(VN_ZONE));
+            order.setEmailError(null);
             orderRepository.save(order);
 
-            System.out.println(">>> [EmailService NOT CONFIGURED] " + note + " (Target: " + toEmail + ")");
+            System.out.println(">>> [EmailService SUCCESS] Successfully delivered VIP Key email (" + provider + ") to: " + toEmail + " for order #" + order.getId());
+            return true;
+        } catch (Exception e) {
+            String errMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            if (errMsg.contains("Connect timed out") || errMsg.contains("MailConnectException")) {
+                errMsg = "Cổng SMTP 587 bị Render chặn (Timeout). Hãy chuyển sang dùng phương thức 'Resend API' hoặc 'Brevo API' qua cổng HTTPS 443 trong Admin!";
+            }
+            order.setEmailSent(false);
+            order.setEmailError("Lỗi gửi Email: " + errMsg);
+            orderRepository.save(order);
+
+            System.err.println(">>> [EmailService ERROR] Failed to send email via " + provider + ": " + errMsg);
             return false;
         }
     }
 
     /**
-     * Thử nghiệm kết nối SMTP và gửi email test trực tiếp từ trang Admin.
+     * Thử nghiệm kết nối và gửi email test trực tiếp từ trang Admin.
      */
     public Map<String, Object> testSendEmail(String targetEmail) {
         Map<String, Object> res = new HashMap<>();
@@ -195,44 +349,65 @@ public class EmailService {
             return res;
         }
 
-        JavaMailSender activeSender = getActiveMailSender();
+        String provider = resolveActiveProvider();
+        String apiKey = resolveActiveApiKey();
         String fromEmail = getActiveFromEmail();
+        String sender = getActiveSenderName(senderName);
 
-        if (activeSender == null || fromEmail == null || fromEmail.isBlank()) {
-            res.put("success", false);
-            res.put("message", "Chưa có tài khoản Gmail gửi đi! Vui lòng điền 'Tài khoản Gmail' và 'Mật khẩu ứng dụng 16 ký tự' trước khi thử nghiệm.");
-            return res;
-        }
+        String testSubject = "⚡ [KẾT NỐI THÀNH CÔNG] Thử nghiệm gửi Email (" + provider + ") - " + sender;
+        String testHtml = "<div style=\"font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; background: #0f172a; color: #ffffff; border-radius: 14px; border: 1px solid #38bdf8;\">" +
+                "<h2 style=\"color: #38bdf8; margin-top: 0;\">🎉 KẾT NỐI EMAIL " + provider + " THÀNH CÔNG!</h2>" +
+                "<p style=\"color: #cbd5e1; font-size: 14px;\">Hệ thống gửi email tự động của <strong>" + sender + "</strong> hoạt động hoàn hảo trên Render/Cloud (Port 443).</p>" +
+                "<div style=\"background: #1e293b; padding: 14px; border-radius: 8px; font-size: 13px; color: #94a3b8; line-height: 1.6;\">" +
+                "<div>• <strong>Phương thức gửi:</strong> " + provider + " (HTTPS Port 443)</div>" +
+                "<div>• <strong>Người gửi:</strong> " + (fromEmail != null ? fromEmail : "Hệ thống") + "</div>" +
+                "<div>• <strong>Hộp thư nhận test:</strong> " + targetEmail + "</div>" +
+                "<div>• <strong>Thời gian kiểm tra:</strong> " + LocalDateTime.now(VN_ZONE).format(DATE_FORMATTER) + "</div>" +
+                "</div>" +
+                "<p style=\"color: #4ade80; font-size: 13px; margin-top: 14px;\">✓ Các đơn hàng mua Key VIP trong tương lai sẽ tự động được gửi về Gmail của khách hàng.</p>" +
+                "</div>";
 
         try {
-            MimeMessage message = activeSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            if ("RESEND".equalsIgnoreCase(provider)) {
+                if (apiKey == null || apiKey.isBlank()) {
+                    res.put("success", false);
+                    res.put("message", "Chưa có Resend API Key! Vui lòng nhập API Key dạng 're_xxxx...' trước khi test.");
+                    return res;
+                }
+                sendViaResend(apiKey, fromEmail, sender, targetEmail, testSubject, testHtml);
+            } else if ("BREVO".equalsIgnoreCase(provider)) {
+                if (apiKey == null || apiKey.isBlank()) {
+                    res.put("success", false);
+                    res.put("message", "Chưa có Brevo API Key! Vui lòng nhập API Key dạng 'xkeysib-...' trước khi test.");
+                    return res;
+                }
+                sendViaBrevo(apiKey, fromEmail, sender, targetEmail, testSubject, testHtml);
+            } else {
+                JavaMailSender activeSender = getActiveMailSender();
+                if (activeSender == null || fromEmail == null || fromEmail.isBlank()) {
+                    res.put("success", false);
+                    res.put("message", "Chưa có tài khoản Gmail gửi đi! Vui lòng điền 'Tài khoản Gmail' và 'Mật khẩu ứng dụng 16 ký tự' trước khi thử nghiệm.");
+                    return res;
+                }
 
-            String sender = getActiveSenderName(senderName);
-            helper.setFrom(new InternetAddress(fromEmail, sender, "UTF-8"));
-            helper.setTo(targetEmail.trim());
-            helper.setSubject("⚡ [KẾT NỐI THÀNH CÔNG] Thử nghiệm gửi Gmail tự động - " + sender);
-
-            String testHtml = "<div style=\"font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; background: #0f172a; color: #ffffff; border-radius: 14px; border: 1px solid #38bdf8;\">" +
-                    "<h2 style=\"color: #38bdf8; margin-top: 0;\">🎉 KẾT NỐI GMAIL SMTP THÀNH CÔNG!</h2>" +
-                    "<p style=\"color: #cbd5e1; font-size: 14px;\">Hệ thống gửi email tự động của <strong>" + sender + "</strong> đã được liên kết chính xác.</p>" +
-                    "<div style=\"background: #1e293b; padding: 14px; border-radius: 8px; font-size: 13px; color: #94a3b8; line-height: 1.6;\">" +
-                    "<div>• <strong>Tài khoản gửi:</strong> " + fromEmail + "</div>" +
-                    "<div>• <strong>Hộp thư nhận test:</strong> " + targetEmail + "</div>" +
-                    "<div>• <strong>Thời gian kiểm tra:</strong> " + LocalDateTime.now(VN_ZONE).format(DATE_FORMATTER) + "</div>" +
-                    "</div>" +
-                    "<p style=\"color: #4ade80; font-size: 13px; margin-top: 14px;\">✓ Các đơn hàng mua Key VIP trong tương lai sẽ tự động được gửi về Gmail của khách hàng.</p>" +
-                    "</div>";
-
-            helper.setText(testHtml, true);
-            activeSender.send(message);
+                MimeMessage message = activeSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+                helper.setFrom(new InternetAddress(fromEmail, sender, "UTF-8"));
+                helper.setTo(targetEmail.trim());
+                helper.setSubject(testSubject);
+                helper.setText(testHtml, true);
+                activeSender.send(message);
+            }
 
             res.put("success", true);
-            res.put("message", "✅ Kết nối thành công! Đã gửi email thử nghiệm đến [" + targetEmail.trim() + "]. Hãy kiểm tra hộp thư!");
+            res.put("message", "✅ Kết nối thành công (" + provider + ")! Đã gửi email thử nghiệm đến [" + targetEmail.trim() + "]. Hãy kiểm tra hộp thư!");
         } catch (Exception e) {
             String err = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            if (err.contains("Connect timed out") || err.contains("MailConnectException")) {
+                err = "Cổng SMTP 587 bị Render chặn (Timeout). Vui lòng chuyển sang dùng phương thức 'Resend API' hoặc 'Brevo API' qua cổng HTTPS 443!";
+            }
             res.put("success", false);
-            res.put("message", "❌ Gửi email thất bại: " + err + ". (Mẹo: Kiểm tra xem đã dùng đúng Mật khẩu ứng dụng 16 ký tự của Google chưa!)");
+            res.put("message", "❌ Gửi email thất bại: " + err);
         }
         return res;
     }

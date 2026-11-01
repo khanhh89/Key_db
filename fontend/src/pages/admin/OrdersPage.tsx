@@ -53,7 +53,9 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
   const [payosEnabled, setPayosEnabled] = useState(false);
   const [enableStaticQr, setEnableStaticQr] = useState(true);
 
-  // Gmail SMTP Config States
+  // Email Config States (SMTP vs Resend / Brevo HTTP API)
+  const [mailProvider, setMailProvider] = useState<'SMTP' | 'RESEND' | 'BREVO'>('RESEND');
+  const [mailApiKey, setMailApiKey] = useState('');
   const [mailHost, setMailHost] = useState('smtp.gmail.com');
   const [mailPort, setMailPort] = useState(587);
   const [mailUsername, setMailUsername] = useState('');
@@ -74,6 +76,8 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
       setPayosChecksumKey(bank.payosChecksumKey || '');
       setPayosEnabled(bank.payosEnabled !== false);
       setEnableStaticQr(bank.enableStaticQr !== false);
+      if (bank.mailProvider) setMailProvider(bank.mailProvider as any);
+      if (bank.mailApiKey) setMailApiKey(bank.mailApiKey);
       if (bank.mailHost) setMailHost(bank.mailHost);
       if (bank.mailPort) setMailPort(bank.mailPort);
       if (bank.mailUsername) setMailUsername(bank.mailUsername);
@@ -123,6 +127,8 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
         payosChecksumKey,
         payosEnabled,
         enableStaticQr,
+        mailProvider,
+        mailApiKey,
         mailHost,
         mailPort,
         mailUsername,
@@ -139,6 +145,8 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
         setPayosChecksumKey(result.payosChecksumKey || payosChecksumKey);
         setPayosEnabled(result.payosEnabled !== false);
         setEnableStaticQr(result.enableStaticQr !== false);
+        if (result.mailProvider) setMailProvider(result.mailProvider as any);
+        if (result.mailApiKey) setMailApiKey(result.mailApiKey);
         if (result.mailHost) setMailHost(result.mailHost);
         if (result.mailPort) setMailPort(result.mailPort);
         if (result.mailUsername) setMailUsername(result.mailUsername);
@@ -146,7 +154,7 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
         if (result.mailSenderName) setMailSenderName(result.mailSenderName);
         if (result.mailEnabled !== undefined) setMailEnabled(result.mailEnabled);
       }
-      showToast(lang === 'vi' ? '🎉 THÀNH CÔNG: Đã lưu thông tin PayOS, Ngân Hàng & Gmail!' : '🎉 Success: Saved!');
+      showToast(lang === 'vi' ? '🎉 THÀNH CÔNG: Đã lưu thông tin PayOS, Ngân Hàng & Cấu hình Email!' : '🎉 Success: Saved!');
     } catch (err) {
       showToast(lang === 'vi' ? '❌ Thất bại: Không thể kết nối hệ thống máy chủ!' : '❌ Save failed!');
     } finally {
@@ -243,12 +251,16 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
         />
       )}
 
-      {/* GMAIL SMTP CONFIG TAB */}
+      {/* EMAIL CONFIG TAB (SMTP vs RESEND / BREVO HTTP API) */}
       {activeTab === 'mail' && (
         <OrderMailConfig
           lang={lang}
           mailEnabled={mailEnabled}
           setMailEnabled={setMailEnabled}
+          mailProvider={mailProvider}
+          setMailProvider={setMailProvider}
+          mailApiKey={mailApiKey}
+          setMailApiKey={setMailApiKey}
           mailUsername={mailUsername}
           setMailUsername={setMailUsername}
           mailPassword={mailPassword}
