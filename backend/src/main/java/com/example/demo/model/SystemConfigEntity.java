@@ -62,8 +62,6 @@ public class SystemConfigEntity {
     @Column(name = "specialties", columnDefinition = "TEXT")
     private String specialties;
 
-
-
     @Column(name = "favicon_url", columnDefinition = "TEXT")
     private String faviconUrl;
 
@@ -96,6 +94,22 @@ public class SystemConfigEntity {
 
     @Column(name = "ai_custom_prompt", columnDefinition = "TEXT")
     private String aiCustomPrompt;
+
+    @Column(name = "chatbot_enabled")
+    @Builder.Default
+    private Boolean chatbotEnabled = true;
+
+    @Column(name = "chatbot_bot_name", length = 100)
+    private String chatbotBotName;
+
+    @Column(name = "chatbot_welcome_message", columnDefinition = "TEXT")
+    private String chatbotWelcomeMessage;
+
+    @Column(name = "chatbot_quick_prompts", columnDefinition = "TEXT")
+    private String chatbotQuickPrompts;
+
+    @Column(name = "chatbot_system_instruction", columnDefinition = "TEXT")
+    private String chatbotSystemInstruction;
 
     @Column(name = "bypass_link_pool", columnDefinition = "TEXT")
     private String bypassLinkPool;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import type { Language, AiMetricsData, AiAnalysisResponse, AiAnalysisReport, AiConfig } from '../../types';
 import {
   fetchAiMetrics,
@@ -12,13 +12,14 @@ import {
 } from '../../services/api';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
 import { ModalPortal } from '../../components/common/ModalPortal';
+import { AiChatbotAdminSection } from '../../components/admin/AiChatbotAdminSection';
 
 interface AiAnalyticsPageProps {
   lang: Language;
   showToast: (msg: string, type?: 'success' | 'error' | 'warning' | 'info') => void;
 }
 
-type TabType = 'OVERVIEW' | 'HISTORY' | 'SETTINGS';
+type TabType = 'OVERVIEW' | 'HISTORY' | 'SETTINGS' | 'CHATBOT';
 
 export function AiAnalyticsPage({ lang, showToast }: AiAnalyticsPageProps) {
   const [activeTab, setActiveTab] = useState<TabType>('OVERVIEW');
@@ -421,6 +422,17 @@ ${activeReport.recommendations}
           >
             <span>⚙️</span>
             <span>{lang === 'vi' ? 'Cấu Hình AI Engine' : 'AI Engine Settings'}</span>
+          </button>
+        <button
+            onClick={() => setActiveTab('CHATBOT')}
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer flex items-center gap-2 ${
+              activeTab === 'CHATBOT'
+                ? 'bg-[#2563EB] text-white shadow-[0_4px_12px_rgba(139,92,246,0.35)]'
+                : 'bg-white text-[#64748B] hover:bg-white hover:text-[#64748B]'
+            }`}
+          >
+            <span>🤖</span>
+            <span>{lang === 'vi' ? 'Trợ Lý AI 24/7' : 'AI Chatbot 24/7'}</span>
           </button>
         </div>
 
@@ -1031,6 +1043,11 @@ ${activeReport.recommendations}
             </div>
           </form>
         </div>
+      )}
+
+            {/* 5. TAB 4 CONTENT: AI CHATBOT 24/7 CONFIGURATION & LIVE SIMULATOR */}
+      {activeTab === 'CHATBOT' && (
+        <AiChatbotAdminSection lang={lang} showToast={showToast} />
       )}
 
       {/* Quick API Key & Model Configuration Modal */}

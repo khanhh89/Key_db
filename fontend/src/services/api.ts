@@ -11,3 +11,4 @@ export * from './couponsApi';
 export * from './feedbackApi';
 export * from './freeNotesApi';
 export * from './aiApi';
+export * from './chatApi';

@@ -60,7 +60,46 @@ export interface SystemConfig {
   geminiApiKey?: string;
   aiModel?: string;
   aiCustomPrompt?: string;
+  chatbotEnabled?: boolean;
+  chatbotBotName?: string;
+  chatbotWelcomeMessage?: string;
+  chatbotQuickPrompts?: string;
+  chatbotSystemInstruction?: string;
   bypassNestedSteps?: number;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'model';
+  content: string;
+  timestamp?: number;
+}
+
+export interface ChatActionCard {
+  type: 'APP_BUY' | 'APP_FREE' | 'ORDER_STATUS' | 'EXTERNAL_LINK';
+  title: string;
+  subtitle?: string;
+  appId?: string;
+  actionUrl?: string;
+  data?: Record<string, any>;
+}
+
+export interface ChatResponse {
+  reply: string;
+  actionCards?: ChatActionCard[];
+  modelUsed?: string;
+  quickSuggestions?: string[];
+  isFallback?: boolean;
+}
+
+export interface AiChatConfig {
+  enabled: boolean;
+  botName: string;
+  welcomeMessage: string;
+  quickPrompts: string[];
+  systemInstruction?: string;
+  aiModel?: string;
+  hasApiKey?: boolean;
 }
 
 

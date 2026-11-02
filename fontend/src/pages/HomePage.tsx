@@ -18,6 +18,7 @@ import { FeedbackModal } from '../components/modals/FeedbackModal';
 import { FeedbackHistoryModal } from '../components/modals/FeedbackHistoryModal';
 import { syncDeviceWithBackend } from '../services/feedbackApi';
 import { Footer } from '../components/layout/Footer';
+import { AiChatWidget } from '../components/common/AiChatWidget';
 
 interface HomePageProps {
   dark: boolean;
@@ -64,6 +65,7 @@ export function HomePage({
   const [lookupInitialCode, setLookupInitialCode] = useState<string>('');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isFeedbackHistoryOpen, setIsFeedbackHistoryOpen] = useState(false);
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
@@ -425,7 +427,22 @@ export function HomePage({
         config={config}
         lang={lang}
         onOpenFeedback={() => setIsFeedbackOpen(true)}
-        isHidden={isFeedbackOpen || isFeedbackHistoryOpen || Boolean(buyApp) || Boolean(freeKeyApp) || Boolean(lightbox) || isLookupOpen}
+        onOpenAiChat={() => setIsAiChatOpen(true)}
+        isHidden={isFeedbackOpen || isFeedbackHistoryOpen || Boolean(buyApp) || Boolean(freeKeyApp) || Boolean(lightbox) || isLookupOpen || isAiChatOpen}
+      />
+
+      {/* AI Smart Assistant Chatbot Widget */}
+      <AiChatWidget
+        isOpen={isAiChatOpen}
+        onClose={() => setIsAiChatOpen(false)}
+        onToggle={() => setIsAiChatOpen((prev) => !prev)}
+        config={config}
+        apps={apps}
+        lang={lang}
+        openBuyModal={openBuyModal}
+        openFreeKeyModal={(app) => setFreeKeyApp(app)}
+        openLookupModal={() => setIsLookupOpen(true)}
+        showToast={showToast}
       />
 
       <Footer lang={lang} config={config} />

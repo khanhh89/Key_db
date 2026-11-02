@@ -29,6 +29,9 @@ public class SystemConfigController {
                             .telegramUrl("")
                             .specialties("")
                             .bypassNestedSteps(2)
+                            .chatbotEnabled(true)
+                            .chatbotBotName("Trợ Lý AI Shop")
+                            .chatbotWelcomeMessage("Xin chào! Mình là Trợ lý ảo AI của shop. Mình có thể giúp gì cho bạn hôm nay?")
                             .build();
                     return systemConfigRepository.save(defaultConfig);
                 });
@@ -51,6 +54,10 @@ public class SystemConfigController {
                     .socialChannels(config.getSocialChannels())
                     .specialties(config.getSpecialties())
                     .faviconUrl(config.getFaviconUrl())
+                    .chatbotEnabled(config.getChatbotEnabled() != null ? config.getChatbotEnabled() : true)
+                    .chatbotBotName(config.getChatbotBotName() != null ? config.getChatbotBotName() : "Trợ Lý AI Shop")
+                    .chatbotWelcomeMessage(config.getChatbotWelcomeMessage())
+                    .chatbotQuickPrompts(config.getChatbotQuickPrompts())
                     .cloudinaryCloudName(null)
                     .cloudinaryUploadPreset(null)
                     .cloudinaryApiKey(null)
@@ -99,6 +106,22 @@ public class SystemConfigController {
         if (configDetails.getAiCustomPrompt() != null) {
             config.setAiCustomPrompt(configDetails.getAiCustomPrompt().trim());
         }
+        if (configDetails.getChatbotEnabled() != null) {
+            config.setChatbotEnabled(configDetails.getChatbotEnabled());
+        }
+        if (configDetails.getChatbotBotName() != null) {
+            config.setChatbotBotName(configDetails.getChatbotBotName().trim());
+        }
+        if (configDetails.getChatbotWelcomeMessage() != null) {
+            config.setChatbotWelcomeMessage(configDetails.getChatbotWelcomeMessage().trim());
+        }
+        if (configDetails.getChatbotQuickPrompts() != null) {
+            config.setChatbotQuickPrompts(configDetails.getChatbotQuickPrompts().trim());
+        }
+        if (configDetails.getChatbotSystemInstruction() != null) {
+            config.setChatbotSystemInstruction(configDetails.getChatbotSystemInstruction().trim());
+        }
+
         if (configDetails.getBypassNestedSteps() != null && configDetails.getBypassNestedSteps() > 0) {
             config.setBypassNestedSteps(configDetails.getBypassNestedSteps());
         }
