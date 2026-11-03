@@ -304,7 +304,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
       {/* Header */}
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
-          <h2 className="text-xl font-heading font-extrabold text-white m-0 flex items-center gap-2.5">
+          <h2 className="text-xl font-heading font-extrabold text-black m-0 flex items-center gap-2.5">
             <span>🔑</span> {lang === 'vi' ? 'Quản Lý Kho Key VIP' : 'License Keys Inventory'}
             <span className="text-xs font-bold text-[#2563EB] bg-[#EFF6FF] border border-[#BFDBFE] px-2.5 py-0.5 rounded-full">
               {keys.length} Key
@@ -428,7 +428,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                   style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#2563EB' }}
                 />
               </th>
-              <th className="p-[14px_16px] text-[#64748B] font-heading font-extrabold text-xs tracking-[0.5px] uppercase">App Catalog</th>
+              <th className="p-[14px_16px] text-black font-heading font-extrabold text-xs tracking-[0.5px] uppercase">App Catalog</th>
               <th className="p-[14px_16px] text-[#64748B] font-heading font-extrabold text-xs tracking-[0.5px] uppercase">
                 <div className="flex items-center gap-2">
                   <span>Mã Key Code</span>
@@ -492,7 +492,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
                         </div>
                       </div>
                     ) : (
-                      <strong className="text-white text-sm">{getAppName(k.appId)}</strong>
+                      <strong className="text-black text-sm font-bold">{getAppName(k.appId)}</strong>
                     )}
                   </td>
                   <td className="p-[14px_16px] align-middle">

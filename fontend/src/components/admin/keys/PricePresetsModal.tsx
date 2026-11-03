@@ -101,15 +101,15 @@ export function PricePresetsModal({
             <div className="grid grid-cols-1 sm:grid-cols-[1.5fr_1fr_1.2fr_auto] gap-3 items-end">
               <div className="flex flex-col gap-1.5">
                 <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Tên Gói:' : 'Name:'}</label>
-                <input ref={newPresetNameInputRef} className="w-full px-3 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20" type="text" placeholder="VD: Gói 7 Ngày" value={newPresetName} onChange={e => setNewPresetName(e.target.value)} />
+                <input ref={newPresetNameInputRef} className="w-full px-3 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-black font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20" type="text" placeholder="VD: Gói 7 Ngày" value={newPresetName} onChange={e => setNewPresetName(e.target.value)} />
               </div>
               <div className="flex flex-col gap-1.5">
                 <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Số Ngày:' : 'Days:'}</label>
-                <input className="w-full px-3 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20" type="number" min="1" value={newPresetDays || ''} onChange={e => setNewPresetDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
+                <input className="w-full px-3 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-black font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20" type="number" min="1" value={newPresetDays || ''} onChange={e => setNewPresetDays(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
               </div>
               <div className="flex flex-col gap-1.5">
                 <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600 }}>{lang === 'vi' ? 'Giá (VNĐ):' : 'Price:'}</label>
-                <input className="w-full px-3 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-white font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20" type="number" min="2000" step="1000" value={newPresetPrice || ''} onChange={e => setNewPresetPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
+                <input className="w-full px-3 py-2.5 rounded-lg border border-[#E5E7EB] bg-white text-black font-inherit text-[13px] outline-none transition-all duration-200 focus:border-[#a855f7] focus:ring-[2px] focus:ring-[#a855f7]/20" type="number" min="2000" step="1000" value={newPresetPrice || ''} onChange={e => setNewPresetPrice(e.target.value === '' ? 0 : parseInt(e.target.value.replace(/^0+/, ''), 10) || 0)} />
               </div>
               <div className="flex flex-col gap-1.5">
                 <button type="submit" className="h-[42px] px-4 rounded-lg font-bold text-[13px] text-white cursor-pointer transition-all duration-200 hover:-translate-y-0.5" style={{ background: editingPreset ? 'linear-gradient(135deg, #38bdf8, #0ea5e9)' : 'linear-gradient(135deg, #a855f7, #7e22ce)', border: 'none', boxShadow: editingPreset ? '0 4px 12px rgba(56,189,248,0.4)' : '0 4px 12px rgba(168,85,247,0.4)' }}>
@@ -138,8 +138,8 @@ export function PricePresetsModal({
               <tbody>
                 {presets.map(p => (
                   <tr key={p.id}>
-                    <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white"><strong>{p.name}</strong></td>
-                    <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-white">{p.durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</td>
+                    <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-black"><strong>{p.name}</strong></td>
+                    <td className="p-[18px_20px] border-b border-[#E5E7EB] group-last:border-b-0 align-middle text-black">{p.durationDays} {lang === 'vi' ? 'Ngày' : 'Days'}</td>
                     <td style={{ color: '#10b981', fontWeight: 'bold' }}>{p.price.toLocaleString()} đ</td>
                     <td style={{ textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
