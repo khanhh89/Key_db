@@ -38,6 +38,56 @@ export function FreeKeyNotePage({
   // Time remaining string
   const [timeLeftStr, setTimeLeftStr] = useState<string>('');
 
+  // 5-second countdown loading state when visiting page
+  const [countdown, setCountdown] = useState<number>(5);
+  const [isCountdownFinished, setIsCountdownFinished] = useState<boolean>(false);
+
+  useEffect(() => {
+    setCountdown(5);
+    setIsCountdownFinished(false);
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setIsCountdownFinished(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [slug]);
+
+  const isPageLoading = isLoading || !isCountdownFinished;
+
+  const getCountdownMessage = () => {
+    switch (countdown) {
+      case 5:
+        return lang === 'vi'
+          ? '⚡ Đang kết nối máy chủ bảo mật...'
+          : '⚡ Connecting to secure server...';
+      case 4:
+        return lang === 'vi'
+          ? '🔍 Đang định tuyến liên kết Note Key...'
+          : '🔍 Routing Note Key link...';
+      case 3:
+        return lang === 'vi'
+          ? '🛡️ Đang giải mã danh sách mã bản quyền...'
+          : '🛡️ Decrypting license keys...';
+      case 2:
+        return lang === 'vi'
+          ? '✨ Đang kiểm tra tính hợp lệ & thời hạn...'
+          : '✨ Verifying validity & expiration...';
+      case 1:
+      default:
+        return lang === 'vi'
+          ? '🚀 Sẵn sàng mở khóa trang Note!'
+          : '🚀 Ready to unlock Note!';
+    }
+  };
+
   const loadNote = useCallback(async (pw?: string) => {
     if (!slug) return;
     setIsLoading(true);
@@ -274,26 +324,264 @@ export function FreeKeyNotePage({
 
       {/* MAIN CONTENT CONTAINER */}
       <main style={{ flex: 1, padding: '30px 16px', maxWidth: '780px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
-        {/* 1. LOADING SKELETON */}
-        {isLoading && (
+        {/* 1. 5-SECOND COUNTDOWN LOADING EFFECT */}
+        {isPageLoading && (
           <div
             style={{
               textAlign: 'center',
-              padding: '60px 20px',
-              borderRadius: '20px',
-              background: dark ? 'rgba(30, 41, 59, 0.4)' : 'rgba(255, 255, 255, 0.6)',
-              border: dark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)'
+              padding: '48px 24px',
+              borderRadius: '24px',
+              background: dark
+                ? 'linear-gradient(145deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.8) 100%)'
+                : 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+              border: dark ? '1px solid rgba(56, 189, 248, 0.25)' : '1px solid rgba(14, 165, 233, 0.2)',
+              boxShadow: dark
+                ? '0 20px 50px rgba(0, 0, 0, 0.5), 0 0 35px rgba(56, 189, 248, 0.12)'
+                : '0 20px 40px rgba(14, 165, 233, 0.1)',
+              maxWidth: '540px',
+              margin: '20px auto',
+              position: 'relative',
+              overflow: 'hidden'
             }}
           >
-            <div className="spinner-glow" style={{ width: '40px', height: '40px', margin: '0 auto 16px auto' }} />
-            <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-muted-dark)' }}>
-              ⚡ {lang === 'vi' ? 'Đang tải thông tin trang Note...' : 'Loading Free Key Note...'}
+            {/* Top Glowing Ambient Gradient Line */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '4px',
+                background: 'linear-gradient(90deg, #00f2fe 0%, #38bdf8 50%, #818cf8 100%)'
+              }}
+            />
+
+            {/* Circular Countdown Ring with SVG */}
+            <div
+              style={{
+                position: 'relative',
+                width: '130px',
+                height: '130px',
+                margin: '0 auto 20px auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <svg
+                width="130"
+                height="130"
+                style={{
+                  transform: 'rotate(-90deg)',
+                  filter: dark ? 'drop-shadow(0 0 12px rgba(56, 189, 248, 0.5))' : 'drop-shadow(0 0 8px rgba(14, 165, 233, 0.3))'
+                }}
+              >
+                <defs>
+                  <linearGradient id="countdownGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#00f2fe" />
+                    <stop offset="50%" stopColor="#38bdf8" />
+                    <stop offset="100%" stopColor="#818cf8" />
+                  </linearGradient>
+                </defs>
+                {/* Background track */}
+                <circle
+                  cx="65"
+                  cy="65"
+                  r="54"
+                  stroke={dark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}
+                  strokeWidth="6"
+                  fill="transparent"
+                />
+                {/* Dynamic animated progress circle */}
+                <circle
+                  cx="65"
+                  cy="65"
+                  r="54"
+                  stroke="url(#countdownGradient)"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  fill="transparent"
+                  strokeDasharray={339.29}
+                  strokeDashoffset={339.29 * (1 - Math.min(1, Math.max(0.2, (6 - Math.max(1, countdown)) / 5)))}
+                  style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+                />
+              </svg>
+
+              {/* Centered Large Countdown Number */}
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <span
+                  key={countdown}
+                  style={{
+                    fontSize: '44px',
+                    fontWeight: 900,
+                    lineHeight: 1,
+                    fontFamily: "'Inter', monospace",
+                    background: 'linear-gradient(135deg, #00f2fe 0%, #38bdf8 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    letterSpacing: '-1px'
+                  }}
+                >
+                  {countdown > 0 ? countdown : 1}
+                </span>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1.5px',
+                    color: dark ? '#94a3b8' : '#64748b',
+                    marginTop: '2px'
+                  }}
+                >
+                  {lang === 'vi' ? 'GIÂY' : 'SEC'}
+                </span>
+              </div>
+            </div>
+
+            {/* Step Badge */}
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 12px',
+                borderRadius: '20px',
+                background: 'rgba(56, 189, 248, 0.12)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+                color: '#38bdf8',
+                fontSize: '12px',
+                fontWeight: 700,
+                marginBottom: '12px'
+              }}
+            >
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: '#38bdf8'
+                }}
+              />
+              <span>
+                {lang === 'vi'
+                  ? `HỆ THỐNG ĐANG XỬ LÝ (BƯỚC ${Math.min(5, 6 - Math.max(1, countdown))}/5)`
+                  : `PROCESSING STEP (${Math.min(5, 6 - Math.max(1, countdown))}/5)`}
+              </span>
+            </div>
+
+            {/* Headline */}
+            <h3 style={{ fontSize: '20px', fontWeight: 800, margin: '0 0 8px 0', letterSpacing: '-0.3px' }}>
+              {lang === 'vi' ? 'Đang Tải Trang Note Key...' : 'Loading Free Key Note...'}
+            </h3>
+
+            {/* Animated Status Message */}
+            <p
+              style={{
+                fontSize: '13.5px',
+                color: dark ? '#cbd5e1' : '#475569',
+                margin: '0 auto 18px auto',
+                maxWidth: '400px',
+                lineHeight: 1.5,
+                minHeight: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              {getCountdownMessage()}
+            </p>
+
+            {/* Linear Progress Bar */}
+            <div
+              style={{
+                maxWidth: '340px',
+                margin: '0 auto 22px auto',
+                height: '8px',
+                borderRadius: '99px',
+                background: dark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.08)',
+                overflow: 'hidden',
+                border: dark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+                padding: '1px'
+              }}
+            >
+              <div
+                style={{
+                  height: '100%',
+                  width: `${Math.min(100, Math.max(20, ((6 - Math.max(1, countdown)) / 5) * 100))}%`,
+                  borderRadius: '99px',
+                  background: 'linear-gradient(90deg, #00f2fe 0%, #38bdf8 50%, #818cf8 100%)',
+                  boxShadow: '0 0 10px rgba(0, 242, 254, 0.5)',
+                  transition: 'width 0.9s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              />
+            </div>
+
+            {/* Security Badges */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '8px',
+                flexWrap: 'wrap',
+                fontSize: '11.5px',
+                color: dark ? '#94a3b8' : '#64748b'
+              }}
+            >
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+                  padding: '4px 10px',
+                  borderRadius: '8px',
+                  border: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)'
+                }}
+              >
+                🛡️ {lang === 'vi' ? 'Bảo mật 100%' : '100% Secure'}
+              </span>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+                  padding: '4px 10px',
+                  borderRadius: '8px',
+                  border: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)'
+                }}
+              >
+                ⚡ {lang === 'vi' ? 'Chống Bot Tự Động' : 'Anti-Bot Protected'}
+              </span>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+                  padding: '4px 10px',
+                  borderRadius: '8px',
+                  border: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)'
+                }}
+              >
+                🔑 {lang === 'vi' ? 'Mở khóa tự động' : 'Auto Unlocking'}
+              </span>
             </div>
           </div>
         )}
 
         {/* 2. PASSWORD LOCKED VIEW */}
-        {!isLoading && note?.status === 'LOCKED' && (
+        {!isPageLoading && note?.status === 'LOCKED' && (
           <div
             style={{
               padding: '36px 24px',
@@ -400,7 +688,7 @@ export function FreeKeyNotePage({
         )}
 
         {/* 3. ERROR / EXPIRED / LIMIT_REACHED / INACTIVE / NOT_FOUND VIEWS */}
-        {!isLoading && note && note.status !== 'ACTIVE' && note.status !== 'LOCKED' && (
+        {!isPageLoading && note && note.status !== 'ACTIVE' && note.status !== 'LOCKED' && (
           <div
             style={{
               padding: '40px 24px',
@@ -446,7 +734,7 @@ export function FreeKeyNotePage({
         )}
 
         {/* 4. ACTIVE NOTE VIEW (MAIN SUCCESSFUL DISPLAY) */}
-        {!isLoading && note && note.status === 'ACTIVE' && (
+        {!isPageLoading && note && note.status === 'ACTIVE' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* HERO CARD */}
             <div
