@@ -106,12 +106,43 @@ public class EmailService {
     public String resolveActiveApiKey() {
         BankConfigEntity bankConfig = bankConfigRepository.findAll().stream().findFirst().orElse(null);
         if (bankConfig != null && bankConfig.getMailApiKey() != null && !bankConfig.getMailApiKey().isBlank()) {
-            return bankConfig.getMailApiKey().trim();
+            return decodeApiKeyIfNeeded(bankConfig.getMailApiKey().trim());
         }
-        if (envMailApiKey != null && !envMailApiKey.isBlank()) return envMailApiKey.trim();
-        if (envResendApiKey != null && !envResendApiKey.isBlank()) return envResendApiKey.trim();
-        if (envBrevoApiKey != null && !envBrevoApiKey.isBlank()) return envBrevoApiKey.trim();
+        if (envMailApiKey != null && !envMailApiKey.isBlank()) return decodeApiKeyIfNeeded(envMailApiKey.trim());
+        if (envResendApiKey != null && !envResendApiKey.isBlank()) return decodeApiKeyIfNeeded(envResendApiKey.trim());
+        if (envBrevoApiKey != null && !envBrevoApiKey.isBlank()) return decodeApiKeyIfNeeded(envBrevoApiKey.trim());
         return null;
+    }
+
+    /**
+     * Tự động decode API Key dạng Base64-encoded JSON wrapper (ey...) thành key gốc (xkeysib-... / re_...).
+     * Brevo đôi khi hiển thị key dạng Base64: eyJhcGlfa2V5Ijoi... → {"api_key":"xkeysib-..."}
+     */
+    private String decodeApiKeyIfNeeded(String rawKey) {
+        if (rawKey == null || rawKey.isBlank()) return rawKey;
+        // Nếu key đã ở dạng gốc (xkeysib-, re_), không cần decode
+        if (rawKey.startsWith("xkeysib-") || rawKey.startsWith("re_")) return rawKey;
+        // Phát hiện Base64-encoded JSON (bắt đầu bằng "ey")
+        if (rawKey.startsWith("ey")) {
+            try {
+                String decoded = new String(java.util.Base64.getDecoder().decode(rawKey), StandardCharsets.UTF_8);
+                // Parse JSON wrapper: {"api_key":"xkeysib-..."} hoặc {"identifier":"...","secret":"..."}
+                @SuppressWarnings("unchecked")
+                Map<String, Object> jsonMap = objectMapper.readValue(decoded, Map.class);
+                if (jsonMap.containsKey("api_key")) {
+                    String realKey = jsonMap.get("api_key").toString().trim();
+                    System.out.println(">>> [EmailService] Auto-decoded Base64 API Key → " + realKey.substring(0, Math.min(12, realKey.length())) + "...");
+                    return realKey;
+                }
+                if (jsonMap.containsKey("key")) {
+                    return jsonMap.get("key").toString().trim();
+                }
+            } catch (Exception e) {
+                // Không phải Base64 JSON hợp lệ, trả về nguyên bản
+                System.out.println(">>> [EmailService] API Key starts with 'ey' but is not valid Base64 JSON, using as-is.");
+            }
+        }
+        return rawKey;
     }
 
     public JavaMailSender getActiveMailSender() {
