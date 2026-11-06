@@ -5,11 +5,10 @@ interface FloatingWidgetProps {
   config: SystemConfig;
   lang: Language;
   onOpenFeedback?: () => void;
-  onOpenAiChat?: () => void;
   isHidden?: boolean;
 }
 
-export function FloatingWidget({ config, lang, onOpenFeedback, onOpenAiChat, isHidden }: FloatingWidgetProps) {
+export function FloatingWidget({ config, lang, onOpenFeedback, isHidden }: FloatingWidgetProps) {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -34,41 +33,7 @@ export function FloatingWidget({ config, lang, onOpenFeedback, onOpenAiChat, isH
 
   return (
     <div className="floating-widgets-container">
-      {/* 1. AI Smart Assistant Button */}
-      {onOpenAiChat && (
-        <button
-          onClick={onOpenAiChat}
-          className="float-btn float-ai-btn hover-lift"
-          title={lang === 'vi' ? 'Trợ lý ảo AI tư vấn 24/7' : '24/7 AI Smart Assistant'}
-          style={{
-            background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
-            color: '#ffffff',
-            fontWeight: 800,
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            borderRadius: '24px',
-            padding: '10px 16px',
-            cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(139, 92, 246, 0.4), 0 0 12px rgba(59, 130, 246, 0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '7px'
-          }}
-        >
-          <span style={{ fontSize: '16px' }}>🤖</span>
-          <span>{lang === 'vi' ? 'Trợ Lý AI' : 'AI Assistant'}</span>
-          <span
-            style={{
-              width: '7px',
-              height: '7px',
-              borderRadius: '50%',
-              background: '#10b981',
-              boxShadow: '0 0 6px #10b981'
-            }}
-          />
-        </button>
-      )}
-
-      {/* 2. Quick Anonymous Feedback Button */}
+      {/* 1. Quick Anonymous Feedback Button */}
       {onOpenFeedback && (
         <button
           onClick={onOpenFeedback}
