@@ -18,6 +18,7 @@ import { FeedbackModal } from '../components/modals/FeedbackModal';
 import { FeedbackHistoryModal } from '../components/modals/FeedbackHistoryModal';
 import { syncDeviceWithBackend } from '../services/feedbackApi';
 import { Footer } from '../components/layout/Footer';
+import { FlashSaleBanner } from '../components/common/FlashSaleBanner';
 
 interface HomePageProps {
   dark: boolean;
@@ -338,6 +339,7 @@ export function HomePage({
       <div className="gradient-glow-orb orb-2" />
       <div className="gradient-glow-orb orb-3" />
 
+      <FlashSaleBanner lang={lang} />
       <Navbar
         lang={lang}
         setLang={setLang}

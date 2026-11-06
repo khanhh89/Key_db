@@ -68,6 +68,28 @@ export function AppCard({
 
   return (
     <article className="app-card hover-lift">
+      {/* SALE Corner Badge */}
+      {app.allowSellKey !== false && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '-2px',
+            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+            color: '#ffffff',
+            fontSize: '10px',
+            fontWeight: 900,
+            padding: '3px 8px 3px 6px',
+            borderRadius: '4px 0 0 4px',
+            letterSpacing: '0.5px',
+            boxShadow: '-2px 2px 8px rgba(239, 68, 68, 0.5)',
+            zIndex: 3,
+            lineHeight: 1.4
+          }}
+        >
+          🔥 SALE
+        </div>
+      )}
       {/* Holographic Laser Scanner Overlay Animation */}
       <div className="scanner-overlay">
         <div className="scanner-line" />

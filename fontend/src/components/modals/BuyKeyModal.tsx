@@ -22,6 +22,7 @@ import { copyTextToClipboard } from '../../utils/clipboard';
 import { isKeyBelongToApp } from '../../utils/keyUtils';
 import { verifyCustomerPaymentInBackend } from '../../services/ordersApi';
 import { parseVietQrEmvCo, buildVietQrDeeplink } from '../../utils/bankUtils';
+import { getFlashSaleOriginalPrice } from '../../utils/flashSale';
 
 const COMMON_BANKS = [
   { id: 'mb', name: 'MB Bank', shortName: 'MB', color: '#1B1464' },
@@ -923,20 +924,89 @@ Chính sách: Bảo hành 100% trọn đời gói. Tuyệt đối không chia s�
                 </p>
               </div>
             ) : (
-              <div className="packages-grid">
-                {packageOptions.map((pkg) => (
-                  <button
-                    key={pkg.days}
-                    className="package-card"
-                    disabled={isCreating}
-                    onClick={() => handleCreateOrder(pkg.days, pkg.price)}
-                  >
-                    {pkg.isHot && <div className="pkg-badge">HOT</div>}
-                    <div className="pkg-days">{pkg.label}</div>
-                    <div className="pkg-price">{pkg.price.toLocaleString()} đ</div>
-                  </button>
-                ))}
-              </div>
+              <>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '8px 12px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%)',
+                    border: '1px solid rgba(239, 68, 68, 0.35)',
+                    marginBottom: '12px',
+                    fontSize: '12px'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, color: '#f87171' }}>
+                    <span>🔥</span>
+                    <span>FLASH SALE GIỜ VÀNG (-30%)</span>
+                  </div>
+                  <div style={{ color: '#fde047', fontWeight: 700, fontSize: '11px' }}>
+                    ⚡ Giá đã giảm trực tiếp bên dưới!
+                  </div>
+                </div>
+
+                <div className="packages-grid">
+                  {packageOptions.map((pkg) => {
+                    const oldPrice = getFlashSaleOriginalPrice(pkg.price);
+                    return (
+                      <button
+                        key={pkg.days}
+                        className="package-card"
+                        disabled={isCreating}
+                        onClick={() => handleCreateOrder(pkg.days, pkg.price)}
+                        style={{ position: 'relative' }}
+                      >
+                        {/* -30% Tag */}
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: '-8px',
+                            left: '-6px',
+                            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                            color: '#ffffff',
+                            fontSize: '10px',
+                            fontWeight: 900,
+                            padding: '2px 6px',
+                            borderRadius: '6px',
+                            boxShadow: '0 2px 6px rgba(239, 68, 68, 0.4)',
+                            letterSpacing: '0.3px',
+                            zIndex: 2
+                          }}
+                        >
+                          -30%
+                        </div>
+                        {pkg.isHot && <div className="pkg-badge">HOT</div>}
+                        <div className="pkg-days">{pkg.label}</div>
+                        {/* Strikethrough Old Price */}
+                        <div
+                          style={{
+                            fontSize: '11px',
+                            textDecoration: 'line-through',
+                            color: '#94a3b8',
+                            marginTop: '4px'
+                          }}
+                        >
+                          {oldPrice.toLocaleString()} đ
+                        </div>
+                        {/* Flash Sale Red Hot Price (The exact configured price) */}
+                        <div
+                          className="pkg-price"
+                          style={{
+                            color: '#ef4444',
+                            fontWeight: 900,
+                            fontSize: '15px',
+                            marginTop: '2px'
+                          }}
+                        >
+                          {pkg.price.toLocaleString()} đ
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </div>
         ) : order.status === 'PAID' && order.deliveredKey ? (
