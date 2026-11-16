@@ -318,7 +318,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           <button
             type="button"
-            className="bg-white border border-[#CBD5E1] text-[#334155] px-3.5 py-2.5 rounded-xl font-heading font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1.5 hover:bg-[#F8FAFC] hover:border-[#94A3B8] shadow-sm"
+            className="flex-1 sm:flex-initial justify-center bg-white border border-[#CBD5E1] text-[#334155] px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl font-heading font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1.5 hover:bg-[#F8FAFC] hover:border-[#94A3B8] shadow-sm"
             onClick={handleRefresh}
             title="Tải lại dữ liệu kho mới nhất"
           >
@@ -327,7 +327,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
 
           <button
             type="button"
-            className="bg-white border border-[#CBD5E1] text-[#334155] px-3.5 py-2.5 rounded-xl font-heading font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1.5 hover:bg-[#F8FAFC] hover:border-[#94A3B8] shadow-sm"
+            className="flex-1 sm:flex-initial justify-center bg-white border border-[#CBD5E1] text-[#334155] px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl font-heading font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1.5 hover:bg-[#F8FAFC] hover:border-[#94A3B8] shadow-sm"
             onClick={handleCopyAllAvailable}
             title="Sao chép toàn bộ mã Key còn hàng đang hiển thị"
           >
@@ -336,7 +336,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
 
           <button
             type="button"
-            className="bg-white border border-[#CBD5E1] text-[#334155] px-3.5 py-2.5 rounded-xl font-heading font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1.5 hover:bg-[#F8FAFC] hover:border-[#94A3B8] shadow-sm"
+            className="flex-1 sm:flex-initial justify-center bg-white border border-[#CBD5E1] text-[#334155] px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl font-heading font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1.5 hover:bg-[#F8FAFC] hover:border-[#94A3B8] shadow-sm"
             onClick={() => setIsPresetsManagerOpen(true)}
           >
             ⚙️ {lang === 'vi' ? 'Bảng Giá Mẫu' : 'Price Presets'}
@@ -344,7 +344,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
 
           <button
             type="button"
-            className="bg-white border border-[#CBD5E1] text-[#334155] px-3.5 py-2.5 rounded-xl font-heading font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1.5 hover:bg-[#F8FAFC] hover:border-[#94A3B8] shadow-sm"
+            className="flex-1 sm:flex-initial justify-center bg-white border border-[#CBD5E1] text-[#334155] px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl font-heading font-bold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1.5 hover:bg-[#F8FAFC] hover:border-[#94A3B8] shadow-sm"
             onClick={exportKeysToCSV}
           >
             📥 {lang === 'vi' ? 'Xuất CSV' : 'Export CSV'}
@@ -352,7 +352,7 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
 
           <button
             type="button"
-            className="bg-[#2563EB] border-0 text-white px-4 py-2.5 rounded-xl font-heading font-extrabold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1.5 hover:-translate-y-0.5 hover:bg-[#1D4ED8] shadow-[0_4px_12px_rgba(37,99,235,0.3)]"
+            className="flex-1 sm:flex-initial justify-center bg-[#2563EB] border-0 text-white px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl font-heading font-extrabold text-xs cursor-pointer transition-all duration-200 flex items-center gap-1.5 hover:-translate-y-0.5 hover:bg-[#1D4ED8] shadow-sm"
             onClick={() => { setEditingKey(null); setIsModalOpen(true); }}
           >
             + {lang === 'vi' ? 'Nạp Key Mới' : 'Import Keys'}

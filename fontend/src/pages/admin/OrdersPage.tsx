@@ -179,10 +179,10 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
       </div>
 
       {/* NAVIGATION TABS */}
-      <div className="flex gap-2.5 mb-5 flex-wrap">
+      <div className="grid grid-cols-2 md:flex gap-2 sm:gap-2.5 mb-4 sm:mb-5">
         <button
           type="button"
-          className={`px-5 py-3 rounded-[14px] font-heading font-bold text-[13px] cursor-pointer transition-all duration-200 ${activeTab === 'orders' ? 'bg-[#2563EB] text-[#ffffff] border-0 shadow-[0_4px_14px_rgba(37,99,235,0.35)]' : 'border border-[#E5E7EB] bg-[#F8FAFC] text-[#64748B] hover:text-[#2563EB] hover:border-[#2563EB]'}`}
+          className={`px-3 sm:px-5 py-2.5 sm:py-3 rounded-[12px] sm:rounded-[14px] font-heading font-bold text-xs sm:text-[13px] text-center justify-center flex items-center cursor-pointer transition-all duration-200 ${activeTab === 'orders' ? 'bg-[#2563EB] text-[#ffffff] border-0 shadow-[0_4px_14px_rgba(37,99,235,0.35)]' : 'border border-[#E5E7EB] bg-[#F8FAFC] text-[#64748B] hover:text-[#2563EB] hover:border-[#2563EB]'}`}
           onClick={() => handleTabChange('orders')}
         >
           📋 {lang === 'vi' ? 'Danh Sách Đơn Hàng' : 'Orders List'} ({orders.length})
@@ -190,7 +190,7 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
 
         <button
           type="button"
-          className={`px-5 py-3 rounded-[14px] font-heading font-bold text-[13px] cursor-pointer transition-all duration-200 ${activeTab === 'payos' ? 'bg-[#2563EB] text-[#ffffff] border-0 shadow-[0_4px_14px_rgba(37,99,235,0.35)]' : 'border border-[#E5E7EB] bg-[#F8FAFC] text-[#64748B] hover:text-[#2563EB] hover:border-[#2563EB]'}`}
+          className={`px-3 sm:px-5 py-2.5 sm:py-3 rounded-[12px] sm:rounded-[14px] font-heading font-bold text-xs sm:text-[13px] text-center justify-center flex items-center cursor-pointer transition-all duration-200 ${activeTab === 'payos' ? 'bg-[#2563EB] text-[#ffffff] border-0 shadow-[0_4px_14px_rgba(37,99,235,0.35)]' : 'border border-[#E5E7EB] bg-[#F8FAFC] text-[#64748B] hover:text-[#2563EB] hover:border-[#2563EB]'}`}
           onClick={() => handleTabChange('payos')}
         >
           ⚡ {lang === 'vi' ? 'Cấu Hình PayOS Gateway' : 'PayOS Gateway Config'}
@@ -198,7 +198,7 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
 
         <button
           type="button"
-          className={`px-5 py-3 rounded-[14px] font-heading font-bold text-[13px] cursor-pointer transition-all duration-200 ${activeTab === 'bank' ? 'bg-[#2563EB] text-[#ffffff] border-0 shadow-[0_4px_14px_rgba(37,99,235,0.35)]' : 'border border-[#E5E7EB] bg-[#F8FAFC] text-[#64748B] hover:text-[#2563EB] hover:border-[#2563EB]'}`}
+          className={`px-3 sm:px-5 py-2.5 sm:py-3 rounded-[12px] sm:rounded-[14px] font-heading font-bold text-xs sm:text-[13px] text-center justify-center flex items-center cursor-pointer transition-all duration-200 ${activeTab === 'bank' ? 'bg-[#2563EB] text-[#ffffff] border-0 shadow-[0_4px_14px_rgba(37,99,235,0.35)]' : 'border border-[#E5E7EB] bg-[#F8FAFC] text-[#64748B] hover:text-[#2563EB] hover:border-[#2563EB]'}`}
           onClick={() => handleTabChange('bank')}
         >
           🏦 {lang === 'vi' ? 'Tài Khoản VietQR' : 'VietQR Bank Account'}
@@ -206,7 +206,7 @@ export function OrdersPage({ lang, showToast }: OrdersPageProps) {
 
         <button
           type="button"
-          className={`px-5 py-3 rounded-[14px] font-heading font-bold text-[13px] cursor-pointer transition-all duration-200 ${activeTab === 'mail' ? 'bg-[#2563EB] text-[#ffffff] border-0 shadow-[0_4px_14px_rgba(37,99,235,0.35)]' : 'border border-[#E5E7EB] bg-[#F8FAFC] text-[#64748B] hover:text-[#2563EB] hover:border-[#2563EB]'}`}
+          className={`px-3 sm:px-5 py-2.5 sm:py-3 rounded-[12px] sm:rounded-[14px] font-heading font-bold text-xs sm:text-[13px] text-center justify-center flex items-center cursor-pointer transition-all duration-200 ${activeTab === 'mail' ? 'bg-[#2563EB] text-[#ffffff] border-0 shadow-[0_4px_14px_rgba(37,99,235,0.35)]' : 'border border-[#E5E7EB] bg-[#F8FAFC] text-[#64748B] hover:text-[#2563EB] hover:border-[#2563EB]'}`}
           onClick={() => handleTabChange('mail')}
         >
           📧 {lang === 'vi' ? 'Cấu Hình Gmail Gửi Key' : 'Gmail Auto-Send Key'}

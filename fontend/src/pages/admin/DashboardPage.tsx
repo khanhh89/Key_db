@@ -176,7 +176,7 @@ export function DashboardPage({
 
       {/* Date Filter Bar */}
       <div className="flex flex-col md:flex-row md:items-center gap-4 bg-white border border-[#E5E7EB] rounded-2xl p-4 backdrop-blur-md">
-        <span className="text-sm font-bold text-white px-2 whitespace-nowrap">🗓️ {lang === 'vi' ? 'Thời gian thống kê:' : 'Stats Filter:'}</span>
+        <span className="text-xs sm:text-sm font-bold text-[#0F172A] dark:text-[#F8FAFC] px-1 sm:px-2 whitespace-nowrap">🗓️ {lang === 'vi' ? 'Thời gian thống kê:' : 'Stats Filter:'}</span>
         <div className="flex flex-wrap gap-2">
           {['ALL', 'TODAY', '7DAYS', '30DAYS'].map((filter) => {
             const labels: any = { ALL: 'Tất cả', TODAY: 'Hôm nay (24h)', '7DAYS': '7 ngày qua', '30DAYS': '30 ngày qua' };

@@ -273,3 +273,75 @@
 .admin-portal button.bg-\[\#2563EB\]:hover {
   background: #1D4ED8 !important;
 }
+
+/* ==========================================================================
+   4. LIGHT THEME CONTRAST & MOBILE SAAS OPTIMIZATIONS
+   ========================================================================== */
+
+/* Fix mistakenly hardcoded text-white in light mode */
+.admin-portal.light td.text-white,
+.admin-portal.light strong.text-white,
+.admin-portal.light h1.text-white,
+.admin-portal.light h2.text-white,
+.admin-portal.light h3.text-white,
+.admin-portal.light p.text-white,
+.admin-portal.light span.text-white:not(button *):not([class*="bg-"]):not(.badge *),
+.admin-portal.light div.text-white:not(button *):not([class*="bg-"]) {
+  color: var(--main-text) !important;
+}
+
+.admin-portal.light input.text-white,
+.admin-portal.light textarea.text-white,
+.admin-portal.light select.text-white {
+  color: #0F172A !important;
+}
+
+/* ADMIN MOBILE RESPONSIVE TWEAKS */
+@media (max-width: 768px) {
+  .admin-body {
+    padding: 10px 10px 30px 10px !important;
+  }
+
+  /* Compact padding for main admin page containers */
+  .admin-portal .bg-white.p-7,
+  .admin-portal .bg-white.p-8,
+  .admin-portal .p-7,
+  .admin-portal .p-8,
+  .admin-portal .rounded-\[24px\],
+  .admin-portal .rounded-\[28px\] {
+    padding: 14px 12px !important;
+    border-radius: 16px !important;
+    gap: 14px !important;
+  }
+
+  .admin-portal h2 {
+    font-size: 16.5px !important;
+  }
+
+  /* Compact tables on small screens */
+  .admin-portal table th,
+  .admin-portal table td {
+    padding: 9px 10px !important;
+    font-size: 12px !important;
+  }
+
+  .admin-portal table th {
+    font-size: 11px !important;
+    letter-spacing: 0.3px !important;
+  }
+
+  /* Admin modals fit mobile smoothly */
+  .admin-portal .w-\[min\(640px\,94vw\)\],
+  .admin-portal .w-\[min\(740px\,100\%\)\],
+  .admin-portal .w-\[min\(680px\,96vw\)\],
+  .admin-portal .w-\[min\(700px\,95vw\)\] {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    padding: 16px 12px !important;
+    border-radius: 18px !important;
+  }
+
+  .admin-portal .grid-cols-2:not(.quick-action-grid):not(.key-stats-grid) {
+    grid-template-columns: 1fr !important;
+  }
+}

@@ -19,64 +19,68 @@ export function DashboardMetricsGrid({
   const navigate = useNavigate();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
       {/* Metric 1: Total Revenue */}
       <div
-        className="bg-white border border-[#E2E8F0] rounded-[12px] p-5 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-[#2563EB]"
+        className="bg-white border border-[#E2E8F0] rounded-[14px] p-3.5 sm:p-5 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-[#2563EB]"
         onClick={() => navigate('/admin/orders')}
       >
-        <div className="flex justify-between items-start mb-3">
-          <span className="text-sm font-semibold text-[#64748B]">{lang === 'vi' ? 'Tổng doanh thu' : 'Total Revenue'}</span>
-          <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-sm">💰</div>
+        <div className="flex justify-between items-start mb-2 sm:mb-3">
+          <span className="text-xs sm:text-sm font-semibold text-[#64748B]">{lang === 'vi' ? 'Tổng doanh thu' : 'Revenue'}</span>
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-xs sm:text-sm shrink-0">💰</div>
         </div>
-        <h2 className="text-2xl font-bold text-white m-0 leading-none">{totalRevenue.toLocaleString('vi-VN')} VNĐ</h2>
-        <div className="text-xs text-[#94A3B8] mt-3 font-medium">
-          <span className="text-[#16A34A]">{paidOrders}</span> {lang === 'vi' ? 'đơn hàng thành công' : 'paid orders'}
+        <h2 className="text-base sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] m-0 leading-tight">
+          {totalRevenue.toLocaleString('vi-VN')} <span className="text-[11px] sm:text-sm font-semibold text-[#64748B]">đ</span>
+        </h2>
+        <div className="text-[11px] sm:text-xs text-[#94A3B8] mt-2 sm:mt-3 font-medium">
+          <span className="text-[#16A34A] font-bold">{paidOrders}</span> {lang === 'vi' ? 'đơn thành công' : 'paid'}
         </div>
       </div>
 
       {/* Metric 2: Orders Count */}
       <div
-        className="bg-white border border-[#E2E8F0] rounded-[12px] p-5 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-[#2563EB]"
+        className="bg-white border border-[#E2E8F0] rounded-[14px] p-3.5 sm:p-5 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-[#2563EB]"
         onClick={() => navigate('/admin/orders')}
       >
-        <div className="flex justify-between items-start mb-3">
-          <span className="text-sm font-semibold text-[#64748B]">{lang === 'vi' ? 'Tổng đơn hàng' : 'Total Orders'}</span>
-          <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-sm">💳</div>
+        <div className="flex justify-between items-start mb-2 sm:mb-3">
+          <span className="text-xs sm:text-sm font-semibold text-[#64748B]">{lang === 'vi' ? 'Tổng đơn hàng' : 'Orders'}</span>
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-xs sm:text-sm shrink-0">💳</div>
         </div>
-        <h2 className="text-2xl font-bold text-white m-0 leading-none">{filteredOrders}</h2>
-        <div className="text-xs text-[#94A3B8] mt-3 font-medium">
-          <span className="text-[#F59E0B]">{pendingOrders}</span> {lang === 'vi' ? 'đơn đang chờ' : 'pending'}
+        <h2 className="text-lg sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] m-0 leading-tight">{filteredOrders}</h2>
+        <div className="text-[11px] sm:text-xs text-[#94A3B8] mt-2 sm:mt-3 font-medium">
+          <span className="text-[#F59E0B] font-bold">{pendingOrders}</span> {lang === 'vi' ? 'đang chờ' : 'pending'}
         </div>
       </div>
 
       {/* Metric 3: Available Keys */}
       <div
-        className="bg-white border border-[#E2E8F0] rounded-[12px] p-5 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-[#2563EB]"
+        className="bg-white border border-[#E2E8F0] rounded-[14px] p-3.5 sm:p-5 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-[#2563EB]"
         onClick={() => navigate('/admin/keys')}
       >
-        <div className="flex justify-between items-start mb-3">
-          <span className="text-sm font-semibold text-[#64748B]">{lang === 'vi' ? 'Kho key' : 'VIP Keys'}</span>
-          <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-sm">🔑</div>
+        <div className="flex justify-between items-start mb-2 sm:mb-3">
+          <span className="text-xs sm:text-sm font-semibold text-[#64748B]">{lang === 'vi' ? 'Kho Key VIP' : 'Keys'}</span>
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-xs sm:text-sm shrink-0">🔑</div>
         </div>
-        <h2 className="text-2xl font-bold text-white m-0 leading-none">{availableKeys} <span className="text-[#94A3B8] text-lg">/ {keys}</span></h2>
-        <div className="text-xs text-[#94A3B8] mt-3 font-medium">
-          {lang === 'vi' ? 'Sẵn sàng cấp tự động' : 'Ready for delivery'}
+        <h2 className="text-lg sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] m-0 leading-tight">
+          {availableKeys} <span className="text-[#94A3B8] text-sm sm:text-lg font-normal">/ {keys}</span>
+        </h2>
+        <div className="text-[11px] sm:text-xs text-[#94A3B8] mt-2 sm:mt-3 font-medium">
+          {lang === 'vi' ? 'Sẵn sàng cấp' : 'Ready'}
         </div>
       </div>
 
       {/* Metric 4: Total Apps */}
       <div
-        className="bg-white border border-[#E2E8F0] rounded-[12px] p-5 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-[#2563EB]"
+        className="bg-white border border-[#E2E8F0] rounded-[14px] p-3.5 sm:p-5 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-[#2563EB]"
         onClick={() => navigate('/admin/apps')}
       >
-        <div className="flex justify-between items-start mb-3">
-          <span className="text-sm font-semibold text-[#64748B]">{lang === 'vi' ? 'Ứng dụng' : 'Apps'}</span>
-          <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-sm">📱</div>
+        <div className="flex justify-between items-start mb-2 sm:mb-3">
+          <span className="text-xs sm:text-sm font-semibold text-[#64748B]">{lang === 'vi' ? 'Ứng dụng' : 'Apps'}</span>
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center text-xs sm:text-sm shrink-0">📱</div>
         </div>
-        <h2 className="text-2xl font-bold text-white m-0 leading-none">{apps}</h2>
-        <div className="text-xs text-[#94A3B8] mt-3 font-medium">
-          <span className="text-[#2563EB]">{services}</span> {lang === 'vi' ? 'dịch vụ & social' : 'services & media'}
+        <h2 className="text-lg sm:text-2xl font-bold text-[#0F172A] dark:text-[#F8FAFC] m-0 leading-tight">{apps}</h2>
+        <div className="text-[11px] sm:text-xs text-[#94A3B8] mt-2 sm:mt-3 font-medium">
+          <span className="text-[#2563EB] font-bold">{services}</span> {lang === 'vi' ? 'dịch vụ & media' : 'services'}
         </div>
       </div>
     </div>

@@ -1216,6 +1216,59 @@
   z-index: 998;
 }
 
+/* ADMIN TOPBAR RESPONSIVE HELPERS */
+.topbar-left-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.topbar-breadcrumb {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.topbar-heading {
+  margin: 0;
+  font-family: var(--font-heading, 'Outfit', sans-serif);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.admin-store-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: bold;
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.admin-portal.light .admin-store-btn {
+  background: #EFF6FF;
+  color: #2563EB;
+  border-color: #BFDBFE;
+}
+
+.system-dot-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  display: inline-block;
+}
+
 /* ADMIN MEDIA BREAKPOINT: <= 900px */
 @media (max-width: 900px) {
   .admin-mobile-toggle-btn {
@@ -1253,41 +1306,101 @@
   }
 
   .admin-topbar {
-    padding: 14px 16px;
+    padding: 10px 14px;
+    min-height: 56px;
+    height: auto;
   }
 
-  .topbar-title h1 {
+  .topbar-heading {
     font-size: 16px;
   }
 
   .admin-body {
-    padding: 16px;
+    padding: 12px;
   }
 
   .key-stats-grid {
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px !important;
+    gap: 8px !important;
   }
 }
 
 /* ADMIN MEDIA BREAKPOINT: <= 600px */
 @media (max-width: 600px) {
-
-  .key-stats-grid {
-    grid-template-columns: 1fr !important;
+  .admin-topbar {
+    padding: 8px 10px !important;
+    min-height: 50px !important;
+    height: auto !important;
   }
 
-  .topbar-right {
-    gap: 8px;
+  .topbar-left-wrap {
+    gap: 8px !important;
+  }
+
+  .topbar-breadcrumb {
+    display: none !important;
+  }
+
+  .topbar-heading {
+    font-size: 14.5px !important;
+    max-width: 135px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .system-pill-text {
+    display: none !important;
+  }
+
+  .system-pill-online {
+    padding: 4px 6px !important;
+  }
+
+  .admin-store-btn-text {
+    display: none !important;
+  }
+
+  .admin-store-btn {
+    padding: 5px 8px !important;
+    font-size: 13px !important;
+  }
+
+  .theme-btn-text {
+    display: none !important;
   }
 
   .admin-theme-btn {
-    padding: 6px 10px;
-    font-size: 11px;
+    padding: 5px 8px !important;
+    font-size: 13px !important;
+  }
+
+  .topbar-right {
+    gap: 6px !important;
   }
 
   .role-pill {
-    display: none;
+    display: none !important;
+  }
+
+  .key-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .key-stat-card {
+    padding: 10px !important;
+    min-height: 85px !important;
+    border-radius: 12px !important;
+  }
+
+  .key-stat-card strong {
+    font-size: 16px !important;
+    margin-top: 4px !important;
+  }
+
+  .key-stat-card span {
+    font-size: 11px !important;
   }
 
   .admin-pagination-bar {

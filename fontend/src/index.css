@@ -4,6 +4,18 @@
 @tailwind components;
 @tailwind utilities;
 
+html, body {
+  overflow-x: hidden !important; /* VIEWPORT SAFETY */
+  max-width: 100vw !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
   --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
@@ -2824,15 +2836,131 @@ footer {
     border-radius: 10px;
   }
 
-  /* Single Column Grids for Mobile */
+  /* Single Column Grids & Symmetric Mobile Boxes */
   .matrix {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .tile {
+    padding: 14px 16px !important;
+    border-radius: 16px !important;
+    gap: 14px !important;
+  }
+
+  .tile i {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    border-radius: 12px !important;
+    font-size: 20px !important;
+  }
+
+  .tile h4 {
+    font-size: 14.5px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .tile p {
+    font-size: 12px !important;
   }
 
   .apps-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .app-card {
+    padding: 16px 14px !important;
+    border-radius: 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+  }
+
+  .app-head {
+    gap: 14px !important;
+  }
+
+  .app-icon {
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+    border-radius: 16px !important;
+    font-size: 22px !important;
+  }
+
+  .app-head h3 {
+    font-size: 16.5px !important;
+    line-height: 1.3 !important;
+  }
+
+  .app-head p {
+    font-size: 12px !important;
+  }
+
+  /* Hero Stats Balanced 2x2 Grid */
+  .hero-stats-bar {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px 14px !important;
+    padding: 14px 16px !important;
+    width: 100% !important;
+    max-width: 360px !important;
+    margin: 0 auto 24px auto !important;
+    box-sizing: border-box !important;
+    border-radius: 18px !important;
+  }
+
+  .stat-divider {
+    display: none !important;
+  }
+
+  .stat-card {
+    padding: 4px 6px !important;
+  }
+
+  .stat-value {
+    font-size: 20px !important;
+  }
+
+  .stat-label {
+    font-size: 10px !important;
+  }
+
+  /* Flash Sale Banner Mobile Center */
+  .flash-sale-banner-wrapper {
+    padding: 8px 10px !important;
+  }
+
+  .flash-sale-inner {
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 6px !important;
+  }
+
+  .flash-sale-left {
+    justify-content: center !important;
+  }
+
+  .flash-sale-sub {
+    display: none !important;
+  }
+
+  .flash-sale-right {
+    width: 100% !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+
+  .flash-sale-title {
+    font-size: 12px !important;
+  }
+
+  .flash-sale-cta-btn {
+    padding: 4px 10px !important;
+    font-size: 11px !important;
   }
 
   .hero {
@@ -4687,3 +4815,123 @@ button:active, a.btn:active, .float-btn:active {
 /* SAAS LIGHT THEME OVERRIDES */
 .cursor-glow-follower, .noise-overlay, .gradient-glow-orb, .rotating-rings-container { display: none !important; }
 .admin-portal { background: #F5F7FB !important; color: #1F2937 !important; }
+
+/* ==========================================================================
+   FLASH SALE BANNER STYLES
+   ========================================================================== */
+.flash-sale-banner-wrapper {
+  background: linear-gradient(90deg, #450a0a 0%, #7f1d1d 25%, #991b1b 50%, #7f1d1d 75%, #450a0a 100%);
+  border-bottom: 1.5px solid rgba(239, 68, 68, 0.45);
+  box-shadow: 0 4px 20px rgba(220, 38, 38, 0.35);
+  color: #ffffff;
+  padding: 8px 16px;
+  position: relative;
+  z-index: 90;
+  overflow: hidden;
+}
+
+.flash-sale-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.flash-sale-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flash-sale-flame {
+  font-size: 20px;
+  animation: bounce 1.5s infinite;
+  display: inline-block;
+}
+
+.flash-sale-heading-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.flash-sale-title {
+  font-weight: 900;
+  font-size: 13.5px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.flash-sale-discount-tag {
+  background: #fef08a;
+  color: #991b1b;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.flash-sale-sub {
+  font-size: 11.5px;
+  color: #fca5a5;
+  margin-top: 1px;
+}
+
+.flash-sale-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.flash-sale-countdown-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.flash-sale-countdown-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fecaca;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
+.flash-sale-digit-box {
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(254, 202, 202, 0.3);
+  border-radius: 6px;
+  padding: 4px 7px;
+  min-width: 24px;
+  text-align: center;
+  font-family: monospace;
+  font-weight: 900;
+  font-size: 13px;
+  color: #fef08a;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.flash-sale-colon {
+  font-weight: 900;
+  color: #fca5a5;
+}
+
+.flash-sale-cta-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #000000;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}

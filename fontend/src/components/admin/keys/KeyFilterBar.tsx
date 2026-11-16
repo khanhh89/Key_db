@@ -31,9 +31,9 @@ export function KeyFilterBar({
   const hasFilter = filterDuration !== 'ALL' || filterAppId !== 'ALL' || filterStatus !== 'ALL' || Boolean(searchQuery.trim());
 
   return (
-    <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-4 md:p-5 flex flex-wrap gap-3.5 items-center shadow-sm">
-      {/* Search Input */}
-      <div className="flex items-center gap-2 flex-1 min-w-[220px] bg-white border border-[#CBD5E1] rounded-xl px-3.5 py-2 transition-all duration-200 focus-within:border-[#2563EB] focus-within:ring-[3px] focus-within:ring-[#2563EB]/15 shadow-sm">
+    <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-3 sm:p-4 md:p-5 flex flex-wrap gap-2.5 sm:gap-3.5 items-center shadow-sm">
+      {/* Search Input - Full width on mobile, flexible on desktop */}
+      <div className="flex items-center gap-2 w-full md:flex-1 min-w-0 md:min-w-[220px] bg-white border border-[#CBD5E1] rounded-xl px-3.5 py-2 transition-all duration-200 focus-within:border-[#2563EB] focus-within:ring-[3px] focus-within:ring-[#2563EB]/15 shadow-sm">
         <span className="text-sm text-[#64748B]">🔍</span>
         <input
           type="text"
@@ -55,12 +55,12 @@ export function KeyFilterBar({
       </div>
 
       {/* Package Filter */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-bold text-[#64748B] whitespace-nowrap">📦 {lang === 'vi' ? 'Gói:' : 'Package:'}</span>
+      <div className="flex items-center gap-1.5 flex-1 min-w-[130px] sm:min-w-[150px]">
+        <span className="text-xs font-bold text-[#64748B] whitespace-nowrap">📦 {lang === 'vi' ? 'Gói:' : 'Pkg:'}</span>
         <select
           value={filterDuration}
           onChange={(e) => { setFilterDuration(e.target.value); setCurrentPage(1); }}
-          className="bg-white border border-[#CBD5E1] text-black text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm"
+          className="w-full bg-white border border-[#CBD5E1] text-black text-xs font-semibold rounded-xl px-2.5 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm"
         >
           <option value="ALL">{lang === 'vi' ? 'Tất cả các gói' : 'All packages'} ({keys.length})</option>
           {uniqueDurations.map((days) => {
@@ -72,12 +72,12 @@ export function KeyFilterBar({
       </div>
 
       {/* App Catalog Filter */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 flex-1 min-w-[130px] sm:min-w-[150px]">
         <span className="text-xs font-bold text-[#64748B] whitespace-nowrap">📱 App:</span>
         <select
           value={filterAppId}
           onChange={(e) => { setFilterAppId(e.target.value); setCurrentPage(1); }}
-          className="bg-white border border-[#CBD5E1] text-black text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm max-w-[170px] truncate"
+          className="w-full bg-white border border-[#CBD5E1] text-black text-xs font-semibold rounded-xl px-2.5 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm truncate"
         >
           <option value="ALL">{lang === 'vi' ? 'Tất cả Apps' : 'All Apps'} ({keys.length})</option>
           {apps.map((a) => (
@@ -89,33 +89,33 @@ export function KeyFilterBar({
       </div>
 
       {/* Status Filter */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 flex-1 min-w-[130px] sm:min-w-[140px]">
         <span className="text-xs font-bold text-[#64748B] whitespace-nowrap">📊 {lang === 'vi' ? 'Kho:' : 'Stock:'}</span>
         <select
           value={filterStatus}
           onChange={(e) => { setFilterStatus(e.target.value as any); setCurrentPage(1); }}
-          className="bg-white border border-[#CBD5E1] text-black text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm"
+          className="w-full bg-white border border-[#CBD5E1] text-black text-xs font-semibold rounded-xl px-2.5 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm"
         >
-          <option value="ALL">{lang === 'vi' ? 'Tất cả trạng thái' : 'All status'}</option>
+          <option value="ALL">{lang === 'vi' ? 'Tất cả' : 'All'}</option>
           <option value="AVAILABLE">● Còn hàng ({countTotalAvailable})</option>
           <option value="SOLD">✓ Đã bán ({keys.length - countTotalAvailable})</option>
         </select>
       </div>
 
       {/* Sort Option */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 flex-1 min-w-[130px] sm:min-w-[140px]">
         <span className="text-xs font-bold text-[#64748B] whitespace-nowrap">↕️ {lang === 'vi' ? 'Xếp:' : 'Sort:'}</span>
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as KeySortOption)}
-          className="bg-white border border-[#CBD5E1] text-black text-xs font-semibold rounded-xl px-3 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm"
+          className="w-full bg-white border border-[#CBD5E1] text-black text-xs font-semibold rounded-xl px-2.5 py-2 outline-none cursor-pointer hover:border-[#2563EB] focus:ring-[3px] focus:ring-[#2563EB]/15 shadow-sm"
         >
-          <option value="NEWEST">⏳ {lang === 'vi' ? 'Mới nhất trước' : 'Newest first'}</option>
-          <option value="OLDEST">⌛ {lang === 'vi' ? 'Cũ nhất trước' : 'Oldest first'}</option>
-          <option value="DURATION_DESC">👑 {lang === 'vi' ? 'Thời hạn: Cao ➔ Thấp' : 'Duration: High to Low'}</option>
-          <option value="DURATION_ASC">⚡ {lang === 'vi' ? 'Thời hạn: Thấp ➔ Cao' : 'Duration: Low to High'}</option>
-          <option value="PRICE_DESC">💰 {lang === 'vi' ? 'Giá: Cao ➔ Thấp' : 'Price: High to Low'}</option>
-          <option value="PRICE_ASC">💵 {lang === 'vi' ? 'Giá: Thấp ➔ Cao' : 'Price: Low to High'}</option>
+          <option value="NEWEST">⏳ {lang === 'vi' ? 'Mới nhất trước' : 'Newest'}</option>
+          <option value="OLDEST">⌛ {lang === 'vi' ? 'Cũ nhất trước' : 'Oldest'}</option>
+          <option value="DURATION_DESC">👑 {lang === 'vi' ? 'Thời hạn: Cao ➔ Thấp' : 'Duration: High'}</option>
+          <option value="DURATION_ASC">⚡ {lang === 'vi' ? 'Thời hạn: Thấp ➔ Cao' : 'Duration: Low'}</option>
+          <option value="PRICE_DESC">💰 {lang === 'vi' ? 'Giá: Cao ➔ Thấp' : 'Price: High'}</option>
+          <option value="PRICE_ASC">💵 {lang === 'vi' ? 'Giá: Thấp ➔ Cao' : 'Price: Low'}</option>
         </select>
       </div>
 
@@ -124,7 +124,7 @@ export function KeyFilterBar({
         <button
           type="button"
           onClick={() => { setFilterDuration('ALL'); setFilterAppId('ALL'); setFilterStatus('ALL'); setSearchQuery(''); setCurrentPage(1); }}
-          className="px-3 py-2 rounded-xl bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] text-xs font-bold cursor-pointer transition-all hover:bg-[#FEE2E2] flex items-center gap-1.5 shadow-sm"
+          className="w-full sm:w-auto px-3 py-2 rounded-xl bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] text-xs font-bold cursor-pointer transition-all hover:bg-[#FEE2E2] flex items-center justify-center gap-1.5 shadow-sm"
           title="Xóa tất cả các điều kiện lọc"
         >
           ✕ {lang === 'vi' ? 'Bỏ lọc' : 'Clear'}
