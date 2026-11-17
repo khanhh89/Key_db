@@ -257,9 +257,11 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     });
   }, [keys, filterAppId, filterStatus, filterDuration, searchQuery, getAppName, getGroupAppNames]);
 
-  // Sorting
+  // Sorting — AVAILABLE keys always float to the top (unless user filters by a specific status)
   const sortedAndFilteredKeys = useMemo(() => {
     const list = [...filteredKeys];
+
+    // Primary sort: secondary sort by selected option first, then stable-sort by status
     if (sortBy === 'NEWEST') {
       list.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     } else if (sortBy === 'OLDEST') {
@@ -273,8 +275,15 @@ export function KeysPage({ lang, apps, showToast }: KeysPageProps) {
     } else if (sortBy === 'PRICE_ASC') {
       list.sort((a, b) => (a.price || 0) - (b.price || 0));
     }
+
+    // Status priority sort (AVAILABLE before SOLD) — only when not already filtering by a single status
+    if (filterStatus === 'ALL') {
+      const statusRank = (s: string) => (s === 'AVAILABLE' ? 0 : 1);
+      list.sort((a, b) => statusRank(a.status) - statusRank(b.status));
+    }
+
     return list;
-  }, [filteredKeys, sortBy]);
+  }, [filteredKeys, sortBy, filterStatus]);
 
   const availableKeys = useMemo(() => keys.filter(k => k.status === 'AVAILABLE'), [keys]);
   const countTotalAvailable = availableKeys.length;
