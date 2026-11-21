@@ -379,11 +379,6 @@ public class PayosService {
                     OrderEntity order = matchedOrder.get();
                     if (!"PAID".equals(order.getStatus())) {
                         OrderService.fulfillOrderKeyStatic(order, licenseKeyRepository, orderRepository);
-                        try {
-                            emailService.sendKeyEmailAsync(order);
-                        } catch (Exception mailErr) {
-                            System.err.println(">>> [Webhook Mail Error] " + mailErr.getMessage());
-                        }
                     }
                     res.put("error", 0);
                     res.put("message", "Payment processed & Key pushed from MySQL CSDL successfully!");

@@ -297,9 +297,9 @@ public class AiChatService {
 
         sb.append("QUY TRÌNH THANH TOÁN & NHẬN KEY VIP:\n");
         sb.append("1. Khách bấm 'Mua Key' trên app muốn mua, chọn gói ngày mong muốn.\n");
-        sb.append("2. Nhập Email (tùy chọn) để nhận backup key, có thể nhập mã giảm giá nếu có.\n");
+        sb.append("2. Có thể nhập mã giảm giá nếu có để nhận ưu đãi.\n");
         sb.append("3. Quét mã VietQR trên màn hình bằng bất kỳ app ngân hàng nào (chuyển đúng số tiền và nội dung chuyển khoản MK...).\n");
-        sb.append("4. Hệ thống VietQR tự động khớp lệnh trong 5-15 giây, hiển thị Key VIP ngay trên màn hình và gửi qua Email!\n\n");
+        sb.append("4. Hệ thống VietQR tự động khớp lệnh trong 5-15 giây và hiển thị Key VIP ngay trên màn hình để sao chép!\n\n");
 
         sb.append("HƯỚNG DẪN CÀI ĐẶT:\n");
         sb.append("• Cho iOS (iPhone / iPad):\n");

@@ -321,11 +321,6 @@ public class OrderService {
 
     public void fulfillOrderKey(OrderEntity order) {
         fulfillOrderKeyStatic(order, licenseKeyRepository, orderRepository);
-        try {
-            emailService.sendKeyEmailAsync(order);
-        } catch (Exception e) {
-            System.err.println(">>> Failed to send email in OrderService: " + e.getMessage());
-        }
     }
 
     public ResponseEntity<?> updateOrderEmail(String id, String email) {
@@ -338,22 +333,15 @@ public class OrderService {
             String cleanEmail = email.trim().toLowerCase();
             order.setCustomerEmail(cleanEmail);
             orderRepository.save(order);
-            // Nếu đơn hàng đã thanh toán và có key, tự động kích hoạt gửi mail ngay
-            if ("PAID".equals(order.getStatus()) && order.getDeliveredKey() != null) {
-                emailService.sendKeyEmailAsync(order);
-            }
         }
         return ResponseEntity.ok(order);
     }
 
     public ResponseEntity<?> resendOrderEmail(String id, String overrideEmail) {
-        Map<String, Object> result = emailService.resendKeyEmail(id, overrideEmail);
-        boolean success = Boolean.TRUE.equals(result.get("success"));
-        if (success) {
-            return ResponseEntity.ok(result);
-        } else {
-            return ResponseEntity.badRequest().body(result);
-        }
+        return ResponseEntity.ok(Map.of(
+                "success", false,
+                "message", "Tính năng gửi email đã tắt. Mã Key VIP được hiển thị trực tiếp trên màn hình."
+        ));
     }
 
     public ResponseEntity<?> deleteOrder(String adminAuth, String id) {

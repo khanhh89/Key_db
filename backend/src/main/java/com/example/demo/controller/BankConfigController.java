@@ -134,11 +134,10 @@ public class BankConfigController {
     @PostMapping("/test-email")
     public ResponseEntity<?> testMailConnection(
             @RequestHeader(value = "X-Admin-Auth", required = false) String adminAuth,
-            @RequestBody java.util.Map<String, String> body) {
+            @RequestBody(required = false) java.util.Map<String, String> body) {
         if (!AdminSecurityUtil.isValidAdmin(adminAuth)) {
             return ResponseEntity.status(403).body("Security Error: Only authenticated Admin can test email connection.");
         }
-        String targetEmail = body != null ? body.get("targetEmail") : null;
-        return ResponseEntity.ok(emailService.testSendEmail(targetEmail));
+        return ResponseEntity.ok(java.util.Map.of("success", false, "message", "Tính năng gửi email đã được gỡ bỏ khỏi hệ thống."));
     }
 }
